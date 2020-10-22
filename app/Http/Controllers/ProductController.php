@@ -23,7 +23,6 @@ class ProductController extends Controller
      */
     public function admin_products(Request $request)
     {
-        
 
         $type = 'In House';
         $col_name = null;

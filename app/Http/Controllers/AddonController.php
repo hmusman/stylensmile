@@ -21,6 +21,7 @@ class AddonController extends Controller
      */
     public function index()
     {
+        
         return view('addons.index');
     }
 

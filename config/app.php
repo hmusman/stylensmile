@@ -177,6 +177,7 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Anand\LaravelPaytmWallet\PaytmWalletServiceProvider::class,
         \Laravel\Passport\PassportServiceProvider::class,
+        KingFlamez\Rave\RaveServiceProvider::class,
         /*
          * Package Service Providers...
          */
@@ -246,6 +247,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'PaytmWallet' => Anand\LaravelPaytmWallet\Facades\PaytmWallet::class,
         'Str' => Illuminate\Support\Str::class,
+        'Rave' => KingFlamez\Rave\Facades\Rave::class,
     ],
 
 ];
