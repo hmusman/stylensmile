@@ -722,9 +722,9 @@ section.home-banner-area {
     border: 1px solid #eee;
     overflow-y: auto;
 }
-.category-sidebar .categories > li:hover .sub-cat-menu {
+/* .category-sidebar .categories > li:hover .sub-cat-menu {
     display: block;
-}
+} */
 .sub-cat-content .sub-cat-list {
     padding: 10px;
     padding-top: 0;
