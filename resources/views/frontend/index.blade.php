@@ -414,11 +414,7 @@
 
 
 
-    <div id="section_best_selling">
-
-
-
-    </div>
+    
 
 
 
@@ -428,7 +424,11 @@
 
     </div>
 
+    <div id="section_best_selling">
 
+
+
+</div>
 
     @if(\App\BusinessSetting::where('type', 'classified_product')->first()->value == 1)
 
