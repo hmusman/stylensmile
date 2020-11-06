@@ -233,15 +233,15 @@ class OrderController extends Controller
 
                 $product_variation = $cartItem['variant'];
 
-                // if($product_variation != null){
-                //     $product_stock = $product->stocks->where('variant', $product_variation)->first();
-                //     $product_stock->qty -= $cartItem['quantity'];
-                //     $product_stock->save();
-                // }
-                // else {
-                //     $product->current_stock -= $cartItem['quantity'];
-                //     $product->save();
-                // }
+                if($product_variation != null){
+                    $product_stock = $product->stocks->where('variant', $product_variation)->first();
+                    $product_stock->qty -= $cartItem['quantity'];
+                    $product_stock->save();
+                }
+                else {
+                    $product->current_stock -= $cartItem['quantity'];
+                    $product->save();
+                }
 
                 $order_detail = new OrderDetail;
                 $order_detail->order_id  =$order->id;
