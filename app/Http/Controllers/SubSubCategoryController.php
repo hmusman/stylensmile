@@ -7,6 +7,8 @@ use App\Category;
 use App\SubSubCategory;
 use App\Brand;
 use App\Product;
+use App\FeedCategory;
+use App\SubCategory;
 use App\Language;
 use Illuminate\Support\Str;
 
@@ -29,6 +31,25 @@ class SubSubCategoryController extends Controller
         return view('subsubcategories.index', compact('subsubcategories', 'sort_search'));
     }
 
+    // feed Categories
+    public function feed_categories(Request $request)
+    {
+        $sort_search =null;
+        $subsubcategories = SubSubCategory::orderBy('created_at', 'desc');
+        if ($request->has('search')){
+            $sort_search = $request->search;
+            $subsubcategories = $subsubcategories->where('name', 'like', '%'.$sort_search.'%');
+        }
+        $subsubcategories = $subsubcategories->paginate(10);
+
+        $totalSub = SubSubCategory::count();
+        $totalassignSub = SubSubCategory::where('feedcat_id','!=',0)->count();
+
+        $feedCategories = FeedCategory::all();
+
+        return view('subsubcategories.feed_categories', compact('subsubcategories', 'sort_search','feedCategories','totalSub','totalassignSub'));
+    }
+    // 
     /**
      * Show the form for creating a new resource.
      *
@@ -195,4 +216,20 @@ class SubSubCategoryController extends Controller
     //     }
     //     return $attributes;
     // }
+
+    public function maping_categories(Request $request){
+
+        $id =  $request->subcatId;
+        $feedId =  $request->feedid;
+
+        $subsubcategory = SubCategory::findOrFail($id);
+        $subsubcategory->feedcat_id = $feedId;
+        if ($subsubcategory->save()) {
+            
+            return 1;
+        }else{
+
+            return 0;
+        }
+    }
 }

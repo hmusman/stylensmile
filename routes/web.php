@@ -29,7 +29,8 @@
 Route::get('/demo/cron_1', 'DemoController@cron_1');
 
 Route::get('/demo/cron_2', 'DemoController@cron_2');
-
+Route::get('/products/xml-feed','ProductController@xmlFeed');
+Route::get('/products/fb-xml-feed','ProductController@xmlFbFeed');
 
 
 // Route::get('helloworld', function() {
