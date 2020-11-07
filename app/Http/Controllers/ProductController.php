@@ -9,7 +9,7 @@ use App\Category;
 use App\Language;
 use Auth;
 use App\SubSubCategory;
-use App\SubSubCategory;
+use App\SubCategory;
 use Session;
 use ImageOptimizer;
 use DB;
