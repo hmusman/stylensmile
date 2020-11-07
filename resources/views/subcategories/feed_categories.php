@@ -2,7 +2,11 @@
 
 @section('content')
 
-
+<div class="row">
+    <div class="col-sm-12">
+        <a href="{{ route('subcategories.create')}}" class="btn btn-rounded btn-info pull-right">{{translate('Add New Subcategory')}}</a>
+    </div>
+</div>
 
 <br>
 
@@ -27,7 +31,8 @@
                 <tr>
                     <th>#</th>
                     <th>{{translate('Subcategory')}}</th>
-                    <th>{{translate('google Category')}}</th>
+                    <th>{{translate('Category')}}</th>
+                    <th width="10%">{{translate('Options')}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,19 +41,17 @@
                         <tr>
                             <td>{{ ($key+1) + ($subcategories->currentPage() - 1)*$subcategories->perPage() }}</td>
                             <td>{{__($subcategory->name)}}</td>
-                            <td colspan="3">
-
-                                <select class="form-control" style="background: green;color: #fff" id="subcat_id{{$subcategory->id }}" onchange="assignCategory(this,{{ $subcategory->id }})">
-                                        <option value="0">none</option>
-                                   @foreach($feedCategories as $feedcategory)
-                                    @if($subcategory->feedcat_id == $feedcategory->feed_id)
-
-                                            <option value="{{ $feedcategory->feed_id }}" selected>{{ $feedcategory->feed_id }}-{{ $feedcategory->name }}</option>
-                                    @else
-                                            <option value="{{ $feedcategory->feed_id }}">{{ $feedcategory->feed_id }}-{{ $feedcategory->name }}</option>
-                                    @endif    
-                                   @endforeach     
-                                </select>    
+                            <td>{{$subcategory->category->name}}</td>
+                            <td>
+                                <div class="btn-group dropdown">
+                                    <button class="btn btn-primary dropdown-toggle dropdown-toggle-icon" data-toggle="dropdown" type="button">
+                                        {{translate('Actions')}} <i class="dropdown-caret"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="{{route('subcategories.edit', encrypt($subcategory->id))}}">{{translate('Edit')}}</a></li>
+                                        <li><a onclick="confirm_modal('{{route('subcategories.destroy', $subcategory->id)}}');">{{translate('Delete')}}</a></li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @endif
