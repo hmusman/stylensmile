@@ -21,8 +21,8 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 	Route::get('/subcategories/destroy/{id}', 'SubCategoryController@destroy')->name('subcategories.destroy');
 
 	Route::resource('subsubcategories','SubSubCategoryController');
-	Route::get('/feed-categries','SubSubCategoryController@feed_categories')->name('subsubcategories.feedcategories');
-	Route::post('/map-feed-categories','SubSubCategoryController@maping_categories')->name('subsubcategories.mapfeedcategories');
+	Route::get('/feed-categries','SubCategoryController@feed_categories')->name('subsubcategories.feedcategories');
+	Route::post('/map-feed-categories','SubCategoryController@maping_categories')->name('subsubcategories.mapfeedcategories');
 	Route::get('/subsubcategories/destroy/{id}', 'SubSubCategoryController@destroy')->name('subsubcategories.destroy');
 
 	Route::resource('brands','BrandController');
