@@ -386,7 +386,9 @@ Route::group(['middleware' => ['auth']], function(){
 	Route::post('/products/sku_combination_edit', 'ProductController@sku_combination_edit')->name('products.sku_combination_edit');
 
 	Route::post('/products/featured', 'ProductController@updateFeatured')->name('products.featured');
-
+	
+	Route::post('/products/google-feed', 'ProductController@updateGoogleFeed')->name('products.googlefeed');
+	Route::post('/products/facebook-feed', 'ProductController@updateFacebookFeed')->name('products.facebookfeed');
 	Route::post('/products/published', 'ProductController@updatePublished')->name('products.published');
 
 
