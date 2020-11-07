@@ -7,6 +7,7 @@ use App\SubCategory;
 use App\SubSubCategory;
 use App\Category;
 use App\Product;
+use App\FeedCategory;
 use App\Language;
 use Illuminate\Support\Str;
 
