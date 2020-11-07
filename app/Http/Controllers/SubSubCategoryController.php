@@ -41,6 +41,7 @@ class SubSubCategoryController extends Controller
             $subsubcategories = $subsubcategories->where('name', 'like', '%'.$sort_search.'%');
         }
         $subsubcategories = $subsubcategories->paginate(10);
+        print_r($subsubcategories);
 
         $totalSub = SubCategory::count();
         $totalassignSub = SubCategory::where('feedcat_id','!=',0)->count();
