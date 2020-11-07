@@ -35,15 +35,15 @@ class SubSubCategoryController extends Controller
     public function feed_categories(Request $request)
     {
         $sort_search =null;
-        $subsubcategories = SubSubCategory::orderBy('created_at', 'desc');
+        $subsubcategories = SubCategory::orderBy('created_at', 'desc');
         if ($request->has('search')){
             $sort_search = $request->search;
             $subsubcategories = $subsubcategories->where('name', 'like', '%'.$sort_search.'%');
         }
         $subsubcategories = $subsubcategories->paginate(10);
 
-        $totalSub = SubSubCategory::count();
-        $totalassignSub = SubSubCategory::where('feedcat_id','!=',0)->count();
+        $totalSub = SubCategory::count();
+        $totalassignSub = SubCategory::where('feedcat_id','!=',0)->count();
 
         $feedCategories = FeedCategory::all();
 
