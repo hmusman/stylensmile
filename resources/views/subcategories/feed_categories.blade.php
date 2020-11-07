@@ -69,3 +69,27 @@
 </div>
 
 @endsection
+@section('script')
+    <script type="text/javascript">
+        
+          $(document).ready(function () {
+              $('select').selectize({
+                  sortField: 'text'
+              });
+          });
+
+        function assignCategory(set,id){
+
+            var feedid   = set.value;
+            var subcatId = id;
+            $.post('{{ route('subsubcategories.mapfeedcategories') }}', {_token:'{{ csrf_token() }}', subcatId:id, feedid:feedid}, function(data){
+                if(data == 1){
+                    showAlert('success', 'Google Feed updated successfully');
+                }
+                else{
+                    showAlert('danger', 'Something went wrong');
+                }
+            });
+        }
+    </script>
+@endsection
