@@ -771,7 +771,7 @@ class ProductController extends Controller
         $channelNode->appendChild($doc->createElement('title', 'Style and Smile'));
         $channelNode->appendChild($doc->createElement('description', 'Online Shopping Store'));
         $channelNode->appendChild($doc->createElement('link', 'https://stylensmile.pk/'));
-
+        $categoryname;
         foreach ($products as $key => $product) {
             // $category = Category::where('id',$product->category_id)->value('name');
             // $subcategory = SubCategory::where('id',$product->subcategory_id)->value('name');
