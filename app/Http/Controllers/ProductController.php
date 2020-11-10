@@ -10,6 +10,7 @@ use App\Language;
 use Auth;
 use App\Brand;
 use App\SubSubCategory;
+use App\FeedCategory;
 use App\SubCategory;
 use Session;
 use ImageOptimizer;
