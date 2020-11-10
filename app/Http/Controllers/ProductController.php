@@ -768,9 +768,9 @@ class ProductController extends Controller
         $rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:g', $nsUrl);
 
         $channelNode = $rootNode->appendChild($doc->createElement('channel'));
-        $channelNode->appendChild($doc->createElement('title', 'Multi Junction'));
+        $channelNode->appendChild($doc->createElement('title', 'Style and Smile'));
         $channelNode->appendChild($doc->createElement('description', 'Online Shopping Store'));
-        $channelNode->appendChild($doc->createElement('link', 'https://multijunction.co.za/'));
+        $channelNode->appendChild($doc->createElement('link', 'https://stylensmile.pk/'));
 
         foreach ($products as $key => $product) {
             // $category = Category::where('id',$product->category_id)->value('name');
@@ -838,9 +838,9 @@ class ProductController extends Controller
         $rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:g', $nsUrl);
 
         $channelNode = $rootNode->appendChild($doc->createElement('channel'));
-        $channelNode->appendChild($doc->createElement('title', 'Multi Junction'));
+        $channelNode->appendChild($doc->createElement('title', 'Style and Smile'));
         $channelNode->appendChild($doc->createElement('description', 'Online Shopping Store'));
-        $channelNode->appendChild($doc->createElement('link', 'https://multijunction.co.za/'));
+        $channelNode->appendChild($doc->createElement('link', 'https://stylensmile.pk/'));
 
         foreach ($products as $key => $product) {
             $title =  $product->name;
