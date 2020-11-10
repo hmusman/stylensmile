@@ -795,7 +795,7 @@ class ProductController extends Controller
                 
                 $brand = Brand::where('id',$product->brand_id)->value('name');
             }
-            if (!empty($product->description) && strlen($product->description) < 900) {
+            if (!empty($product->description) && strlen($product->description) < 999) {
                 
                 $description = $product->description;
             }else{
