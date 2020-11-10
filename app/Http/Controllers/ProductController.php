@@ -775,7 +775,7 @@ class ProductController extends Controller
         foreach ($products as $key => $product) {
             // $category = Category::where('id',$product->category_id)->value('name');
             // $subcategory = SubCategory::where('id',$product->subcategory_id)->value('name');
-            if (!empty($product->subsubcategory_id)) {
+            if (!empty($product->subcategory_id)) {
                 
                 $feed_id = SubCategory::where('id',$product->subcategory_id)->value('feedcat_id');
                 if ($feed_id != 0) {
