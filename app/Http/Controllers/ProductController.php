@@ -803,7 +803,7 @@ class ProductController extends Controller
             }
             
             $title =  $product->name;
-            $price = $product->unit_price-$product->discount.' ZAR';
+            $price = $product->unit_price-$product->discount.' PKR';
             $itemNode = $channelNode->appendChild($doc->createElement('item'));
 
             $itemNode->appendChild($doc->createElement('g:id'))->appendChild($doc->createTextNode($product->id));
