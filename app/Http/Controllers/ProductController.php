@@ -8,6 +8,7 @@ use App\ProductStock;
 use App\Category;
 use App\Language;
 use Auth;
+use App\Brand;
 use App\SubSubCategory;
 use App\SubCategory;
 use Session;
