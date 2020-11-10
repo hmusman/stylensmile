@@ -18,6 +18,7 @@
 <meta name="keywords" content="@yield('meta_keywords', $seosetting->keyword)">
 <meta name="author" content="{{ $seosetting->author }}">
 <meta name="sitemap_link" content="{{ $seosetting->sitemap_link }}">
+<meta name="google-site-verification" content="Mje926auMEL3TDMp80mjNpWdrpjj5R6bhsXeVSZkJD8" />
 
 @yield('meta')
 
