@@ -8,14 +8,10 @@ use App\ProductStock;
 use App\Category;
 use App\Language;
 use Auth;
-use App\Brand;
 use App\SubSubCategory;
-use App\FeedCategory;
-use App\SubCategory;
 use Session;
 use ImageOptimizer;
 use DB;
-use DOMDocument;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -53,36 +49,7 @@ class ProductController extends Controller
 
         return view('products.index', compact('products','type', 'col_name', 'query', 'sort_search'));
     }
-    // products_feed
 
-    public function products_feed(Request $request)
-    {
-        //CoreComponentRepository::instantiateShopRepository();
-
-        $type = 'In House';
-        $col_name = null;
-        $query = null;
-        $sort_search = null;
-
-        $products = Product::where('added_by', 'admin');
-
-        if ($request->type != null){
-            $var = explode(",", $request->type);
-            $col_name = $var[0];
-            $query = $var[1];
-            $products = $products->orderBy($col_name, $query);
-            $sort_type = $request->type;
-        }
-        if ($request->search != null){
-            $products = $products
-                        ->where('name', 'like', '%'.$request->search.'%');
-            $sort_search = $request->search;
-        }
-
-        $products = $products->where('digital', 0)->orderBy('created_at', 'desc')->paginate(100);
-
-        return view('products.product-feed', compact('products','type', 'col_name', 'query', 'sort_search'));
-    }
     /**
      * Display a listing of the resource.
      *
@@ -732,133 +699,5 @@ class ProductController extends Controller
         $combinations = combinations($options);
         return view('partials.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
-
-    // Google feed
-
-    public function updateGoogleFeed(Request $request){
-
-        $product = Product::findOrFail($request->id);
-        $product->google = $request->status;
-        if($product->save()){
-            return 1;
-        }
-        return 0;
-    }
-    //
-    public function updateFacebookFeed(Request $request){
-
-        $product = Product::findOrFail($request->id);
-        $product->facebook = $request->status;
-        if($product->save()){
-            return 1;
-        }
-        return 0;
-    }
-    //
-    public function xmlFbFeed(){
-
-        $products = Product::where('facebook','Yes')->where('current_stock','>',0)->get();
-        $url     = url('/');
-        // return response()->view('feed',compact('product','url'))->header('Content-Type', 'text/xml');
-        $nsUrl = 'http://base.google.com/ns/1.0';
-
-        $doc = new DOMDocument('1.0', 'UTF-8');
-
-        $rootNode = $doc->appendChild($doc->createElement('rss'));
-        $rootNode->setAttribute('version', '2.0');
-        $rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:g', $nsUrl);
-
-        $channelNode = $rootNode->appendChild($doc->createElement('channel'));
-        $channelNode->appendChild($doc->createElement('title', 'Style and Smile'));
-        $channelNode->appendChild($doc->createElement('description', 'Online Shopping Store'));
-        $channelNode->appendChild($doc->createElement('link', 'https://stylensmile.pk/'));
-        $categoryname;
-        foreach ($products as $key => $product) {
-            // $category = Category::where('id',$product->category_id)->value('name');
-            // $subcategory = SubCategory::where('id',$product->subcategory_id)->value('name');
-            if (!empty($product->subcategory_id)) {
-                
-                $feed_id = SubCategory::where('id',$product->subcategory_id)->value('feedcat_id');
-                if ($feed_id != 0) {
-                    
-                    $categoryname = FeedCategory::where('feed_id',$feed_id)->value('name');
-                }
-                else{
-
-                    $category = Category::where('id',$product->category_id)->value('name');
-                    $subcategory = SubCategory::where('id',$product->subcategory_id)->value('name');
-                    $categoryname = $category.' >'.$subcategory;
-                }
-                
-            }
-            if (!empty($product->brand_id)) {
-                
-                $brand = Brand::where('id',$product->brand_id)->value('name');
-            }
-            if (!empty($product->description) && strlen($product->description) < 999) {
-                
-                $description = $product->description;
-            }else{
-
-                $description = "Please read Description on our website.";
-            }
-            
-            $title =  $product->name;
-            $price = $product->unit_price-$product->discount.' PKR';
-            $itemNode = $channelNode->appendChild($doc->createElement('item'));
-
-            $itemNode->appendChild($doc->createElement('g:id'))->appendChild($doc->createTextNode($product->id));
-            $itemNode->appendChild($doc->createElement('g:title'))->appendChild($doc->createTextNode($title));
-            $itemNode->appendChild($doc->createElement('g:description'))->appendChild($doc->createTextNode($description));
-            $itemNode->appendChild($doc->createElement('g:link'))->appendChild($doc->createTextNode($url.'/product/'.$product->slug));
-            $itemNode->appendChild($doc->createElement('g:image_link'))->appendChild($doc->createTextNode($url.'/public/'.$product->thumbnail_img));
-            $itemNode->appendChild($doc->createElement('g:price'))->appendChild($doc->createTextNode($price));
-            $itemNode->appendChild($doc->createElement('g:availability'))->appendChild($doc->createTextNode('in stock'));
-            $itemNode->appendChild($doc->createElement('g:condition'))->appendChild($doc->createTextNode('new'));
-            $itemNode->appendChild($doc->createElement('g:google_product_category'))->appendChild($doc->createTextNode($categoryname));
-            $itemNode->appendChild($doc->createElement('g:brand'))->appendChild($doc->createTextNode($brand));
-        }
-        echo $doc->saveXML();
-    }
-
-
-    // 
-    //XML FEED
-
-    public function xmlFeed(){
-
-        $products = Product::where('google','Yes')->where('current_stock','>',0)->get();
-        $url     = url('/');
-        // return response()->view('feed',compact('product','url'))->header('Content-Type', 'text/xml');
-        $nsUrl = 'http://base.google.com/ns/1.0';
-
-        $doc = new DOMDocument('1.0', 'UTF-8');
-
-        $rootNode = $doc->appendChild($doc->createElement('rss'));
-        $rootNode->setAttribute('version', '2.0');
-        $rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:g', $nsUrl);
-
-        $channelNode = $rootNode->appendChild($doc->createElement('channel'));
-        $channelNode->appendChild($doc->createElement('title', 'Style and Smile'));
-        $channelNode->appendChild($doc->createElement('description', 'Online Shopping Store'));
-        $channelNode->appendChild($doc->createElement('link', 'https://stylensmile.pk/'));
-
-        foreach ($products as $key => $product) {
-            $title =  $product->name;
-            $price = $product->unit_price-$product->discount;
-            $price = $price.' ZAR';
-            $itemNode = $channelNode->appendChild($doc->createElement('item'));
-
-            $itemNode->appendChild($doc->createElement('g:id'))->appendChild($doc->createTextNode($product->id));
-            $itemNode->appendChild($doc->createElement('g:title'))->appendChild($doc->createTextNode($title));
-            $itemNode->appendChild($doc->createElement('g:link'))->appendChild($doc->createTextNode($url.'/product/'.$product->slug));
-            $itemNode->appendChild($doc->createElement('g:image_link'))->appendChild($doc->createTextNode($url.'/public/'.$product->thumbnail_img));
-            $itemNode->appendChild($doc->createElement('g:price'))->appendChild($doc->createTextNode($price));
-            $itemNode->appendChild($doc->createElement('g:availability'))->appendChild($doc->createTextNode('in stock'));
-            
-        }
-        echo $doc->saveXML();
-    }
-
 
 }
