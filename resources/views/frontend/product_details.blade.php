@@ -840,7 +840,7 @@
     		$('#share').jsSocials({
     			showLabel: false,
                 showCount: false,
-                shares: ["email", "twitter", "facebook", "linkedin", "pinterest", "stumbleupon", "whatsapp"]
+                shares: ["twitter", "facebook", "linkedin", "pinterest", "stumbleupon", "whatsapp"]
     		});
             getVariantPrice();
     	});

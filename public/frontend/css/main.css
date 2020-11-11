@@ -722,9 +722,9 @@ section.home-banner-area {
     border: 1px solid #eee;
     overflow-y: auto;
 }
-.category-sidebar .categories > li:hover .sub-cat-menu {
+/* .category-sidebar .categories > li:hover .sub-cat-menu {
     display: block;
-}
+} */
 .sub-cat-content .sub-cat-list {
     padding: 10px;
     padding-top: 0;
@@ -1782,7 +1782,8 @@ button.paction.add-compare:hover {
     left: 12px;
 }
 .home-slider-full .home-slide-item {
-    height: 352px !important;
+    height: 0% !important;
+    width: 100% !important;
 }
 
 .home-slide img {
@@ -2381,7 +2382,7 @@ ul.seller-brand-list .brand-item {
     color: #fff;
 }
 .product-box-2.alt-box .product-image img {
-    height: 200px;
+    height: 100%;
 }
 .product-box-2.alt-box .product-btns {
     right: auto;

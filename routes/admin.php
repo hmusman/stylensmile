@@ -21,12 +21,15 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 	Route::get('/subcategories/destroy/{id}', 'SubCategoryController@destroy')->name('subcategories.destroy');
 
 	Route::resource('subsubcategories','SubSubCategoryController');
+	Route::get('/feed-categries','SubCategoryController@feed_categories')->name('subsubcategories.feedcategories');
+	Route::post('/map-feed-categories','SubCategoryController@maping_categories')->name('subsubcategories.mapfeedcategories');
 	Route::get('/subsubcategories/destroy/{id}', 'SubSubCategoryController@destroy')->name('subsubcategories.destroy');
 
 	Route::resource('brands','BrandController');
 	Route::get('/brands/destroy/{id}', 'BrandController@destroy')->name('brands.destroy');
 
 	Route::get('/products/admin','ProductController@admin_products')->name('products.admin');
+	Route::get('/products/feed','ProductController@products_feed')->name('products.feed');
 	Route::get('/products/seller','ProductController@seller_products')->name('products.seller');
 	Route::get('/products/create','ProductController@create')->name('products.create');
 	Route::get('/products/admin/{id}/edit','ProductController@admin_product_edit')->name('products.admin.edit');

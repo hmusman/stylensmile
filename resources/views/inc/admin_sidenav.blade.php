@@ -106,6 +106,12 @@
                                     <li class="{{ areActiveRoutes(['products.admin', 'products.create', 'products.admin.edit'])}}">
                                         <a class="nav-link" href="{{route('products.admin')}}">{{translate('In House Products')}}</a>
                                     </li>
+                                    <li class="{{ areActiveRoutes(['subsubcategories.feedcategories'])}}">
+                                        <a class="nav-link" href="{{route('subsubcategories.feedcategories')}}">{{translate('Categories Mapping For Feed')}}</a>
+                                    </li>
+                                    <li class="{{ areActiveRoutes(['products.feed'])}}">
+                                        <a class="nav-link" href="{{route('products.feed')}}">{{translate('Products Feed')}}</a>
+                                    </li>
                                     @if(\App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
                                         <li class="{{ areActiveRoutes(['products.seller', 'products.seller.edit'])}}">
                                             <a class="nav-link" href="{{route('products.seller')}}">{{translate('Seller Products')}}</a>
