@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row">
-    <div class="col-lg-12 pull-right">
-        <a href="{{ route('customers.create') }}" class="btn btn-rounded btn-info pull-right">Add New</a>
+    <div class="col-sm-12">
+        <!-- <a href="{{ route('sellers.create')}}" class="btn btn-info pull-right">{{translate('add_new')}}</a> -->
     </div>
 </div>
 
