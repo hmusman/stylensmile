@@ -63,11 +63,11 @@
                 </div>
             </div>
         </section>
-        <section class="py-3 gry-bg">
+        <section class="py-3 gry-bg" style="display: none;">
             <div class="container">
                 <div class="row cols-xs-space cols-sm-space cols-md-space">
                     <div class="col-lg-8">
-                        <form action="{{ route('payment.checkout') }}" class="form-default" data-toggle="validator" role="form" method="POST" id="checkout-form">
+                        <form action="{{ route('payment.checkout') }}" class="form-default" data-toggle="validator" role="form" method="POST" id="payment_select">
                             @csrf
                             <div class="card">
                                 <div class="card-title px-4 py-3">
@@ -312,6 +312,7 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
+            document.getElementById("payment_select").submit();
             $(".online_payment").click(function(){
                 $('#manual_payment_description').parent().addClass('d-none');
             });
