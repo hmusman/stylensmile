@@ -48,7 +48,8 @@ class ReviewController extends Controller
      */
     public function create()
     {
-        //
+        $users = User::where('user_type','customer')->get();
+        return view('reviews.create',compact('users'));
     }
 
     /**
@@ -61,7 +62,7 @@ class ReviewController extends Controller
     {
         $review = new Review;
         $review->product_id = $request->product_id;
-        $review->user_id = Auth::user()->id;
+        $review->user_id = $request->user_id;
         $review->rating = $request->rating;
         $review->comment = $request->comment;
         $review->viewed = '0';
@@ -74,8 +75,8 @@ class ReviewController extends Controller
                 $product->rating = 0;
             }
             $product->save();
-            flash(translate('Review has been submitted successfully'))->success();
-            return back();
+            flash(translate('Review has been added successfully'))->success();
+            return redirect()->route('reviews.index');
         }
         flash(translate('Something went wrong'))->error();
         return back();

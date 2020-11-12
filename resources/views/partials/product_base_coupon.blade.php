@@ -97,7 +97,14 @@
       </select>
    </div>
 </div>
-
+<div class="form-group">
+     <div class="col-lg-2"></div>
+    <div class="col-lg-3">
+        <div class="checkbox">
+          <label><input type="checkbox" name="multiple_use" value="1">Multiple Use</label>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
 

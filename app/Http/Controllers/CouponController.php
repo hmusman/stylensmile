@@ -53,6 +53,7 @@ class CouponController extends Controller
               $coupon->discount_type = $request->discount_type;
               $coupon->start_date = strtotime($request->start_date);
               $coupon->end_date = strtotime($request->end_date);
+              if($request->has('multiple_use')){ $coupon->multiple_use = $request->multiple_use; }else{$coupon->multiple_use = 0;}
               $cupon_details = array();
               for($key = 0; $key < count($request->category_ids)-1; $key++) {
                   $data['category_id'] = $request->category_ids[$key];
@@ -78,6 +79,7 @@ class CouponController extends Controller
               $coupon->discount_type = $request->discount_type;
               $coupon->start_date = strtotime($request->start_date);
               $coupon->end_date = strtotime($request->end_date);
+              if($request->has('multiple_use')){ $coupon->multiple_use = $request->multiple_use; }else{$coupon->multiple_use = 0;}
               $data = array();
               $data['min_buy'] = $request->min_buy;
               $data['max_discount'] = $request->max_discount;
@@ -133,6 +135,7 @@ class CouponController extends Controller
             $coupon->discount_type = $request->discount_type;
             $coupon->start_date = strtotime($request->start_date);
             $coupon->end_date = strtotime($request->end_date);
+              if($request->has('multiple_use')){ $coupon->multiple_use = $request->multiple_use; }else{$coupon->multiple_use = 0;}
             $cupon_details = array();
             for($key = 0; $key < count($request->category_ids)-1; $key++) {
                 $data['category_id'] = $request->category_ids[$key];
@@ -158,6 +161,7 @@ class CouponController extends Controller
             $coupon->discount_type = $request->discount_type;
             $coupon->start_date = strtotime($request->start_date);
             $coupon->end_date = strtotime($request->end_date);
+            if($request->has('multiple_use')){ $coupon->multiple_use = $request->multiple_use; }else{$coupon->multiple_use = 0;}
             $data = array();
             $data['min_buy'] = $request->min_buy;
             $data['max_discount'] = $request->max_discount;
