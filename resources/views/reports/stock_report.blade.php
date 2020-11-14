@@ -18,8 +18,12 @@
         </form>
     </div>
 
-
-    <div class="col-md-offset-2 col-md-8">
+    <div class="col-md-offset-1 col-md-10">
+         <div class="row">
+            <div class=" col-lg-12 pull-right">
+                <a href="{{ route('stock_report_download')}}@if(Request::has('category_id'))?category_id=@php echo Request::get('category_id') @endphp @endif" class="btn btn-rounded btn-info pull-right " style="margin-bottom: 10px;">Download Stock Report</a>
+            </div>
+        </div>
         <div class="panel">
             <!--Panel heading-->
             <div class="panel-heading">
@@ -33,6 +37,8 @@
                         <thead>
                             <tr>
                                 <th>{{ translate('Product Name') }}</th>
+                                <th>{{ translate('Product Tag') }}</th>
+                                <th>{{ translate('Product Size') }}</th>
                                 <th>{{ translate('Stock') }}</th>
                             </tr>
                         </thead>
@@ -49,10 +55,16 @@
                                         $qty = $product->current_stock;
                                     }
                                 @endphp
-                                <tr>
-                                    <td>{{ __($product->name) }}</td>
-                                    <td>{{ $qty }}</td>
-                                </tr>
+                                @if($product->variant_product)
+                                    @foreach ($product->stocks as $key => $stock)
+                                        <tr>
+                                            <td>{{ __($product->name) }}</td>
+                                            <td>{{ __($product->tags) }}</td>
+                                            <td>{{ $stock->variant }}</td>
+                                            <td>{{ $stock->qty }}</td>
+                                        </tr>
+                                    @endforeach
+                                @endif                               
                             @endforeach
                         </tbody>
                     </table>

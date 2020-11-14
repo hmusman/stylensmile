@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Product;
 use App\Seller;
 use App\User;
-
+use PDF;
 class ReportController extends Controller
 {
     public function stock_report(Request $request)
@@ -62,5 +62,23 @@ class ReportController extends Controller
             $products = Product::all();
         }
         return view('reports.wish_report', compact('products'));
+    }
+
+    //downloads stock report
+    public function stock_report_download(Request $request)
+    {
+        if($request->has('category_id')){
+            $products = Product::where('category_id', $request->category_id)->get();
+        }
+        else{
+            $products = Product::all();
+        }
+        
+        $pdf = PDF::setOptions([
+                        'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+                        'logOutputFile' => storage_path('logs/log.htm'),
+                        'tempDir' => storage_path('logs/')
+                    ])->loadView('reports.stock_report_download', compact('products'));
+        return $pdf->download('stock-report-'.date('d-m-Y').'.pdf');
     }
 }
