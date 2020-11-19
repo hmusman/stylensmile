@@ -20,6 +20,11 @@
 
 
     <div class="col-md-offset-2 col-md-8">
+        <div class="row">
+            <div class=" col-lg-12 pull-right">
+                <a href="{{ route('sale_report_download')}}@if(Request::has('category_id'))?category_id=@php echo Request::get('category_id') @endphp @endif" class="btn btn-rounded btn-info pull-right " style="margin-bottom: 10px;">Download Sale Report</a>
+            </div>
+        </div>
         <div class="panel">
             <!--Panel heading-->
             <div class="panel-heading">
