@@ -33,6 +33,8 @@
                         <thead>
                             <tr>
                                 <th>{{ translate('Product Name') }}</th>
+                                <th>{{ translate('Product Tag') }}</th>
+                                <th>{{ translate('Product Size') }}</th>
                                 <th>{{ translate('Num of Sale') }}</th>
                             </tr>
                         </thead>
@@ -40,7 +42,9 @@
                             @foreach ($products as $key => $product)
                                 <tr>
                                     <td>{{ __($product->name) }}</td>
-                                    <td>{{ $product->num_of_sale }}</td>
+                                    <td>{{ __($product->tags) }}</td>
+                                    <td>{{ __($product->variation) }}</td>
+                                    <td>{{ $product->total }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

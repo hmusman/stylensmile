@@ -7,6 +7,7 @@ use App\Product;
 use App\Seller;
 use App\User;
 use PDF;
+use DB;
 class ReportController extends Controller
 {
     public function stock_report(Request $request)
@@ -23,10 +24,11 @@ class ReportController extends Controller
     public function in_house_sale_report(Request $request)
     {
         if($request->has('category_id')){
-            $products = Product::where('category_id', $request->category_id)->orderBy('num_of_sale', 'desc')->get();
+            $products = DB::select('select products.name,products.tags,COUNT(order_details.product_id) as total,order_details.variation from products join order_details on products.id=order_details.product_id where products.category_id='.$request->category_id.' GROUP by order_details.product_id,order_details.variation');
         }
         else{
-            $products = Product::orderBy('num_of_sale', 'desc')->get();
+
+            $products = DB::select('select products.name,products.tags,COUNT(order_details.product_id) as total,order_details.variation from products join order_details on products.id=order_details.product_id GROUP by order_details.product_id,order_details.variation');
         }
         return view('reports.in_house_sale_report', compact('products'));
     }
@@ -80,5 +82,25 @@ class ReportController extends Controller
                         'tempDir' => storage_path('logs/')
                     ])->loadView('reports.stock_report_download', compact('products'));
         return $pdf->download('stock-report-'.date('d-m-Y').'.pdf');
+    }
+
+    //downloads salr report
+    public function sale_report_download(Request $request)
+    {
+        if($request->has('category_id')){
+            
+            $products = DB::select('select products.name,products.tags,COUNT(order_details.product_id) as total,order_details.variation from products join order_details on products.id=order_details.product_id where products.category_id='.$request->category_id.' GROUP by order_details.product_id,order_details.variation');
+        }
+        else{
+
+            $products = DB::select('select products.name,products.tags,COUNT(order_details.product_id) as total,order_details.variation from products join order_details on products.id=order_details.product_id GROUP by order_details.product_id,order_details.variation');
+        }
+
+        $pdf = PDF::setOptions([
+                        'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+                        'logOutputFile' => storage_path('logs/log.htm'),
+                        'tempDir' => storage_path('logs/')
+                    ])->loadView('reports.sale_report_download', compact('products'));
+        return $pdf->download('sale-report-'.date('d-m-Y').'.pdf');
     }
 }
