@@ -1,3 +1,16 @@
+.whatsapp {
+    width: 100px;
+    height: 100px;
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 9;
+}
+.whatsapp a img {
+    width: 100%;
+}
+.my-btn-border{ border: 1px solid black !important;border-radius: 2px 2px !important; }
+.my-btn-border i { font-size: 22px !important; }
 
 .dropdown-menu-right .dropdown-menu,
 .navbar-right .dropdown-menu .dropdown-menu,
@@ -22352,3 +22365,9 @@ pre {
 .bg-youtube {
 	background-color:#E62117;
 }
+.mybtn{ width: 100% !important; }
+.mybtn-50 { width: 46% !important;}
+.mybtn-top-bottom-padding-margin{ padding-top: 9px !important;padding-bottom: 9px !important;margin-left: 7% !important; }
+.mybtn-margin-left-2 { margin-left: 2% !important;}
+.mymargin-left-zero{ margin-left: 0px !important;  }
+.mymargin-top{ margin-top: 20px !important;  }

@@ -498,6 +498,7 @@ class ProductController extends Controller
 
         $combinations = combinations($options);
         if(count($combinations[0]) > 0){
+            ProductStock::where('product_id', $product->id)->delete();
             $product->variant_product = 1;
             foreach ($combinations as $key => $combination){
                 $str = '';
@@ -516,11 +517,8 @@ class ProductController extends Controller
                     }
                 }
 
-                $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
-                if($product_stock == null){
-                    $product_stock = new ProductStock;
-                    $product_stock->product_id = $product->id;
-                }
+                $product_stock = new ProductStock;
+                $product_stock->product_id = $product->id;
 
                 $product_stock->variant = $str;
                 $product_stock->price = $request['price_'.str_replace('.', '_', $str)];

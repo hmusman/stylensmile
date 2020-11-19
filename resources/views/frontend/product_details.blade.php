@@ -291,19 +291,37 @@
 
                             <div class="d-table width-100 mt-3">
                                 <div class="d-table-cell">
+                                     @php
+                                        $enquiry=my_asset(json_decode($detailedProduct->photos)[0]);
+                                        $generalsetting = \App\GeneralSetting::first();
+                                    @endphp
                                     <!-- Buy Now button -->
                                     @if ($qty > 0)
-                                        <button type="button" class="btn btn-styled btn-base-1 btn-icon-left strong-700 hov-bounce hov-shaddow buy-now" onclick="buyNow()">
+                                         <button type="button" class=" mymargin-left-zero mybtn btn btn-styled btn-alt-base-1 c-white btn-icon-left strong-700 hov-bounce hov-shaddow ml-2 add-to-cart" onclick="addToCart()">
+                                            <i class="la la-shopping-cart"></i>
+                                            {{ translate('Add to cart')}}
+                                        </button>
+
+                                        <button type="button" class="mymargin-top mybtn-50 btn btn-styled btn-base-1 btn-icon-left strong-700 " onclick="buyNow()">
                                             <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                         </button>
-                                        <button type="button" class="btn btn-styled btn-alt-base-1 c-white btn-icon-left strong-700 hov-bounce hov-shaddow ml-2 add-to-cart" onclick="addToCart()">
-                                            <i class="la la-shopping-cart"></i>
-                                            <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
-                                        </button>
+                                       
+                                       <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                            <i class="la la-whatsapp"></i>
+                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
+                                            <span> {{ translate('Add To Enquiry')}}</span>
+                                        </a>
                                     @else
-                                        <button type="button" class="btn btn-styled btn-base-3 btn-icon-left strong-700" disabled>
+                                        <button type="button" class="mybtn-50 btn btn-styled btn-base-3 btn-icon-left strong-700 mymargin-top" disabled>
                                             <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
                                         </button>
+
+                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                            <i class="la la-whatsapp"></i>
+                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
+                                            <span> {{ translate('Add To Enquiry')}}</span>
+                                        </a>
+
                                     @endif
                                 </div>
                             </div>

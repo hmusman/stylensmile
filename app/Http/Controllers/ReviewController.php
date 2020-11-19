@@ -7,7 +7,7 @@ use App\Review;
 use App\Product;
 use Auth;
 use DB;
-
+use App\User;
 class ReviewController extends Controller
 {
     /**

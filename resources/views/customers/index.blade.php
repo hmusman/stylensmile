@@ -3,8 +3,8 @@
 @section('content')
 
 <div class="row">
-    <div class="col-sm-12">
-        <!-- <a href="{{ route('sellers.create')}}" class="btn btn-info pull-right">{{translate('add_new')}}</a> -->
+    <div class="col-lg-12 pull-right">
+        <a href="{{ route('customers.create') }}" class="btn btn-rounded btn-info pull-right">Add New</a>
     </div>
 </div>
 
@@ -12,6 +12,7 @@
 
 <!-- Basic Data Tables -->
 <!--===================================================-->
+
 <div class="panel">
     <div class="panel-heading bord-btm clearfix pad-all h-100">
         <h3 class="panel-title pull-left pad-no">{{translate('Customers')}}</h3>

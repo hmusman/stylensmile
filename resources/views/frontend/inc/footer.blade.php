@@ -1,4 +1,12 @@
+@php
+    $generalsetting = \App\GeneralSetting::first();
+@endphp
+<div class="whatsapp text-center">
+   <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested." target="_blank" class="pc_btn"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
 
+    <a class="mobile_btn" style="display:none;" href="whatsapp://send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested." target="_blank"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
+
+</div>
 <section class="slice-sm footer-top-bar bg-white">
     <div class="container sct-inner">
         <div class="row no-gutters">
@@ -44,9 +52,7 @@
     <div class="footer-top">
         <div class="container">
             <div class="row cols-xs-space cols-sm-space cols-md-space">
-                @php
-                    $generalsetting = \App\GeneralSetting::first();
-                @endphp
+                
                 <div class="col-lg-5 col-xl-4 text-center text-md-left">
                     <div class="col">
                         <a href="{{ route('home') }}" class="d-block">

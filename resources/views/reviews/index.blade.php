@@ -4,6 +4,12 @@
 
 <!-- Basic Data Tables -->
 <!--===================================================-->
+<div class="row">
+    <div class="col-lg-12 pull-right" style="margin-bottom: 10px;">
+        <a href="{{ route('reviews.create') }}" class="btn btn-rounded btn-info pull-right">Add New</a>
+    </div>
+</div>
+
 <div class="panel">
     <div class="panel-heading bord-btm clearfix pad-all h-100">
         <h3 class="panel-title pull-left pad-no">{{translate('Product Reviews')}}</h3>
