@@ -201,6 +201,13 @@
 
                             <hr>
 
+                            <!-- Trigger the size chart modal -->
+                            <div class="row"  style="margin-bottom: 10px !important; ">
+                                <div class="col-sm-12">
+                                    <button type="button" class="btn btn-secondary pull-right" data-toggle="modal" data-target="#size_chart_modal">Size Chart Modal</button>
+                                </div>
+                            </div>
+
                             <form id="option-choice-form">
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
@@ -306,7 +313,7 @@
                                             <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                         </button>
                                        
-                                       <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                       <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
                                             <i class="la la-whatsapp"></i>
                                             <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
                                             <span> {{ translate('Add To Enquiry')}}</span>
@@ -316,7 +323,7 @@
                                             <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
                                         </button>
 
-                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
                                             <i class="la la-whatsapp"></i>
                                             <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
                                             <span> {{ translate('Add To Enquiry')}}</span>
@@ -776,6 +783,130 @@
                         <button type="submit" class="btn btn-base-1 btn-styled">{{ translate('Send')}}</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- size chart modal -->
+    <div class="modal fade " id="size_chart_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
+            <div class="modal-content position-relative">
+                <div class="modal-header">
+                    <h5 class="modal-title strong-600 heading-5">{{ translate('Size Chart Modal')}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body gry-bg px-3 pt-3">
+                    <style> .mychartable tbody tr td{ text-align: center !importnat;}</style>
+                   <table class="table table-borderd mychartable">
+                       <tbody>
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Men</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
+                            </tr>
+
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">40</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">42</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">43</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">44</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">45</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;border-top: 1px solid #6c757d !important;">46</td>
+                            </tr>
+
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Women</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Local</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">-</td>
+                            </tr>
+
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">UK</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">4</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">5</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
+
+                             <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">36</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">37</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">38</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">39</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
+
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Kids</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
+                            </tr>
+
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">25</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">26</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">27</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">28</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">29</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">30</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">32</td>
+                            </tr>
+
+                             <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">13</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">1</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">2</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
+
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">33</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">34</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">35</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">36</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                            </tr>
+
+                       </tbody>
+                   </table>
+                </div>
+                
             </div>
         </div>
     </div>

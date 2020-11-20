@@ -2,9 +2,9 @@
     $generalsetting = \App\GeneralSetting::first();
 @endphp
 <div class="whatsapp text-center">
-   <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested." target="_blank" class="pc_btn"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
+   <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested." target="_blank" class="pc_btn"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
 
-    <a class="mobile_btn" style="display:none;" href="whatsapp://send?phone={{ $generalsetting->phone }}&amp;text=Hi! i'm interested." target="_blank"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
+    <a class="mobile_btn" style="display:none;" href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested." target="_blank"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
 
 </div>
 <section class="slice-sm footer-top-bar bg-white">
