@@ -57,7 +57,7 @@
 
     <!--Custom Stylesheet [ REQUIRED ]-->
     <link href="{{ static_asset('css/custom.css')}}" rel="stylesheet">
-
+    <link href="{{ static_asset('css/highcharts.css')}}" rel="stylesheet">
 
     <!--JAVASCRIPT-->
     <!--=================================================-->
@@ -117,6 +117,10 @@
 
     <!--Custom JavaScript [ REQUIRED ]-->
     <script src="{{ static_asset('js/custom.js')}}"></script>
+
+    <script type="text/javascript" src="{{ static_asset('js/highcharts.js') }}"></script>
+    <script type="text/javascript" src="{{ static_asset('js/highcharts-3d.js') }}"></script>
+    <script type="text/javascript" src="{{ static_asset('js/highcharts-exporting.js') }}"></script>
 
     <script type="text/javascript">
 

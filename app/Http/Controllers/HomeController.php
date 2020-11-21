@@ -27,7 +27,10 @@ use Cookie;
 use Illuminate\Support\Str;
 use App\Mail\SecondEmailVerifyMailManager;
 use Mail;
-
+use App\OrderDetail;
+use Carbon\Carbon;
+use App\GeneralSetting;
+use DB;
 class HomeController extends Controller
 {
     public function login()
@@ -100,7 +103,25 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        return view('dashboard');
+        $todaySale= OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->sum('price');
+        $currentWeekSale= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('price');
+        $currentWeekOrders= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
+        $todayOrders = OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->count();
+        $ordersTarget = GeneralSetting::first()->orders_target;
+        $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from order_details GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
+       
+       $orderscount;
+       $ordersweek;
+       foreach($weekorderscount as $data)
+       {
+            $orderscount[] = $data->total;
+            $ordersweek[] = $data->week;
+       }
+        
+       $orderscount = json_encode($orderscount);
+       $ordersweek = json_encode($ordersweek);
+
+        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount']));
     }
 
     /**

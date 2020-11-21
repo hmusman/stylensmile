@@ -86,6 +86,14 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="google_plus">{{translate('One Day Orders Target')}}</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="orders_target" name="orders_target" value="{{ $generalsetting->orders_target }}" class="form-control">
+                        </div>
+                    </div>
+
                 <div class="panel-footer text-right">
                     <button class="btn btn-purple" type="submit">{{translate('Save')}}</button>
                 </div>
