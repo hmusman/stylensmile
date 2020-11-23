@@ -119,10 +119,13 @@ class HomeController extends Controller
             $ordersweek[] = $data->week;
        }
        
+       $totalSale= Order::get()->sum('grand_total');
+       $totalPaidSale= Order::where('payment_status', 'paid')->get()->sum('grand_total');
+       $totalUnpaidSale= Order::where('payment_status', 'unpaid')->get()->sum('grand_total');
        $orderscount = json_encode($orderscount);
        $ordersweek = json_encode($ordersweek);
 
-        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount']));
+        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount','totalSale','totalPaidSale','totalUnpaidSale']));
     }
 
     /**

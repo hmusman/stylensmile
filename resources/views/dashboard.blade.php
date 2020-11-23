@@ -11,6 +11,142 @@
         </div>
     </div>
 @endif
+
+@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
+    <div class="row">
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget dash-widget-left">
+                <div class="dash-widget-vertical">
+                    <div class="rorate">{{translate('Sale')}}</div>
+                </div>
+                <br>
+                <p class="text-normal text-main">{{translate('Today Sale')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $todaySale }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget">
+                <br>
+                <p class="text-normal text-main">{{translate('Current Week Sale ')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $currentWeekSale }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget">
+                <br>
+                <p class="text-normal text-main">{{translate('Current Week Orders')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $currentWeekOrders }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
+    <div class="row">
+    <div class="col-md-4">
+
+        @if(($todayOrders/$ordersTarget)*100 >=100)
+            @php $color = "green" @endphp
+        @elseif(($todayOrders/$ordersTarget)*100 >=60 && ($todayOrders/$ordersTarget)*100 <=99)
+            @php $color = "blue" @endphp
+        @elseif(($todayOrders/$ordersTarget)*100 < 60)
+            @php $color = "red" @endphp
+        @endif
+
+        <div class="panel" style="background-color: {{ $color }};">
+            <div class="panel-body text-center dash-widget dash-widget-left">
+                <div class="dash-widget-vertical">
+                    <div class="rorate" style="color: #ffffff !important;">{{translate('Orders')}}</div>
+                </div>
+                <br>
+                <p class="text-normal text-main" style="color: #ffffff !important;">{{translate('Today Orders')}}</p>
+                <p class="text-semibold text-3x text-main" style="color: #ffffff !important;">{{ $todayOrders }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget dash-widget-left">
+                <div class="chart-container">
+                    <div class="chart has-fixed-height" id="bars_basic"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@endif
+
+@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
+    <div class="row">
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget dash-widget-left">
+                <div class="dash-widget-vertical">
+                    <div class="rorate">{{translate('Sale')}}</div>
+                </div>
+                <br>
+                <p class="text-normal text-main">{{translate('Total Sale')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $totalSale }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget">
+                <br>
+                <p class="text-normal text-main">{{translate('Paid Sale ')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $totalPaidSale }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget">
+                <br>
+                <p class="text-normal text-main">{{translate('Unpaid Sale')}}</p>
+                <p class="text-semibold text-3x text-main">{{ $totalUnpaidSale }}</p>
+                <br>
+                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
+                <br>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 @if(Auth::user()->user_type == 'admin' || in_array('1', json_decode(Auth::user()->staff->role->permissions)))
 <div class="row">
     <div class="col-md-6">
@@ -116,94 +252,6 @@
             </div>
         </div>
     </div>
-</div>
-@endif
-
-@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
-    <div class="row">
-    <div class="col-md-4">
-        <div class="panel">
-            <div class="panel-body text-center dash-widget dash-widget-left">
-                <div class="dash-widget-vertical">
-                    <div class="rorate">{{translate('Sale')}}</div>
-                </div>
-                <br>
-                <p class="text-normal text-main">{{translate('Today Sale')}}</p>
-                <p class="text-semibold text-3x text-main">{{ $todaySale }}</p>
-                <br>
-                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
-                <br>
-                <br>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="panel">
-            <div class="panel-body text-center dash-widget">
-                <br>
-                <p class="text-normal text-main">{{translate('Current Week Sale ')}}</p>
-                <p class="text-semibold text-3x text-main">{{ $currentWeekSale }}</p>
-                <br>
-                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
-                <br>
-                <br>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="panel">
-            <div class="panel-body text-center dash-widget">
-                <br>
-                <p class="text-normal text-main">{{translate('Current Week Orders')}}</p>
-                <p class="text-semibold text-3x text-main">{{ $currentWeekOrders }}</p>
-                <br>
-                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
-                <br>
-                <br>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
-@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
-    <div class="row">
-    <div class="col-md-4">
-
-        @if(($todayOrders/$ordersTarget)*100 >=100)
-            @php $color = "green" @endphp
-        @elseif(($todayOrders/$ordersTarget)*100 >=60 && ($todayOrders/$ordersTarget)*100 <=99)
-            @php $color = "blue" @endphp
-        @elseif(($todayOrders/$ordersTarget)*100 < 60)
-            @php $color = "red" @endphp
-        @endif
-
-        <div class="panel" style="background-color: {{ $color }};">
-            <div class="panel-body text-center dash-widget dash-widget-left">
-                <div class="dash-widget-vertical">
-                    <div class="rorate" style="color: #ffffff !important;">{{translate('Orders')}}</div>
-                </div>
-                <br>
-                <p class="text-normal text-main" style="color: #ffffff !important;">{{translate('Today Orders')}}</p>
-                <p class="text-semibold text-3x text-main" style="color: #ffffff !important;">{{ $todayOrders }}</p>
-                <br>
-                <!-- <a href="#" class="btn-link">{{translate('')}} <i class="fa fa-long-arrow-right"></i></a> -->
-                <br>
-                <br>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-8">
-        <div class="panel">
-            <div class="panel-body text-center dash-widget dash-widget-left">
-                <div class="chart-container">
-                    <div class="chart has-fixed-height" id="bars_basic"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 @endif
 
