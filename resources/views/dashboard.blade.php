@@ -172,7 +172,7 @@
 
         @if(($todayOrders/$ordersTarget)*100 >=100)
             @php $color = "green" @endphp
-        @elseif(($todayOrders/$ordersTarget)*100 >=60 && ($todayOrders/$ordersTarget)*100 <=80)
+        @elseif(($todayOrders/$ordersTarget)*100 >=60 && ($todayOrders/$ordersTarget)*100 <=99)
             @php $color = "blue" @endphp
         @elseif(($todayOrders/$ordersTarget)*100 < 60)
             @php $color = "red" @endphp
@@ -469,7 +469,7 @@
 @endif
 <script type="text/javascript">
     
-    Highcharts.chart('bars_basic', {
+   Highcharts.chart('bars_basic', {
     chart: {
         type: 'column',
         styledMode: true,
@@ -489,13 +489,15 @@
         }
     },
     xAxis: {
-        categories: {{ $ordersweek }}
+        categories: {{ $orderscount }}
     },
     series: [{
         data: {{ $orderscount }},
-        colorByPoint: true
+        colorByPoint: true,
+        name:'One Week Orders'
     }]
 });
+
 
 
 </script>

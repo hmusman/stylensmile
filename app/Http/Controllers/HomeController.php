@@ -28,6 +28,7 @@ use Illuminate\Support\Str;
 use App\Mail\SecondEmailVerifyMailManager;
 use Mail;
 use App\OrderDetail;
+use App\Order as myorders;
 use Carbon\Carbon;
 use App\GeneralSetting;
 use DB;
@@ -103,12 +104,12 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        $todaySale= OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->sum('price');
-        $currentWeekSale= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('price');
-        $currentWeekOrders= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
-        $todayOrders = OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->count();
+        $todaySale= Order::whereDate('created_at', date('Y-m-d'))->get()->sum('grand_total');
+        $currentWeekSale= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('grand_total');
+        $currentWeekOrders= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
+        $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
         $ordersTarget = GeneralSetting::first()->orders_target;
-        $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from order_details GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
+        $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from orders GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
        
        $orderscount;
        $ordersweek;
@@ -117,7 +118,7 @@ class HomeController extends Controller
             $orderscount[] = $data->total;
             $ordersweek[] = $data->week;
        }
-        
+       
        $orderscount = json_encode($orderscount);
        $ordersweek = json_encode($ordersweek);
 
