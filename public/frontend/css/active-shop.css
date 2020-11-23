@@ -22371,3 +22371,15 @@ pre {
 .mybtn-margin-left-2 { margin-left: 2% !important;}
 .mymargin-left-zero{ margin-left: 0px !important;  }
 .mymargin-top{ margin-top: 20px !important;  }
+
+@media (max-width:375px){
+  .mybtn-50 { width: 100% !important;}
+  .mybtn-top-bottom-padding-margin{ padding-top: 9px !important;padding-bottom: 9px!important;margin-left: 0% !important; }
+
+}
+
+@media screen and (max-width: 475px) and (min-width: 376px){
+  .mybtn-50 { width: 100% !important;}
+  .mybtn-top-bottom-padding-margin{ padding-top: 9px !important;padding-bottom: 9px!important;margin-left: 0% !important; }
+
+}

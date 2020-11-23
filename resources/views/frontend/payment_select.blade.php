@@ -39,7 +39,7 @@
                         </div>
                     </div>
 
-                    <div class="col">
+                    <!-- <div class="col">
                         <div class="icon-block icon-block--style-1-v5 text-center active">
                             <div class="block-icon mb-0">
                                 <i class="la la-credit-card"></i>
@@ -48,7 +48,7 @@
                                 <h3 class="heading heading-sm strong-300 c-gray-light text-capitalize">{{ translate('4. Payment')}}</h3>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="col">
                         <div class="icon-block icon-block--style-1-v5 text-center">
@@ -56,18 +56,18 @@
                                 <i class="la la-check-circle"></i>
                             </div>
                             <div class="block-content d-none d-md-block">
-                                <h3 class="heading heading-sm strong-300 c-gray-light text-capitalize">{{ translate('5. Confirmation')}}</h3>
+                                <h3 class="heading heading-sm strong-300 c-gray-light text-capitalize">{{ translate('4. Confirmation')}}</h3>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-        <section class="py-3 gry-bg">
+        <section class="py-3 gry-bg" style="display: none;">
             <div class="container">
                 <div class="row cols-xs-space cols-sm-space cols-md-space">
                     <div class="col-lg-8">
-                        <form action="{{ route('payment.checkout') }}" class="form-default" data-toggle="validator" role="form" method="POST" id="checkout-form">
+                        <form action="{{ route('payment.checkout') }}" class="form-default" data-toggle="validator" role="form" id="payment_select" method="POST">
                             @csrf
                             <div class="card">
                                 <div class="card-title px-4 py-3">
@@ -278,7 +278,7 @@
                                 </div>
                             </div>
                             <div class="pt-3">
-                                <input id="agree_checkbox" type="checkbox" required>
+                                <input id="agree_checkbox" type="checkbox" checked required>
                                 <label for="agree_checkbox">{{ translate('I agree to the')}}</label>
                                 <a href="{{ route('terms') }}">{{ translate('terms and conditions')}}</a>,
                                 <a href="{{ route('returnpolicy') }}">{{ translate('return policy')}}</a> &
@@ -310,8 +310,10 @@
 
 @section('script')
     <script type="text/javascript">
+        
 
         $(document).ready(function(){
+            document.getElementById("payment_select").submit();
             $(".online_payment").click(function(){
                 $('#manual_payment_description').parent().addClass('d-none');
             });

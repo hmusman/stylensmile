@@ -204,7 +204,7 @@
                             <!-- Trigger the size chart modal -->
                             <div class="row"  style="margin-bottom: 10px !important; ">
                                 <div class="col-sm-12">
-                                    <button type="button" class="btn btn-secondary pull-right" data-toggle="modal" data-target="#size_chart_modal">Size Chart Modal</button>
+                                    <button type="button" class="btn btn-secondary pull-right" data-toggle="modal" data-target="#size_chart_modal">Size Chart</button>
                                 </div>
                             </div>
 
@@ -800,7 +800,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
             <div class="modal-content position-relative">
                 <div class="modal-header">
-                    <h5 class="modal-title strong-600 heading-5">{{ translate('Size Chart Modal')}}</h5>
+                    <h5 class="modal-title strong-600 heading-5">{{ translate('Size Chart')}}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

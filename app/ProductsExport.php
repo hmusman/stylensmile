@@ -24,7 +24,7 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
             'Category',
             'Sub Category',
             'Sub Sub Category',
-            'Sku',
+            'Tag',
             'Barcode Type',
             'Manage Stock',
             'Alert Security',
@@ -70,7 +70,7 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
                 $product->category->name,
                 $product->subcategory->name,
                 $subsubcategory,
-                $row->sku,
+                $product->tags,
                 '',
                 '',
                 '',
@@ -93,7 +93,7 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
                 '',
                 '',
                 '',
-                '',
+                $product->description,
                 '',
             ];
         }
