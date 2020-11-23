@@ -313,12 +313,12 @@
                                             <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
                                         </button>
                                        
-                                       <a class="pc_btn" href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                       <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border pc_btn">
                                             <i class="la la-whatsapp"></i>
                                             <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
 
-                                        <a class="mobile_btn" href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border " style="display:none;">
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border mobile_btn" style="display:none;">
                                             <i class="la la-whatsapp"></i>
                                             <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
@@ -327,12 +327,12 @@
                                             <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
                                         </button>
 
-                                        <a class="pc_btn" href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border ">
+                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border pc_btn">
                                             <i class="la la-whatsapp"></i>
                                             <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
 
-                                        <a class="mobile_btn" href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border " style="display:none;">
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border mobile_btn" style="display:none;">
                                             <i class="la la-whatsapp"></i>
                                             <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
