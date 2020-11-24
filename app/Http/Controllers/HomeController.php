@@ -110,22 +110,23 @@ class HomeController extends Controller
         $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
         $ordersTarget = GeneralSetting::first()->orders_target;
         $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from orders GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
-       
+       $weekorderitemscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from order_details GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
        $orderscount;
+       $orderitemscount;
        $ordersweek;
        foreach($weekorderscount as $data)
        {
             $orderscount[] = $data->total;
             $ordersweek[] = $data->week;
        }
-       
+       foreach($weekorderitemscount as $data){$orderitemscount[] = $data->total;}
        $totalSale= Order::get()->sum('grand_total');
        $totalPaidSale= Order::where('payment_status', 'paid')->get()->sum('grand_total');
        $totalUnpaidSale= Order::where('payment_status', 'unpaid')->get()->sum('grand_total');
        $orderscount = json_encode($orderscount);
+       $orderitemscount = json_encode($orderitemscount);
        $ordersweek = json_encode($ordersweek);
-
-        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount','totalSale','totalPaidSale','totalUnpaidSale']));
+        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount','totalSale','totalPaidSale','totalUnpaidSale','orderitemscount']));
     }
 
     /**

@@ -87,18 +87,40 @@
                                 @php
                                     $status = $order->orderDetails->first()->delivery_status;
                                 @endphp
-                                {{ ucfirst(str_replace('_', ' ', $status)) }}
+
+                                @if ($status=='pending')
+                                    @php $sbcolor="red"; $scolor="#fff"; $stxt ="Pending" @endphp
+                                @elseif ($status=='delivered')
+                                    @php $sbcolor="green"; $scolor="#fff"; $stxt ="Delivered" @endphp
+                                @elseif ($status=='on_delivery')
+                                    @php $sbcolor="grey"; $scolor="#fff"; $stxt ="On Delivery" @endphp
+                                @else
+                                    @php $sbcolor="yellow";$scolor="black"; $stxt ="On Review" @endphp
+                                @endif
+                                <!-- {{ ucfirst(str_replace('_', ' ', $status)) }} -->
+                                
+                                 <span class="badge badge--2 mr-4" style="background-color: {{ $sbcolor }} !important; color: {{ $scolor }} !important;">
+                                     {{ $stxt }}
+                                 </span> 
                             </td>
                             <td>
                                 {{ ucfirst(str_replace('_', ' ', $order->payment_type)) }}
                             </td>
                             <td>
-                                <span class="badge badge--2 mr-4">
-                                    @if ($order->orderDetails->where('seller_id',  $admin_user_id)->first()->payment_status == 'paid')
+                                @if ($order->orderDetails->where('seller_id',  $admin_user_id)->first()->payment_status == 'paid')
+                                    @php $color="green"; $txt ="Paid" @endphp
+                                @else
+                                    @php $color="red"; $txt ="Unpaid" @endphp
+                                @endif
+
+                                <span class="badge badge--2 mr-4" style="background-color: {{ $color }} !important;">
+                                    {{ $txt }}
+                                   
+                                   {{-- @if ($order->orderDetails->where('seller_id',  $admin_user_id)->first()->payment_status == 'paid')
                                         <i class="bg-green"></i> {{ translate('Paid') }}
                                     @else
                                         <i class="bg-red"></i> {{ translate('Unpaid') }}
-                                    @endif
+                                    @endif --}}
                                 </span>
                             </td>
                             @if ($refund_request_addon != null && $refund_request_addon->activated == 1)

@@ -98,6 +98,22 @@
     </div>
 
 </div>
+@endif 
+
+
+@if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
+    <div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-body text-center dash-widget dash-widget-left">
+                <div class="chart-container">
+                    <div class="chart has-fixed-height" id="bars_basic_order_details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 @endif
 
 @if((Auth::user()->user_type == 'admin' || in_array('5', json_decode(Auth::user()->staff->role->permissions))) && \App\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1)
@@ -515,9 +531,12 @@
     </div>
 </div>
 @endif
+
+
 <script type="text/javascript">
-    
-   Highcharts.chart('bars_basic', {
+    let orderscount = <?= $orderscount; ?>;
+    let orderitemscount = <?= $orderitemscount; ?>;
+    Highcharts.chart('bars_basic', {
     chart: {
         type: 'column',
         styledMode: true,
@@ -537,16 +556,45 @@
         }
     },
     xAxis: {
-        categories: {{ $orderscount }}
+        categories: orderscount
     },
     series: [{
-        data: {{ $orderscount }},
+        data: orderscount,
         colorByPoint: true,
         name:'One Week Orders'
     }]
 });
 
 
+Highcharts.chart('bars_basic_order_details', {
+    chart: {
+        type: 'column',
+        styledMode: true,
+        options3d: {
+            enabled: true,
+            alpha: 15,
+            beta: 15,
+            depth: 50
+        }
+    },
+    title: {
+        text: 'Week Wise Orders items'
+    },
+    plotOptions: {
+        column: {
+            depth: 25
+        }
+    },
+    xAxis: {
+        categories: orderitemscount
+    },
+    series: [{
+        data: orderitemscount,
+        colorByPoint: true,
+        name:'One Week Orders Items'
+    }]
+});
 
 </script>
+
 @endsection
