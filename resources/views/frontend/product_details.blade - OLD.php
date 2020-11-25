@@ -201,45 +201,37 @@
 
                             <hr>
 
-                            <!-- Trigger the size chart modal  -->
-                            <div class="row" style="margin-bottom: 10px !important; ">
+                            <!-- Trigger the size chart modal -->
+                            <div class="row"  style="margin-bottom: 10px !important; ">
                                 <div class="col-sm-12">
-                                    <button type="button" class="size-chart-btn pull-right" data-toggle="modal" data-target="#size_chart_modal">Size Chart</button>
+                                    <button type="button" class="btn btn-secondary pull-right" data-toggle="modal" data-target="#size_chart_modal">Size Chart</button>
                                 </div>
                             </div>
-                            
-
-                    
 
                             <form id="option-choice-form">
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
 
-                                @if ($detailedProduct->stocks->count()>0)
+                                @if ($detailedProduct->choice_options != null)
+                                    @foreach (json_decode($detailedProduct->choice_options) as $key => $choice)
+
                                     <div class="row no-gutters">
-                                        <div class="col-12" style="margin-bottom:10px;">
-                                            <div class="product-description-label mt-2 ">Size:</div>
+                                        <div class="col-2">
+                                            <div class="product-description-label mt-2 ">{{ \App\Attribute::find($choice->attribute_id)->name }}:</div>
                                         </div>
-                                        <div class="col-12">
+                                        <div class="col-10">
                                             <ul class="list-inline checkbox-alphanumeric checkbox-alphanumeric--style-1 mb-2">
-                                                @foreach ($detailedProduct->stocks as $key => $row)
-                                                    @if($row->qty == 0)
-                                                        <li >
-                                                            <div class="line1"></div>
-                                                            <input type="radio" id="1-{{ $row->variant }}" name="attribute_id_1" value="{{ $row->variant }}" @if($key == 0) checked @endif disabled="">
-                                                            <label for="1-{{ $row->variant }}">{{ $row->variant }}</label>
-                                                        </li>
-                                                    @else
-                                                        <li>
-                                                            <input type="radio" id="1-{{ $row->variant }}" name="attribute_id_1" value="{{ $row->variant }}" @if($key == 0) checked @endif>
-                                                            <label for="1-{{ $row->variant }}">{{ $row->variant }}</label>
-                                                        </li>
-                                                    @endif
-                                                    
+                                                @foreach ($choice->values as $key => $value)
+                                                    <li>
+                                                        <input type="radio" id="{{ $choice->attribute_id }}-{{ $value }}" name="attribute_id_{{ $choice->attribute_id }}" value="{{ $value }}" @if($key == 0) checked @endif>
+                                                        <label for="{{ $choice->attribute_id }}-{{ $value }}">{{ $value }}</label>
+                                                    </li>
                                                 @endforeach
                                             </ul>
                                         </div>
                                     </div>
+
+                                    @endforeach
                                 @endif
 
                                 @if (count(json_decode($detailedProduct->colors)) > 0)
@@ -264,15 +256,10 @@
 
                                 <!-- Quantity + Add to cart -->
                                 <div class="row no-gutters">
-                                    <div class="col-4" style="margin-bottom:10px;">
+                                    <div class="col-2">
                                         <div class="product-description-label mt-2">{{ translate('Quantity')}}:</div>
-                                        
                                     </div>
-                                    <div class="col-4" style="margin-bottom:10px;">
-                                        <div class="avialable-amount">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div>
-                                    </div>
-                                    <div class="col-4"></div>
-                                    <div class="col-5">
+                                    <div class="col-10">
                                         <div class="product-quantity d-flex align-items-center">
                                             <div class="input-group input-group--style-2 pr-3" style="width: 160px;">
                                                 <span class="input-group-btn">
@@ -287,17 +274,7 @@
                                                     </button>
                                                 </span>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-1"></div>
-                                    <div class="col-6">
-                                        <div class="product-quantity d-flex align-items-center">
-                                            @if ($qty > 0)
-                                                <button type="button" class=" mymargin-left-zero my-custom-add-btn btn btn-styled btn-alt-base-1 c-white btn-icon-left strong-700 hov-bounce hov-shaddow ml-2 add-to-cart" onclick="addToCart()">
-                                                    <i class="la la-shopping-cart"></i>
-                                                    {{ translate('Add to cart')}}
-                                                </button>
-                                            @endif
+                                            <div class="avialable-amount">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div>
                                         </div>
                                     </div>
                                 </div>
@@ -308,69 +285,59 @@
                                     <div class="col-2">
                                         <div class="product-description-label">{{ translate('Total Price')}}:</div>
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-10">
                                         <div class="product-price">
                                             <strong id="chosen_price">
 
                                             </strong>
                                         </div>
                                     </div>
-
-                                    <div class="col-6">
-                                        @if ($qty > 0)
-                                            <button type="button" class="my-custom-btn btn btn-styled btn-base-1 btn-icon-left strong-700 " onclick="buyNow()">
-                                            <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
-                                        </button>
-                                        @endif
-                                    </div>
-
                                 </div>
 
                             </form>
 
                             <div class="d-table width-100 mt-3">
                                 <div class="d-table-cell">
-                                    @php
+                                     @php
                                         $enquiry=my_asset(json_decode($detailedProduct->photos)[0]);
                                         $generalsetting = \App\GeneralSetting::first();
                                     @endphp
                                     <!-- Buy Now button -->
                                     @if ($qty > 0)
-                                        
-                                        <span class="my-custom-span">Order By:</span>
-                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested {{  __($detailedProduct->name) }} {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border pc_btn single-product-whatsapp-btn">
-                                            <img class="single-product-whatsapp-btn-img" src="{{ static_asset('frontend/images/whatsapp.png')}}">
-                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
-                                            <span> {{ translate('Whatsapp')}}</span>
+                                         <button type="button" class=" mymargin-left-zero mybtn btn btn-styled btn-alt-base-1 c-white btn-icon-left strong-700 hov-bounce hov-shaddow ml-2 add-to-cart" onclick="addToCart()">
+                                            <i class="la la-shopping-cart"></i>
+                                            {{ translate('Add to cart')}}
+                                        </button>
+
+                                        <button type="button" class="mymargin-top mybtn-50 btn btn-styled btn-base-1 btn-icon-left strong-700 " onclick="buyNow()">
+                                            <i class="la la-shopping-cart"></i> {{ translate('Buy Now')}}
+                                        </button>
+                                       
+                                       <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border pc_btn">
+                                            <i class="la la-whatsapp"></i>
+                                            <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
 
-                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in {{  __($detailedProduct->name) }}. {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border mobile_btn single-product-whatsapp-btn" style="display:none;">
-                                            <img src="{{ static_asset('frontend/images/whatsapp.png')}}" class="single-product-whatsapp-btn-img">
-                                            <span> {{ translate('Whatsapp')}}</span>
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border mobile_btn" style="display:none;">
+                                            <i class="la la-whatsapp"></i>
+                                            <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
-
                                     @else
                                         <button type="button" class="mybtn-50 btn btn-styled btn-base-3 btn-icon-left strong-700 mymargin-top" disabled>
                                             <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
                                         </button>
 
-                                        <span class="my-custom-span">Order By:</span>
-                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested {{  __($detailedProduct->name) }} {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border pc_btn single-product-whatsapp-btn">
-                                            <img class="single-product-whatsapp-btn-img" src="{{ static_asset('frontend/images/whatsapp.png')}}">
-                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
-                                            <span> {{ translate('Whatsapp')}}</span>
+                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border pc_btn">
+                                            <i class="la la-whatsapp"></i>
+                                            <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
 
-                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in {{  __($detailedProduct->name) }}. {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border mobile_btn single-product-whatsapp-btn" style="display:none;">
-                                            <img src="{{ static_asset('frontend/images/whatsapp.png')}}" class="single-product-whatsapp-btn-img">
-                                            <span> {{ translate('Whatsapp')}}</span>
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in this product. {{ $enquiry }}" type="button" class="mybtn-top-bottom-padding-margin mymargin-top mybtn-50 btn btn-styled my-btn-border mobile_btn" style="display:none;">
+                                            <i class="la la-whatsapp"></i>
+                                            <span> {{ translate('Add To Enquiry')}}</span>
                                         </a>
 
                                     @endif
-
-                                    
-
-                                    
                                 </div>
                             </div>
 
@@ -827,6 +794,7 @@
             </div>
         </div>
     </div>
+
     <!-- size chart modal -->
     <div class="modal fade " id="size_chart_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom product-modal" id="modal-size" role="document">
@@ -839,114 +807,112 @@
                 </div>
                 <div class="modal-body gry-bg px-3 pt-3">
                     <style> .mychartable tbody tr td{ text-align: center !importnat;}</style>
-                    <div class="table-responsive">
-                        <table class="table table-borderd mychartable">
-                           <tbody>
-                                <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Men</td></tr>
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
-                                </tr>
+                   <table class="table table-borderd mychartable">
+                       <tbody>
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Men</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
+                            </tr>
 
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">40</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">42</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">43</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">44</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">45</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;border-top: 1px solid #6c757d !important;">46</td>
-                                </tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">40</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">42</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">43</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">44</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">45</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;border-top: 1px solid #6c757d !important;">46</td>
+                            </tr>
 
-                                <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Women</td></tr>
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Local</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">-</td>
-                                </tr>
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Women</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Local</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">-</td>
+                            </tr>
 
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">UK</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">4</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">5</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">6</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">7</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">8</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
-                                </tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">UK</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">4</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">5</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
 
-                                 <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">36</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">37</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">38</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">39</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
-                                </tr>
+                             <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">36</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">37</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">38</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">39</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">41</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
 
-                                <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Kids</td></tr>
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
-                                </tr>
+                            <tr><td colspan="8" class="text-center" style="background-color: #6c757d; color: #ffffff;">StyleNSmile Kids</td></tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">6</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">7</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">8</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">9</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">10</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">11</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important;">12</td>
+                            </tr>
 
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">25</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">26</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">27</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">28</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">29</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">30</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">32</td>
-                                </tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">25</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">26</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">27</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">28</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">29</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">30</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">32</td>
+                            </tr>
 
-                                 <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">13</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">1</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">2</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
-                                </tr>
+                             <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">Uk</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">13</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">1</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">2</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">3</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;">-</td>
+                            </tr>
 
-                                <tr>
-                                   <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">33</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">34</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">35</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">36</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
-                                   <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
-                                </tr>
+                            <tr>
+                               <td class="text-center" style="font-weight: bold;border-right: 1px solid #6c757d !important;border-left: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">EU</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">33</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">34</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">35</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">36</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                               <td class="text-center" style="border-right: 1px solid #6c757d !important; border-top: 1px solid #6c757d !important;border-bottom: 1px solid #6c757d !important;">-</td>
+                            </tr>
 
-                           </tbody>
-                       </table>
-                    </div>
+                       </tbody>
+                   </table>
                 </div>
                 
             </div>
