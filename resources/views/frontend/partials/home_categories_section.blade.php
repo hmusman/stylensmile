@@ -17,7 +17,7 @@
                             <div class="caorusel-card">
                                 <div class="product-box-2 bg-white alt-box my-2">
                                     <div class="position-relative overflow-hidden">
-                                        <a href="{{ route('product', $product->slug) }}" class="d-block product-image h-100 text-center my-product-hover" data-product="{{ $product->slug }}">
+                                        <a href="{{ route('product', $product->slug) }}" class="d-block product-image h-100 text-center my-product-hover" data-product="{{ $product->slug }}" data-count = "{{ count(json_decode($product->photos)) }}">
                                             
                                             @if(count(json_decode($product->photos))>0)
                                                 <img class="img-fit lazyload second-img{{ $product->slug }}" style="display: none;"  src="{{ static_asset('frontend/images/placeholder.jpg') }}" data-src="{{ my_asset(json_decode($product->photos)[0]) }}" alt="{{ __($product->name) }}">
@@ -71,13 +71,21 @@
 <script type="text/javascript">
     $('.my-product-hover').mouseenter(function(){
         let slug = $(this).data('product');
-       $('.second-img'+slug).css('display','block');
-       $('.first-img'+slug).css('display','none');
+        let cnt = $(this).data('count');
+        if(cnt>0){
+            $('.second-img'+slug).css('display','block');
+            $('.first-img'+slug).css('display','none');
+        }
+        
     });
 
     $('.my-product-hover').mouseleave(function(){
        let slug = $(this).data('product');
-       $('.second-img'+slug).css('display','none');
-       $('.first-img'+slug).css('display','block');
+       let cnt = $(this).data('count');
+       if(cnt>0){
+        $('.second-img'+slug).css('display','none');
+        $('.first-img'+slug).css('display','block');
+       }
+       
     });
 </script>
