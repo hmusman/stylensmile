@@ -20,6 +20,9 @@ use DB;
 use PDF;
 use Mail;
 use App\Mail\InvoiceEmailManager;
+use CoreComponentRepository;
+use Excel;
+use App\OrdersExport;
 
 class OrderController extends Controller
 {
@@ -71,6 +74,7 @@ class OrderController extends Controller
      */
     public function admin_orders(Request $request)
     {
+        CoreComponentRepository::instantiateShopRepository();
 
         $payment_status = null;
         $delivery_status = null;
@@ -99,6 +103,11 @@ class OrderController extends Controller
         return view('orders.index', compact('orders','payment_status','delivery_status', 'sort_search', 'admin_user_id'));
     }
 
+    public function export_orders(Request $request)
+    {
+        $orders = Order::whereIn('id',$request->checkboxes)->get();
+        return Excel::download(new OrdersExport($orders), 'orders.xlsx');
+    }
     /**
      * Display a listing of the sales to admin.
      *
@@ -106,6 +115,7 @@ class OrderController extends Controller
      */
     public function sales(Request $request)
     {
+        CoreComponentRepository::instantiateShopRepository();
 
         $sort_search = null;
         $orders = Order::orderBy('code', 'desc');
