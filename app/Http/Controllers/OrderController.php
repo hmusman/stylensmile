@@ -74,6 +74,7 @@ class OrderController extends Controller
      */
     public function admin_orders(Request $request)
     {
+
         $payment_status = null;
         $delivery_status = null;
         $sort_search = null;
