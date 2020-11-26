@@ -17,13 +17,8 @@
                             <div class="caorusel-card">
                                 <div class="product-box-2 bg-white alt-box my-2">
                                     <div class="position-relative overflow-hidden">
-                                        <a href="{{ route('product', $product->slug) }}" class="d-block product-image h-100 text-center my-product-hover">
-                                            
-                                            @if(count(json_decode($product->photos))>0)
-                                                <img class="img-fit lazyload second-img" style="display: none;"  src="{{ static_asset('frontend/images/placeholder.jpg') }}" data-src="{{ my_asset(json_decode($product->photos)[0]) }}" alt="{{ __($product->name) }}">
-                                            @endif
-                                             
-                                            <img class="img-fit lazyload first-img" src="{{ static_asset('frontend/images/placeholder.jpg') }}" data-src="{{ my_asset($product->thumbnail_img) }}" alt="{{ __($product->name) }}">
+                                        <a href="{{ route('product', $product->slug) }}" class="d-block product-image h-100 text-center">
+                                            <img class="img-fit lazyload" src="{{ static_asset('frontend/images/placeholder.jpg') }}" data-src="{{ my_asset($product->thumbnail_img) }}" alt="{{ __($product->name) }}">
                                         </a>
                                         <div class="product-btns clearfix">
                                             <button class="btn add-wishlist" title="Add to Wishlist" onclick="addToWishList({{ $product->id }})" tabindex="0">
@@ -67,15 +62,3 @@
         </section>
     @endif
 @endforeach
-
-<script type="text/javascript">
-    $('.my-product-hover').mouseenter(function(){
-       $('.second-img').css('display','block');
-       $('.first-img').css('display','none');
-    });
-
-    $('.my-product-hover').mouseleave(function(){
-       $('.second-img').css('display','none');
-       $('.first-img').css('display','block');
-    });
-</script>
