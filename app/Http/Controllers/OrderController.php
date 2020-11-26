@@ -20,7 +20,6 @@ use DB;
 use PDF;
 use Mail;
 use App\Mail\InvoiceEmailManager;
-use CoreComponentRepository;
 use Excel;
 use App\OrdersExport;
 
