@@ -104,8 +104,34 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        $todaySale= OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->sum('price');
-        $currentWeekSale= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('price');
+        $todaySale =0;$today_sale_grand=0;$today_sale_discount=0; 
+        $todayordersdata = Order::whereDate('created_at', date('Y-m-d'))->get();
+        foreach ($todayordersdata as $key => $row)
+        {
+            $today_sale_discount += $row->coupon_discount;
+            $i=0;
+            foreach ($row->orderDetails as $data) {
+                if($i==0){ $today_sale_discount += $data->shipping_cost; }
+                $i++;
+            }
+            $today_sale_grand+= $row->grand_total;
+        }
+        $todaySale = $today_sale_grand - $today_sale_discount;
+
+        $currentWeekSale =0;$week_sale_grand=0;$week_sale_discount=0; 
+        $weekordersdata = Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
+        foreach ($weekordersdata as $key => $row)
+        {
+            $week_sale_discount += $row->coupon_discount;
+            $i=0;
+            foreach ($row->orderDetails as $data) {
+                if($i==0){ $week_sale_discount += $data->shipping_cost; }
+                $i++;
+            }
+            $week_sale_grand+= $row->grand_total;
+        }
+        $currentWeekSale = $week_sale_grand - $week_sale_discount;
+        
         $currentWeekOrders= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
         $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
         $ordersTarget = GeneralSetting::first()->orders_target;
