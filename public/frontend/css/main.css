@@ -710,7 +710,8 @@ section.home-banner-area {
 
 /* sub category */
 .category-sidebar .sub-cat-menu {
-    display: none;
+    /* display: none; */
+    display: none !important;
     position: absolute;
     width: calc(100% - 25%);
     left: 25%;
