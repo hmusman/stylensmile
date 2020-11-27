@@ -104,8 +104,8 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        $todaySale= Order::whereDate('created_at', date('Y-m-d'))->get()->sum('grand_total');
-        $currentWeekSale= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('grand_total');
+        $todaySale= OrderDetail::whereDate('created_at', date('Y-m-d'))->get()->sum('price');
+        $currentWeekSale= OrderDetail::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->sum('price');
         $currentWeekOrders= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
         $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
         $ordersTarget = GeneralSetting::first()->orders_target;
