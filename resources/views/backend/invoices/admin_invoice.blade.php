@@ -173,7 +173,7 @@
 
 			        <tr>
 			            <th class="text-left strong">{{ translate('Grand Total') }}</th>
-			            <td class="currency">{{  single_price($order->grand_total - $order->coupon_discount) }}</td>
+			            <td class="currency">{{  single_price($order->grand_total) }}</td>
 			        </tr>
 		        </tbody>
 		    </table>

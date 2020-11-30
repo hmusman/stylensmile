@@ -51,7 +51,7 @@
                     <tr>
             					<td class="text-main text-bold">{{translate('Total amount')}}	</td>
             					<td class="text-right">
-            						{{ single_price($order->grand_total - $order->coupon_discount) }}
+            						{{ single_price($order->grand_total) }}
             					</td>
             				</tr>
                     <tr>
@@ -159,7 +159,7 @@
         					<strong class="text-muted">{{translate('TOTAL')}} :</strong>
         				</td>
         				<td class="text-muted h5">
-        					{{  single_price($order->grand_total - $order->coupon_discount) }}
+        					{{  single_price($order->grand_total) }}
         				</td>
         			</tr>
         			</tbody>
