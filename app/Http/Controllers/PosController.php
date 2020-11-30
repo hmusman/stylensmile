@@ -145,7 +145,7 @@ class PosController extends Controller
         $data['quantity'] = $request->quantity;
         $data['price'] = $price;
         $data['tax'] = $tax;
-        $data['shipping'] = getShippingCost($product->id);
+        $data['shipping'] = $product->shipping_cost;
 
         if($request->session()->has('posCart')){
             $foundInCart = false;
