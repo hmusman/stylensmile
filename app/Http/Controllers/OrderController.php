@@ -22,6 +22,8 @@ use PDF;
 use Mail;
 use App\Mail\InvoiceEmailManager;
 use CoreComponentRepository;
+use Excel;
+use App\OrdersExport;
 
 class OrderController extends Controller
 {
@@ -117,6 +119,12 @@ class OrderController extends Controller
         }
         $orders = $orders->paginate(15);
         return view('backend.sales.inhouse_orders.index', compact('orders','payment_status','delivery_status', 'sort_search', 'admin_user_id'));
+    }
+
+    public function export_orders(Request $request)
+    {
+        $orders = Order::whereIn('id',$request->checkboxes)->get();
+        return Excel::download(new OrdersExport($orders), 'orders.xlsx');
     }
 
     public function show($id)
