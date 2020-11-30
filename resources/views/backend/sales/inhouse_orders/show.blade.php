@@ -174,7 +174,8 @@
             			<tr>
             				<td><strong class="text-muted">{{translate('TOTAL')}} :</strong></td>
             				<td class="text-muted h5">
-            					{{ single_price($order->orderDetails->where('seller_id', $admin_user_id)->sum('price') + $order->orderDetails->where('seller_id', $admin_user_id)->sum('tax') + $order->orderDetails->where('seller_id', $admin_user_id)->sum('shipping_cost')) }}
+                                {{ single_price($order->grand_total) }}
+            					{{-- single_price($order->orderDetails->where('seller_id', $admin_user_id)->sum('price') + $order->orderDetails->where('seller_id', $admin_user_id)->sum('tax') + $order->orderDetails->where('seller_id', $admin_user_id)->sum('shipping_cost')) --}}
             				</td>
             			</tr>
           			</tbody>
