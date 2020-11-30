@@ -6,10 +6,10 @@ use Illuminate\Http\Request;
 use URL;
 use DB;
 use Hash;
-use App\GeneralSetting;
 use App\BusinessSetting;
 use App\User;
 use App\Product;
+use CoreComponentRepository;
 
 class InstallController extends Controller
 {
@@ -30,7 +30,7 @@ class InstallController extends Controller
     }
 
     public function step3($error = "") {
-
+        CoreComponentRepository::instantiateShopRepository();
         if($error == ""){
             return view('installation.step3');
         }else {
@@ -51,13 +51,6 @@ class InstallController extends Controller
     }
 
     public function system_settings(Request $request) {
-        $generalsetting = GeneralSetting::first();
-        $generalsetting->site_name = $request->name;
-        $generalsetting->address = $request->address;
-        $generalsetting->phone = $request->phone;
-        $generalsetting->email = $request->email;
-        $generalsetting->save();
-
         $businessSetting = BusinessSetting::where('type', 'system_default_currency')->first();
         $businessSetting->value = $request->system_default_currency;
         $businessSetting->save();
@@ -75,12 +68,6 @@ class InstallController extends Controller
         $user->user_type = 'admin';
         $user->email_verified_at = date('Y-m-d H:m:s');
         $user->save();
-
-        foreach(Product::all() as $product){
-            $product->added_by = 'admin';
-            $product->user_id = $user->id;
-            $product->save();
-        }
 
         $previousRouteServiceProvier = base_path('app/Providers/RouteServiceProvider.php');
         $newRouteServiceProvier      = base_path('app/Providers/RouteServiceProvider.txt');

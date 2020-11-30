@@ -18,8 +18,8 @@ class ShopCollection extends ResourceCollection
                         'avatar' => $data->user->avatar,
                         'avatar_original' => $data->user->avatar_original
                     ],
-                    'logo' => $data->logo,
-                    'sliders' => json_decode($data->sliders),
+                    'logo' => api_asset($data->logo),
+                    'sliders' => $this->convertPhotos(explode(',', $data->sliders)),
                     'address' => $data->address,
                     'facebook' => $data->facebook,
                     'google' => $data->google,
@@ -44,5 +44,13 @@ class ShopCollection extends ResourceCollection
             'success' => true,
             'status' => 200
         ];
+    }
+
+    protected function convertPhotos($data){
+        $result = array();
+        foreach ($data as $key => $item) {
+            array_push($result, api_asset($item));
+        }
+        return $result;
     }
 }

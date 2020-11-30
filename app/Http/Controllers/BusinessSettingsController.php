@@ -6,55 +6,62 @@ use Illuminate\Http\Request;
 use App\Currency;
 use App\BusinessSetting;
 use Artisan;
+use CoreComponentRepository;
 
 class BusinessSettingsController extends Controller
 {
+    public function general_setting(Request $request)
+    {
+        CoreComponentRepository::instantiateShopRepository();
+    	return view('backend.setup_configurations.general_settings');
+    }
+
     public function activation(Request $request)
     {
-        
-    	return view('business_settings.activation');
+        CoreComponentRepository::instantiateShopRepository();
+    	return view('backend.setup_configurations.activation');
     }
 
     public function social_login(Request $request)
     {
-        
-        return view('business_settings.social_login');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.social_login');
     }
 
     public function smtp_settings(Request $request)
     {
-        
-        return view('business_settings.smtp_settings');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.smtp_settings');
     }
 
     public function google_analytics(Request $request)
     {
-        
-        return view('business_settings.google_analytics');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.google_analytics');
     }
 
     public function google_recaptcha(Request $request)
     {
-        
-        return view('business_settings.google_recaptcha');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.google_recaptcha');
     }
 
     public function facebook_chat(Request $request)
     {
-        
-        return view('business_settings.facebook_chat');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.facebook_chat');
     }
 
     public function payment_method(Request $request)
     {
-        
-        return view('business_settings.payment_method');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.payment_method');
     }
 
     public function file_system(Request $request)
     {
-        
-        return view('business_settings.file_system');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.setup_configurations.file_system');
     }
 
     /**
@@ -221,7 +228,7 @@ class BusinessSettingsController extends Controller
 
     public function seller_verification_form(Request $request)
     {
-    	return view('business_settings.seller_verification_form');
+    	return view('backend.sellers.seller_verification_form.index');
     }
 
     /**
@@ -254,16 +261,31 @@ class BusinessSettingsController extends Controller
     public function update(Request $request)
     {
         foreach ($request->types as $key => $type) {
-            $business_settings = BusinessSetting::where('type', $type)->first();
-            if($business_settings!=null){
-                $business_settings->value = $request[$type];
-                $business_settings->save();
+            if($type == 'timezone'){
+                $this->overWriteEnvFile('APP_TIMEZONE', $request[$type]);
             }
-            else{
-                $business_settings = new BusinessSetting;
-                $business_settings->type = $type;
-                $business_settings->value = $request[$type];
-                $business_settings->save();
+            else {
+                $business_settings = BusinessSetting::where('type', $type)->first();
+                if($business_settings!=null){
+                    if(gettype($request[$type]) == 'array'){
+                        $business_settings->value = json_encode($request[$type]);
+                    }
+                    else {
+                        $business_settings->value = $request[$type];
+                    }
+                    $business_settings->save();
+                }
+                else{
+                    $business_settings = new BusinessSetting;
+                    $business_settings->type = $type;
+                    if(gettype($request[$type]) == 'array'){
+                        $business_settings->value = json_encode($request[$type]);
+                    }
+                    else {
+                        $business_settings->value = $request[$type];
+                    }
+                    $business_settings->save();
+                }
             }
         }
         flash(translate("Settings updated successfully"))->success();
@@ -333,7 +355,7 @@ class BusinessSettingsController extends Controller
     public function vendor_commission(Request $request)
     {
         $business_settings = BusinessSetting::where('type', 'vendor_commission')->first();
-        return view('business_settings.vendor_commission', compact('business_settings'));
+        return view('backend.sellers.seller_commission.index', compact('business_settings'));
     }
 
     public function vendor_commission_update(Request $request){
@@ -347,7 +369,7 @@ class BusinessSettingsController extends Controller
     }
 
     public function shipping_configuration(Request $request){
-        return view('shipping_configuration.index');
+        return view('backend.setup_configurations.shipping_configuration.index');
     }
 
     public function shipping_configuration_update(Request $request){

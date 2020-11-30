@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Attribute;
+use App\AttributeTranslation;
+use CoreComponentRepository;
 
 class AttributeController extends Controller
 {
@@ -14,9 +16,9 @@ class AttributeController extends Controller
      */
     public function index()
     {
-        
-        $attributes = Attribute::all();
-        return view('attribute.index', compact('attributes'));
+        CoreComponentRepository::instantiateShopRepository();
+        $attributes = Attribute::orderBy('created_at', 'desc')->get();
+        return view('backend.product.attribute.index', compact('attributes'));
     }
 
     /**
@@ -26,7 +28,6 @@ class AttributeController extends Controller
      */
     public function create()
     {
-         return view('attribute.create');
     }
 
     /**
@@ -39,14 +40,14 @@ class AttributeController extends Controller
     {
         $attribute = new Attribute;
         $attribute->name = $request->name;
-        if($attribute->save()){
-            flash(translate('Attribute has been inserted successfully'))->success();
-            return redirect()->route('attributes.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $attribute->save();
+
+        $attribute_translation = AttributeTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'attribute_id' => $attribute->id]);
+        $attribute_translation->name = $request->name;
+        $attribute_translation->save();
+
+        flash(translate('Attribute has been inserted successfully'))->success();
+        return redirect()->route('attributes.index');
     }
 
     /**
@@ -66,10 +67,11 @@ class AttributeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $attribute = Attribute::findOrFail(decrypt($id));
-        return view('attribute.edit', compact('attribute'));
+        $lang      = $request->lang;
+        $attribute = Attribute::findOrFail($id);
+        return view('backend.product.attribute.edit', compact('attribute','lang'));
     }
 
     /**
@@ -82,15 +84,17 @@ class AttributeController extends Controller
     public function update(Request $request, $id)
     {
         $attribute = Attribute::findOrFail($id);
-        $attribute->name = $request->name;
-        if($attribute->save()){
-            flash(translate('Attribute has been updated successfully'))->success();
-            return redirect()->route('attributes.index');
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+          $attribute->name = $request->name;
         }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $attribute->save();
+
+        $attribute_translation = AttributeTranslation::firstOrNew(['lang' => $request->lang, 'attribute_id' => $attribute->id]);
+        $attribute_translation->name = $request->name;
+        $attribute_translation->save();
+
+        flash(translate('Attribute has been updated successfully'))->success();
+        return redirect()->route('attributes.index');
     }
 
     /**
@@ -102,13 +106,14 @@ class AttributeController extends Controller
     public function destroy($id)
     {
         $attribute = Attribute::findOrFail($id);
-        if(Attribute::destroy($id)){
-            flash(translate('Attribute has been deleted successfully'))->success();
-            return redirect()->route('attributes.index');
+
+        foreach ($attribute->attribute_translations as $key => $attribute_translation) {
+            $attribute_translation->delete();
         }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+
+        Attribute::destroy($id);
+        flash(translate('Attribute has been deleted successfully'))->success();
+        return redirect()->route('attributes.index');
+
     }
 }

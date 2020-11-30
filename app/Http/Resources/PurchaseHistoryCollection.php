@@ -17,7 +17,7 @@ class PurchaseHistoryCollection extends ResourceCollection
                         'name' => $data->user->name,
                         'email' => $data->user->email,
                         'avatar' => $data->user->avatar,
-                        'avatar_original' => $data->user->avatar_original
+                        'avatar_original' => api_asset($data->user->avatar_original)
                     ],
                     'shipping_address' => json_decode($data->shipping_address),
                     'payment_type' => str_replace('_', ' ', $data->payment_type),

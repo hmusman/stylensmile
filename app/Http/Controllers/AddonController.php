@@ -9,6 +9,7 @@ use ZipArchive;
 use DB;
 use Auth;
 use App\BusinessSetting;
+use CoreComponentRepository;
 use Illuminate\Support\Str;
 use Storage;
 
@@ -21,7 +22,8 @@ class AddonController extends Controller
      */
     public function index()
     {
-        return view('addons.index');
+        CoreComponentRepository::instantiateShopRepository();
+        return view('backend.addons.index');
     }
 
     /**
@@ -31,7 +33,7 @@ class AddonController extends Controller
      */
     public function create()
     {
-        return view('addons.create');
+        return view('backend.addons.create');
     }
 
     /**
@@ -48,12 +50,10 @@ class AddonController extends Controller
             if (!is_dir($dir))
                 mkdir($dir, 0777, true);
 
-            //$path = $request->addon_zip->store('addons');
-
             $path = Storage::disk('local')->put('addons', $request->addon_zip);
 
             $zipped_file_name = $request->addon_zip->getClientOriginalName();
-            //dd(base_path('public/'.$path));
+
             //Unzip uploaded update file and remove zip file.
             $zip = new ZipArchive;
             $res = $zip->open(base_path('public/'.$path));
@@ -63,28 +63,17 @@ class AddonController extends Controller
             $dir = trim($zip->getNameIndex(0), '/');
 
             if ($res === true) {
-                $res = $zip->extractTo('temp/'.$random_dir.'/addons');
-                //dd($zip);
-                // if ($res === false) {
-                //     dd('not extracted');
-                //     $res = $zip->extractTo('addons');
-                // }
+                $res = $zip->extractTo(base_path('temp/'.$random_dir.'/addons'));
                 $zip->close();
-                //unlink($path);
             }
             else {
                 dd('could not open');
             }
 
-            // $unzipped_file_name = substr($zipped_file_name, 0, -4);
-
-
-
-            $str = file_get_contents('temp/'.$random_dir.'/addons/'.$dir.'/config.json');
-
+            $str = file_get_contents(base_path('temp/'.$random_dir.'/addons/'.$dir.'/config.json'));
             $json = json_decode($str, true);
 
-            //dd($json);
+            //dd($random_dir, $json);
 
             if (BusinessSetting::where('type', 'current_version')->first()->value >= $json['minimum_item_version']) {
                 if(count(Addon::where('unique_identifier', $json['unique_identifier'])->get()) == 0){
@@ -119,7 +108,7 @@ class AddonController extends Controller
                     }
 
                     // Run sql modifications
-                    $sql_path = 'temp/'.$random_dir.'/addons/'.$dir.'/sql/update.sql';
+                    $sql_path = base_path('temp/'.$random_dir.'/addons/'.$dir.'/sql/update.sql');
                     if(file_exists($sql_path)){
                         DB::unprepared(file_get_contents($sql_path));
                     }
@@ -154,7 +143,7 @@ class AddonController extends Controller
 
                     for($i = $addon->version+0.1; $i <= $json['version']; $i=$i+0.1) {
                         // Run sql modifications
-                        $sql_path = 'temp/'.$random_dir.'/addons/'.$dir.'/sql/'.$i.'.sql';
+                        $sql_path = base_path('temp/'.$random_dir.'/addons/'.$dir.'/sql/'.$i.'.sql');
                         if(file_exists($sql_path)){
                             DB::unprepared(file_get_contents($sql_path));
                         }

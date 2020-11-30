@@ -27,7 +27,7 @@ class ShopController extends Controller
     public function index()
     {
         $shop = Auth::user()->shop;
-        return view('frontend.seller.shop', compact('shop'));
+        return view('frontend.user.seller.shop', compact('shop'));
     }
 
     /**
@@ -160,10 +160,7 @@ class ShopController extends Controller
 
             $shop->meta_title = $request->meta_title;
             $shop->meta_description = $request->meta_description;
-
-            if($request->hasFile('logo')){
-                $shop->logo = $request->logo->store('uploads/shop/logo');
-            }
+            $shop->logo = $request->logo;
 
             if ($request->has('pick_up_point_id')) {
                 $shop->pick_up_point_id = json_encode($request->pick_up_point_id);
@@ -181,20 +178,7 @@ class ShopController extends Controller
         }
 
         else{
-            if($request->has('previous_sliders')){
-                $sliders = $request->previous_sliders;
-            }
-            else{
-                $sliders = array();
-            }
-
-            if($request->hasFile('sliders')){
-                foreach ($request->sliders as $key => $slider) {
-                    array_push($sliders, $slider->store('uploads/shop/sliders'));
-                }
-            }
-
-            $shop->sliders = json_encode($sliders);
+            $shop->sliders = $request->sliders;
         }
 
         if($shop->save()){
@@ -221,7 +205,7 @@ class ShopController extends Controller
     {
         if(Auth::user()->seller->verification_info == null){
             $shop = Auth::user()->shop;
-            return view('frontend.seller.verify_form', compact('shop'));
+            return view('frontend.user.seller.verify_form', compact('shop'));
         }
         else {
             flash(translate('Sorry! You have sent verification request already.'))->error();

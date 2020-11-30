@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Product;
+use App\ProductTranslation;
 use Storage;
 use App\Language;
 use Auth;
@@ -15,10 +16,16 @@ class DigitalProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::where('digital', 1)->orderBy('created_at', 'desc')->get();
-        return view('digitalproducts.index', compact('products'));
+        $sort_search    = null;
+        $products       = Product::orderBy('created_at', 'desc');
+        if ($request->has('search')){
+            $sort_search    = $request->search;
+            $products       = $products->where('name', 'like', '%'.$sort_search.'%');
+        }
+        $products = $products->where('digital', 1)->paginate(10);
+        return view('backend.product.digital_products.index', compact('products','sort_search'));
     }
 
     /**
@@ -28,7 +35,7 @@ class DigitalProductController extends Controller
      */
     public function create()
     {
-        return view('digitalproducts.create');
+        return view('backend.product.digital_products.create');
     }
 
     /**
@@ -40,47 +47,34 @@ class DigitalProductController extends Controller
     public function store(Request $request)
     {
         //dd($request->all());
-        $product = new Product;
-        $product->name = $request->name;
-        $product->added_by = $request->added_by;
-        $product->user_id = Auth::user()->id;
-        $product->category_id = $request->category_id;
-        $product->subcategory_id = $request->subcategory_id;
+        $product                    = new Product;
+        $product->name              = $request->name;
+        $product->added_by          = $request->added_by;
+        $product->user_id           = Auth::user()->id;
+        $product->category_id       = $request->category_id;
+        $product->subcategory_id    = $request->subcategory_id;
         $product->subsubcategory_id = $request->subsubcategory_id;
-        $product->digital = 1;
+        $product->digital           = 1;
+        $product->photos            = $request->photos;
+        $product->thumbnail_img     = $request->thumbnail_img;
 
-        $photos = array();
-
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/products/photos');
-                array_push($photos, $path);
-                if($key == 0){
-                    $product->meta_img = $path;
-                }
-            }
-            $product->photos = json_encode($photos);
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
         }
+        $product->tags = implode(',', $tags);
 
-        if($request->hasFile('thumbnail_img')){
-            $product->thumbnail_img = $request->thumbnail_img->store('uploads/products/thumbnail');
-        }
+        $product->description       = $request->description;
+        $product->unit_price        = $request->unit_price;
+        $product->purchase_price    = $request->purchase_price;
+        $product->tax               = $request->tax;
+        $product->tax_type          = $request->tax_type;
+        $product->discount          = $request->discount;
+        $product->discount_type     = $request->discount_type;
 
-        $product->tags = implode('|',$request->tags);
-        $product->description = $request->description;
-        $product->unit_price = $request->unit_price;
-        $product->purchase_price = $request->purchase_price;
-        $product->tax = $request->tax;
-        $product->tax_type = $request->tax_type;
-        $product->discount = $request->discount;
-        $product->discount_type = $request->discount_type;
-
-        $product->meta_title = $request->meta_title;
-        $product->meta_description = $request->meta_description;
-
-        if($request->hasFile('meta_img')){
-            $product->meta_img = $request->meta_img->store('uploads/products/meta');
-        }
+        $product->meta_title        = $request->meta_title;
+        $product->meta_description  = $request->meta_description;
+        $product->meta_img          = $request->meta_img;
 
         if($request->hasFile('file')){
             $product->file_name = $request->file('file')->getClientOriginalName();
@@ -89,11 +83,14 @@ class DigitalProductController extends Controller
 
         $product->slug = rand(10000,99999).'-'.preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name));
 
-        $data = openJSONFile('en');
-        $data[$product->name] = $product->name;
-        saveJSONFile('en', $data);
-
         if($product->save()){
+
+            // Product Translations
+            $product_translation                = ProductTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'product_id' => $product->id]);
+            $product_translation->name          = $request->name;
+            $product_translation->description   = $request->description;
+            $product_translation->save();
+
             flash(translate('Digital Product has been inserted successfully'))->success();
             if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
                 return redirect()->route('digitalproducts.index');
@@ -130,10 +127,11 @@ class DigitalProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $product = Product::findOrFail(decrypt($id));
-        return view('digitalproducts.edit', compact('product'));
+        $lang = $request->lang;
+        $product = Product::findOrFail($id);
+        return view('backend.product.digital_products.edit', compact('product','lang'));
     }
 
     /**
@@ -145,63 +143,50 @@ class DigitalProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
-        $product->name = $request->name;
-        $product->slug = $request->slug;
-        $product->user_id = Auth::user()->id;
-        $product->category_id = $request->category_id;
-        $product->subcategory_id = $request->subcategory_id;
+        $product                    = Product::findOrFail($id);
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $product->name          = $request->name;
+            $product->description   = $request->description;
+        }
+
+        $product->slug              = $request->slug;
+        $product->user_id           = Auth::user()->id;
+        $product->category_id       = $request->category_id;
+        $product->subcategory_id    = $request->subcategory_id;
         $product->subsubcategory_id = $request->subsubcategory_id;
-        $product->digital = 1;
+        $product->digital           = 1;
+        $product->photos            = $request->photos;
+        $product->thumbnail_img     = $request->thumbnail_img;
 
-        if($request->has('previous_photos')){
-            $photos = $request->previous_photos;
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
         }
-        else{
-            $photos = array();
-        }
+        $product->tags = implode(',', $tags);
 
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/products/photos');
-                array_push($photos, $path);
-            }
-        }
-        $product->photos = json_encode($photos);
+        $product->unit_price        = $request->unit_price;
+        $product->purchase_price    = $request->purchase_price;
+        $product->tax               = $request->tax;
+        $product->tax_type          = $request->tax_type;
+        $product->discount          = $request->discount;
+        $product->discount_type     = $request->discount_type;
 
-        $product->thumbnail_img = $request->previous_thumbnail_img;
-        if($request->hasFile('thumbnail_img')){
-            $product->thumbnail_img = $request->thumbnail_img->store('uploads/products/thumbnail');
-        }
-
-        $product->tags = implode('|',$request->tags);
-        $product->description = $request->description;
-        $product->unit_price = $request->unit_price;
-        $product->purchase_price = $request->purchase_price;
-        $product->tax = $request->tax;
-        $product->tax_type = $request->tax_type;
-        $product->discount = $request->discount;
-        $product->discount_type = $request->discount_type;
-
-        $product->meta_title = $request->meta_title;
-        $product->meta_description = $request->meta_description;
-
-        $product->meta_img = $request->previous_meta_img;
-        if($request->hasFile('meta_img')){
-            $product->meta_img = $request->meta_img->store('uploads/products/meta');
-        }
-
+        $product->meta_title        = $request->meta_title;
+        $product->meta_description  = $request->meta_description;
+        $product->meta_img          = $request->meta_img;
 
         if($request->hasFile('file')){
             $product->file_name = $request->file('file')->getClientOriginalName();
             $product->file_path = $request->file('file')->store('uploads/products/digital');
         }
 
-        $data = openJSONFile('en');
-        $data[$product->name] = $product->name;
-        saveJSONFile('en', $data);
-
         if($product->save()){
+
+            // Product Translations
+            $product_translation                = ProductTranslation::firstOrNew(['lang' => $request->lang, 'product_id' => $product->id]);
+            $product_translation->name          = $request->name;
+            $product_translation->description   = $request->description;
+            $product_translation->save();
 
             flash(translate('Digital Product has been inserted successfully'))->success();
             if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
@@ -226,24 +211,19 @@ class DigitalProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        if(Product::destroy($id)){
-            foreach (Language::all() as $key => $language) {
-                $data = openJSONFile($language->code);
-                unset($data[$product->name]);
-                saveJSONFile($language->code, $data);
-            }
-            flash(translate('Product has been deleted successfully'))->success();
-            if(Auth::user()->user_type == 'admin'){
-                return redirect()->route('digitalproducts.index');
-            }
-            else{
-                return redirect()->route('seller.digitalproducts');
-            }
+        foreach ($product->product_translations as $key => $product_translation) {
+            $product_translation->delete();
+        }
+        Product::destroy($id);
+
+        flash(translate('Product has been deleted successfully'))->success();
+        if(Auth::user()->user_type == 'admin'){
+            return redirect()->route('digitalproducts.index');
         }
         else{
-            flash(translate('Something went wrong'))->error();
-            return back();
+            return redirect()->route('seller.digitalproducts');
         }
+
     }
 
 

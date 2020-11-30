@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App;
 
 class Product extends Model
 {
@@ -10,6 +11,17 @@ class Product extends Model
         'name','added_by', 'user_id', 'category_id', 'subcategory_id', 'subsubcategory_id', 'brand_id', 'video_provider', 'video_link', 'unit_price',
         'purchase_price', 'unit', 'slug', 'colors', 'choice_options', 'variations', 'current_stock'
       ];
+
+    public function getTranslation($field = '', $lang = false){
+      $lang = $lang == false ? App::getLocale() : $lang;
+      $product_translations = $this->hasMany(ProductTranslation::class)->where('lang', $lang)->first();
+      return $product_translations != null ? $product_translations->$field : $this->$field;
+    }
+
+    public function product_translations(){
+    	return $this->hasMany(ProductTranslation::class);
+    }
+
     public function category(){
     	return $this->belongsTo(Category::class);
     }

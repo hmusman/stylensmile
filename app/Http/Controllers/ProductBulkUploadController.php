@@ -21,10 +21,10 @@ class ProductBulkUploadController extends Controller
     public function index()
     {
         if (Auth::user()->user_type == 'seller') {
-            return view('frontend.seller.product_bulk_upload.index');
+            return view('frontend.user.seller.product_bulk_upload.index');
         }
         elseif (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
-            return view('bulk_upload.index');
+            return view('backend.product.bulk_upload.index');
         }
     }
 
@@ -39,7 +39,7 @@ class ProductBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.category', compact('categories'));
+                    ])->loadView('backend.downloads.category', compact('categories'));
 
         return $pdf->download('category.pdf');
     }
@@ -51,7 +51,7 @@ class ProductBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.sub_category', compact('sub_categories'));
+                    ])->loadView('backend.downloads.sub_category', compact('sub_categories'));
 
         return $pdf->download('sub_category.pdf');
     }
@@ -63,7 +63,7 @@ class ProductBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.sub_sub_category', compact('sub_sub_categories'));
+                    ])->loadView('backend.downloads.sub_sub_category', compact('sub_sub_categories'));
 
         return $pdf->download('sub_sub_category.pdf');
     }
@@ -75,7 +75,7 @@ class ProductBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.brand', compact('brands'));
+                    ])->loadView('backend.downloads.brand', compact('brands'));
         return $pdf->download('brands.pdf');
     }
 
@@ -86,7 +86,7 @@ class ProductBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.user', compact('users'));
+                    ])->loadView('backend.downloads.user', compact('users'));
 
         return $pdf->download('user.pdf');
 

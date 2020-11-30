@@ -14,10 +14,19 @@
 //demo
 Route::get('/demo/cron_1', 'DemoController@cron_1');
 Route::get('/demo/cron_2', 'DemoController@cron_2');
+Route::get('/convert_assets', 'DemoController@convert_assets');
 
-// Route::get('helloworld', function() {
-// 	return new SupportMailManager();
-// });
+
+Route::get('/refresh-csrf', function(){
+    return csrf_token();
+});
+Route::post('/aiz-uploader', 'AizUploadController@show_uploader');
+Route::post('/aiz-uploader/upload', 'AizUploadController@upload');
+Route::get('/aiz-uploader/get_uploaded_files', 'AizUploadController@get_uploaded_files');
+Route::delete('/aiz-uploader/destroy/{id}', 'AizUploadController@destroy');
+Route::post('/aiz-uploader/get_file_by_ids', 'AizUploadController@get_preview_files');
+Route::get('/aiz-uploader/download/{id}', 'AizUploadController@attachment_download')->name('download_attachment');
+
 
 Auth::routes(['verify' => true]);
 Route::get('/logout', '\App\Http\Controllers\Auth\LoginController@logout');
@@ -114,7 +123,10 @@ Route::POST('/sslcommerz/ipn', 'PublicSslCommerzPaymentController@ipn');
 
 //Stipe Start
 Route::get('stripe', 'StripePaymentController@stripe');
-Route::post('stripe', 'StripePaymentController@stripePost')->name('stripe.post');
+Route::post('/stripe/create-checkout-session', 'StripePaymentController@create_checkout_session')->name('stripe.get_token');
+Route::any('/stripe/payment/callback', 'StripePaymentController@callback')->name('stripe.callback');
+Route::get('/stripe/success', 'StripePaymentController@success')->name('stripe.success');
+Route::get('/stripe/cancel', 'StripePaymentController@cancel')->name('stripe.cancel');
 //Stripe END
 
 Route::get('/compare', 'CompareController@index')->name('compare');
@@ -159,6 +171,7 @@ Route::group(['middleware' => ['user', 'verified','unbanned']], function(){
 
 	Route::post('/customer_packages/purchase', 'CustomerPackageController@purchase_package')->name('customer_packages.purchase');
 	Route::resource('customer_products', 'CustomerProductController');
+    Route::get('/customer_products/{id}/edit','CustomerProductController@edit')->name('customer_products.edit');
 	Route::post('/customer_products/published', 'CustomerProductController@updatePublished')->name('customer_products.published');
 	Route::post('/customer_products/status', 'CustomerProductController@updateStatus')->name('customer_products.update.status');
 
@@ -232,6 +245,7 @@ Route::group(['middleware' => ['auth']], function(){
 	Route::get('/product-bulk-export', 'ProductBulkUploadController@export')->name('product_bulk_export.index');
 
 	Route::resource('digitalproducts','DigitalProductController');
+    Route::get('/digitalproducts/edit/{id}', 'DigitalProductController@edit')->name('digitalproducts.edit');
 	Route::get('/digitalproducts/destroy/{id}', 'DigitalProductController@destroy')->name('digitalproducts.destroy');
 	Route::get('/digitalproducts/download/{id}', 'DigitalProductController@download')->name('digitalproducts.download');
 });

@@ -20,14 +20,14 @@ class ProductDetailCollection extends ResourceCollection
                         'name' => $data->user->name,
                         'email' => $data->user->email,
                         'avatar' => $data->user->avatar,
-                        'avatar_original' => $data->user->avatar_original,
+                        'avatar_original' => api_asset($data->user->avatar_original),
                         'shop_name' => $data->added_by == 'admin' ? '' : $data->user->shop->name,
-                        'shop_logo' => $data->added_by == 'admin' ? '' : $data->user->shop->logo,
+                        'shop_logo' => $data->added_by == 'admin' ? '' : uploaded_asset($data->user->shop->logo),
                         'shop_link' => $data->added_by == 'admin' ? '' : route('shops.info', $data->user->shop->id)
                     ],
                     'category' => [
                         'name' => $data->category->name,
-                        'banner' => $data->category->banner,
+                        'banner' => api_asset($data->category->banner),
                         'icon' => $data->category->icon,
                         'links' => [
                             'products' => route('api.products.category', $data->category_id),
@@ -42,13 +42,13 @@ class ProductDetailCollection extends ResourceCollection
                     ],
                     'brand' => [
                         'name' => $data->brand != null ? $data->brand->name : null,
-                        'logo' => $data->brand != null ? $data->brand->logo : null,
+                        'logo' => $data->brand != null ? api_asset($data->brand->logo) : null,
                         'links' => [
                             'products' => $data->brand != null ? route('api.products.brand', $data->brand_id) : null
                         ]
                     ],
-                    'photos' => json_decode($data->photos),
-                    'thumbnail_image' => $data->thumbnail_img,
+                    'photos' => $this->convertPhotos(explode(',', $data->photos)),
+                    'thumbnail_image' => api_asset($data->thumbnail_img),
                     'tags' => explode(',', $data->tags),
                     'price_lower' => (double) explode('-', homeDiscountedPrice($data->id))[0],
                     'price_higher' => (double) explode('-', homeDiscountedPrice($data->id))[1],
@@ -92,6 +92,14 @@ class ProductDetailCollection extends ResourceCollection
             $item['title'] = Attribute::find($choice->attribute_id)->name;
             $item['options'] = $choice->values;
             array_push($result, $item);
+        }
+        return $result;
+    }
+
+    protected function convertPhotos($data){
+        $result = array();
+        foreach ($data as $key => $item) {
+            array_push($result, api_asset($item));
         }
         return $result;
     }

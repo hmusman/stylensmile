@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Product;
+use App\ProductTranslation;
 use App\ProductStock;
 use App\Category;
 use App\Language;
@@ -12,6 +13,7 @@ use App\SubSubCategory;
 use Session;
 use ImageOptimizer;
 use DB;
+use CoreComponentRepository;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -23,7 +25,7 @@ class ProductController extends Controller
      */
     public function admin_products(Request $request)
     {
-        
+        //CoreComponentRepository::instantiateShopRepository();
 
         $type = 'In House';
         $col_name = null;
@@ -47,7 +49,7 @@ class ProductController extends Controller
 
         $products = $products->where('digital', 0)->orderBy('created_at', 'desc')->paginate(15);
 
-        return view('products.index', compact('products','type', 'col_name', 'query', 'sort_search'));
+        return view('backend.product.products.index', compact('products','type', 'col_name', 'query', 'sort_search'));
     }
 
     /**
@@ -79,11 +81,42 @@ class ProductController extends Controller
             $sort_type = $request->type;
         }
 
-        $products = $products->orderBy('created_at', 'desc')->paginate(15);
+        $products = $products->where('digital', 0)->orderBy('created_at', 'desc')->paginate(15);
         $type = 'Seller';
 
-        return view('products.index', compact('products','type', 'col_name', 'query', 'seller_id', 'sort_search'));
+        return view('backend.product.products.index', compact('products','type', 'col_name', 'query', 'seller_id', 'sort_search'));
     }
+
+    public function all_products(Request $request)
+    {
+        $col_name = null;
+        $query = null;
+        $seller_id = null;
+        $sort_search = null;
+        $products = Product::orderBy('created_at', 'desc');
+        if ($request->has('user_id') && $request->user_id != null) {
+            $products = $products->where('user_id', $request->user_id);
+            $seller_id = $request->user_id;
+        }
+        if ($request->search != null){
+            $products = $products
+                        ->where('name', 'like', '%'.$request->search.'%');
+            $sort_search = $request->search;
+        }
+        if ($request->type != null){
+            $var = explode(",", $request->type);
+            $col_name = $var[0];
+            $query = $var[1];
+            $products = $products->orderBy($col_name, $query);
+            $sort_type = $request->type;
+        }
+
+        $products = $products->paginate(15);
+        $type = 'All';
+
+        return view('backend.product.products.index', compact('products','type', 'col_name', 'query', 'seller_id', 'sort_search'));
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -93,7 +126,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('products.create', compact('categories'));
+        return view('backend.product.products.create', compact('categories'));
     }
 
     /**
@@ -130,26 +163,17 @@ class ProductController extends Controller
                 $product->refundable = 0;
             }
         }
-
-        $photos = array();
-
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/products/photos');
-                array_push($photos, $path);
-                //ImageOptimizer::optimize(base_path('public/').$path);
-            }
-            $product->photos = json_encode($photos);
-        }
-
-        if($request->hasFile('thumbnail_img')){
-            $product->thumbnail_img = $request->thumbnail_img->store('uploads/products/thumbnail');
-            //ImageOptimizer::optimize(base_path('public/').$product->thumbnail_img);
-        }
-
+        $product->photos = $request->photos;
+        $product->thumbnail_img = $request->thumbnail_img;
         $product->unit = $request->unit;
         $product->min_qty = $request->min_qty;
-        $product->tags = implode('|',$request->tags);
+
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
+        }
+        $product->tags = implode(',', $tags);
+
         $product->description = $request->description;
         $product->video_provider = $request->video_provider;
         $product->video_link = $request->video_link;
@@ -172,9 +196,8 @@ class ProductController extends Controller
         $product->meta_title = $request->meta_title;
         $product->meta_description = $request->meta_description;
 
-        if($request->hasFile('meta_img')){
-            $product->meta_img = $request->meta_img->store('uploads/products/meta');
-            //ImageOptimizer::optimize(base_path('public/').$product->meta_img);
+        if($request->has('meta_img')){
+            $product->meta_img = $request->meta_img;
         } else {
             $product->meta_img = $product->thumbnail_img;
         }
@@ -208,8 +231,13 @@ class ProductController extends Controller
                 $str = 'choice_options_'.$no;
 
                 $item['attribute_id'] = $no;
-                $item['values'] = explode(',', implode('|', $request[$str]));
 
+                $data = array();
+                foreach (json_decode($request[$str][0]) as $key => $eachValue) {
+                    array_push($data, $eachValue->value);
+                }
+
+                $item['values'] = $data;
                 array_push($choice_options, $item);
             }
         }
@@ -237,8 +265,11 @@ class ProductController extends Controller
         if($request->has('choice_no')){
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_'.$no;
-                $my_str = implode('|',$request[$name]);
-                array_push($options, explode(',', $my_str));
+                $data = array();
+                foreach (json_decode($request[$name][0]) as $key => $item) {
+                    array_push($data, $item->value);
+                }
+                array_push($options, $data);
             }
         }
 
@@ -262,12 +293,6 @@ class ProductController extends Controller
                         }
                     }
                 }
-                // $item = array();
-                // $item['price'] = $request['price_'.str_replace('.', '_', $str)];
-                // $item['sku'] = $request['sku_'.str_replace('.', '_', $str)];
-                // $item['qty'] = $request['qty_'.str_replace('.', '_', $str)];
-                // $variations[$str] = $item;
-
                 $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
                 if($product_stock == null){
                     $product_stock = new ProductStock;
@@ -281,15 +306,23 @@ class ProductController extends Controller
                 $product_stock->save();
             }
         }
+        else{
+            $product_stock = new ProductStock;
+            $product_stock->product_id = $product->id;
+            $product_stock->price = $request->unit_price;
+            $product_stock->qty = $request->current_stock;
+            $product_stock->save();
+        }
         //combinations end
 
-        foreach (Language::all() as $key => $language) {
-            $data = openJSONFile($language->code);
-            $data[$product->name] = $product->name;
-            saveJSONFile($language->code, $data);
-        }
-
 	    $product->save();
+
+        // Product Translations
+        $product_translation = ProductTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'product_id' => $product->id]);
+        $product_translation->name = $request->name;
+        $product_translation->unit = $request->unit;
+        $product_translation->description = $request->description;
+        $product_translation->save();
 
         flash(translate('Product has been inserted successfully'))->success();
         if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
@@ -322,13 +355,14 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function admin_product_edit($id)
-    {
-        $product = Product::findOrFail(decrypt($id));
+     public function admin_product_edit(Request $request, $id)
+     {
+        $product = Product::findOrFail($id);
+        $lang = $request->lang;
         $tags = json_decode($product->tags);
         $categories = Category::all();
-        return view('products.edit', compact('product', 'categories', 'tags'));
-    }
+        return view('backend.product.products.edit', compact('product', 'categories', 'tags','lang'));
+     }
 
     /**
      * Show the form for editing the specified resource.
@@ -336,12 +370,13 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function seller_product_edit($id)
+    public function seller_product_edit(Request $request, $id)
     {
-        $product = Product::findOrFail(decrypt($id));
+        $product = Product::findOrFail($id);
+        $lang = $request->lang;
         $tags = json_decode($product->tags);
         $categories = Category::all();
-        return view('products.edit', compact('product', 'categories', 'tags'));
+        return view('backend.product.products.edit', compact('product', 'categories', 'tags','lang'));
     }
 
     /**
@@ -353,15 +388,15 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $refund_request_addon = \App\Addon::where('unique_identifier', 'refund_request')->first();
-        $product = Product::findOrFail($id);
-        $product->name = $request->name;
-        $product->category_id = $request->category_id;
-        $product->subcategory_id = $request->subcategory_id;
+        $refund_request_addon       = \App\Addon::where('unique_identifier', 'refund_request')->first();
+        $product                    = Product::findOrFail($id);
+        $product->category_id       = $request->category_id;
+        $product->subcategory_id    = $request->subcategory_id;
         $product->subsubcategory_id = $request->subsubcategory_id;
-        $product->brand_id = $request->brand_id;
-        $product->current_stock = $request->current_stock;
-        $product->barcode = $request->barcode;
+        $product->brand_id          = $request->brand_id;
+        $product->current_stock     = $request->current_stock;
+        $product->barcode           = $request->barcode;
+
 
         if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
             if ($request->refundable != null) {
@@ -372,40 +407,31 @@ class ProductController extends Controller
             }
         }
 
-        if($request->has('previous_photos')){
-            $photos = $request->previous_photos;
-        }
-        else{
-            $photos = array();
-        }
-
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/products/photos');
-                array_push($photos, $path);
-                //ImageOptimizer::optimize(base_path('public/').$path);
-            }
-        }
-        $product->photos = json_encode($photos);
-
-        $product->thumbnail_img = $request->previous_thumbnail_img;
-        if($request->hasFile('thumbnail_img')){
-            $product->thumbnail_img = $request->thumbnail_img->store('uploads/products/thumbnail');
-            //ImageOptimizer::optimize(base_path('public/').$product->thumbnail_img);
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $product->name          = $request->name;
+            $product->unit          = $request->unit;
+            $product->description   = $request->description;
+            $product->slug          = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.substr($product->slug, -5);
         }
 
-        $product->unit = $request->unit;
-        $product->min_qty = $request->min_qty;
-        $product->tags = implode('|',$request->tags);
-        $product->description = $request->description;
+        $product->photos         = $request->photos;
+        $product->thumbnail_img  = $request->thumbnail_img;
+        $product->min_qty        = $request->min_qty;
+
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
+        }
+        $product->tags           = implode(',', $tags);
+
         $product->video_provider = $request->video_provider;
-        $product->video_link = $request->video_link;
-        $product->unit_price = $request->unit_price;
+        $product->video_link     = $request->video_link;
+        $product->unit_price     = $request->unit_price;
         $product->purchase_price = $request->purchase_price;
-        $product->tax = $request->tax;
-        $product->tax_type = $request->tax_type;
-        $product->discount = $request->discount;
-        $product->shipping_type = $request->shipping_type;
+        $product->tax            = $request->tax;
+        $product->tax_type       = $request->tax_type;
+        $product->discount       = $request->discount;
+        $product->shipping_type  = $request->shipping_type;
         if ($request->has('shipping_type')) {
             if($request->shipping_type == 'free'){
                 $product->shipping_cost = 0;
@@ -414,15 +440,10 @@ class ProductController extends Controller
                 $product->shipping_cost = $request->flat_shipping_cost;
             }
         }
-        $product->discount_type = $request->discount_type;
-        $product->meta_title = $request->meta_title;
-        $product->meta_description = $request->meta_description;
-
-        $product->meta_img = $request->previous_meta_img;
-        if($request->hasFile('meta_img')){
-            $product->meta_img = $request->meta_img->store('uploads/products/meta');
-            //ImageOptimizer::optimize(base_path('public/').$product->meta_img);
-        }
+        $product->discount_type     = $request->discount_type;
+        $product->meta_title        = $request->meta_title;
+        $product->meta_description  = $request->meta_description;
+        $product->meta_img          = $request->meta_img;
 
         if($product->meta_title == null) {
             $product->meta_title = $product->name;
@@ -431,12 +452,7 @@ class ProductController extends Controller
         if($product->meta_description == null) {
             $product->meta_description = $product->description;
         }
-
-        if($request->hasFile('pdf')){
-            $product->pdf = $request->pdf->store('uploads/products/pdf');
-        }
-
-        $product->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.substr($product->slug, -5);
+        $product->pdf = $request->pdf;
 
         if($request->has('colors_active') && $request->has('colors') && count($request->colors) > 0){
             $product->colors = json_encode($request->colors);
@@ -453,8 +469,13 @@ class ProductController extends Controller
                 $str = 'choice_options_'.$no;
 
                 $item['attribute_id'] = $no;
-                $item['values'] = explode(',', implode('|', $request[$str]));
 
+                $data = array();
+                foreach (json_decode($request[$str][0]) as $key => $eachValue) {
+                    array_push($data, $eachValue->value);
+                }
+
+                $item['values'] = $data;
                 array_push($choice_options, $item);
             }
         }
@@ -474,12 +495,6 @@ class ProductController extends Controller
 
         $product->choice_options = json_encode($choice_options);
 
-        foreach (Language::all() as $key => $language) {
-            $data = openJSONFile($language->code);
-            unset($data[$product->name]);
-            $data[$request->name] = "";
-            saveJSONFile($language->code, $data);
-        }
 
         //combinations start
         $options = array();
@@ -491,14 +506,16 @@ class ProductController extends Controller
         if($request->has('choice_no')){
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_'.$no;
-                $my_str = implode('|',$request[$name]);
-                array_push($options, explode(',', $my_str));
+                $data = array();
+                foreach (json_decode($request[$name][0]) as $key => $item) {
+                    array_push($data, $item->value);
+                }
+                array_push($options, $data);
             }
         }
 
         $combinations = combinations($options);
         if(count($combinations[0]) > 0){
-            ProductStock::where('product_id', $product->id)->delete();
             $product->variant_product = 1;
             foreach ($combinations as $key => $combination){
                 $str = '';
@@ -517,8 +534,11 @@ class ProductController extends Controller
                     }
                 }
 
-                $product_stock = new ProductStock;
-                $product_stock->product_id = $product->id;
+                $product_stock = ProductStock::where('product_id', $product->id)->where('variant', $str)->first();
+                if($product_stock == null){
+                    $product_stock = new ProductStock;
+                    $product_stock->product_id = $product->id;
+                }
 
                 $product_stock->variant = $str;
                 $product_stock->price = $request['price_'.str_replace('.', '_', $str)];
@@ -528,8 +548,22 @@ class ProductController extends Controller
                 $product_stock->save();
             }
         }
+        else{
+            $product_stock              = new ProductStock;
+            $product_stock->product_id  = $product->id;
+            $product_stock->price       = $request->unit_price;
+            $product_stock->qty         = $request->current_stock;
+            $product_stock->save();
+        }
 
         $product->save();
+
+        // Product Translations
+        $product_translation                = ProductTranslation::firstOrNew(['lang' => $request->lang, 'product_id' => $product->id]);
+        $product_translation->name          = $request->name;
+        $product_translation->unit          = $request->unit;
+        $product_translation->description   = $request->description;
+        $product_translation->save();
 
         flash(translate('Product has been updated successfully'))->success();
         if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
@@ -549,12 +583,11 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        foreach ($product->product_translations as $key => $product_translations) {
+            $product_translations->delete();
+        }
         if(Product::destroy($id)){
-            foreach (Language::all() as $key => $language) {
-                $data = openJSONFile($language->code);
-                unset($data[$product->name]);
-                saveJSONFile($language->code, $data);
-            }
+
             flash(translate('Product has been deleted successfully'))->success();
             if(Auth::user()->user_type == 'admin'){
                 return redirect()->route('products.admin');
@@ -575,7 +608,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function duplicate($id)
+    public function duplicate(Request $request, $id)
     {
         $product = Product::find($id);
         $product_new = $product->replicate();
@@ -584,7 +617,12 @@ class ProductController extends Controller
         if($product_new->save()){
             flash(translate('Product has been duplicated successfully'))->success();
             if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff'){
+              if($request->type == 'In House')
                 return redirect()->route('products.admin');
+              elseif($request->type == 'Seller')
+                return redirect()->route('products.seller');
+              elseif($request->type == 'All')
+                return redirect()->route('products.all');
             }
             else{
                 return redirect()->route('seller.products');
@@ -661,13 +699,16 @@ class ProductController extends Controller
         if($request->has('choice_no')){
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_'.$no;
-                $my_str = implode('', $request[$name]);
-                array_push($options, explode(',', $my_str));
+                $data = array();
+                foreach (json_decode($request[$name][0]) as $key => $item) {
+                    array_push($data, $item->value);
+                }
+                array_push($options, $data);
             }
         }
 
         $combinations = combinations($options);
-        return view('partials.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
+        return view('backend.product.products.sku_combinations', compact('combinations', 'unit_price', 'colors_active', 'product_name'));
     }
 
     public function sku_combination_edit(Request $request)
@@ -689,13 +730,16 @@ class ProductController extends Controller
         if($request->has('choice_no')){
             foreach ($request->choice_no as $key => $no) {
                 $name = 'choice_options_'.$no;
-                $my_str = implode('|', $request[$name]);
-                array_push($options, explode(',', $my_str));
+                $data = array();
+                foreach (json_decode($request[$name][0]) as $key => $item) {
+                    array_push($data, $item->value);
+                }
+                array_push($options, $data);
             }
         }
 
         $combinations = combinations($options);
-        return view('partials.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
+        return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
 
 }

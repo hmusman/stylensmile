@@ -17,8 +17,8 @@ class StaffController extends Controller
      */
     public function index()
     {
-        $staffs = Staff::all();
-        return view('staffs.index', compact('staffs'));
+        $staffs = Staff::paginate(10);
+        return view('backend.staff.staffs.index', compact('staffs'));
     }
 
     /**
@@ -29,7 +29,7 @@ class StaffController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('staffs.create', compact('roles'));
+        return view('backend.staff.staffs.create', compact('roles'));
     }
 
     /**
@@ -83,7 +83,7 @@ class StaffController extends Controller
     {
         $staff = Staff::findOrFail(decrypt($id));
         $roles = Role::all();
-        return view('staffs.edit', compact('staff', 'roles'));
+        return view('backend.staff.staffs.edit', compact('staff', 'roles'));
     }
 
     /**

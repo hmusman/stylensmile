@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\CustomerProduct;
+use App\CustomerProductTranslation;
 use App\Category;
 use App\SubCategory;
 use App\Brand;
@@ -22,13 +23,13 @@ class CustomerProductController extends Controller
     public function index()
     {
         $products = CustomerProduct::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->paginate(10);
-        return view('frontend.customer.products', compact('products'));
+        return view('frontend.user.customer.products', compact('products'));
     }
 
     public function customer_product_index()
     {
-        $products = CustomerProduct::all();
-        return view('classified_products.index', compact('products'));
+        $products = CustomerProduct::orderBy('created_at', 'desc')->paginate(10);
+        return view('backend.customer.classified_products.index', compact('products'));
     }
 
     /**
@@ -40,7 +41,7 @@ class CustomerProductController extends Controller
     {
         if(Auth::user()->user_type == "customer" && Auth::user()->remaining_uploads > 0){
             $categories = Category::all();
-            return view('frontend.customer.product_upload', compact('categories'));
+            return view('frontend.user.customer.product_upload', compact('categories'));
         }
         elseif (Auth::user()->user_type == "seller" && Auth::user()->remaining_uploads > 0) {
             $categories = Category::all();
@@ -60,49 +61,46 @@ class CustomerProductController extends Controller
      */
     public function store(Request $request)
     {
-        $customer_product = new CustomerProduct;
-        $customer_product->name = $request->name;
-        $customer_product->added_by = $request->added_by;
-        $customer_product->user_id = Auth::user()->id;
-        $customer_product->category_id = $request->category_id;
-        $customer_product->subcategory_id = $request->subcategory_id;
-        $customer_product->subsubcategory_id = $request->subsubcategory_id;
-        $customer_product->brand_id = $request->brand_id;
-        $customer_product->conditon = $request->conditon;
-        $customer_product->location = $request->location;
-        $photos = array();
+        $customer_product                       = new CustomerProduct;
+        $customer_product->name                 = $request->name;
+        $customer_product->added_by             = $request->added_by;
+        $customer_product->user_id              = Auth::user()->id;
+        $customer_product->category_id          = $request->category_id;
+        $customer_product->subcategory_id       = $request->subcategory_id;
+        $customer_product->subsubcategory_id    = $request->subsubcategory_id;
+        $customer_product->brand_id             = $request->brand_id;
+        $customer_product->conditon             = $request->conditon;
+        $customer_product->location             = $request->location;
+        $customer_product->photos               = $request->photos;
+        $customer_product->thumbnail_img        = $request->thumbnail_img;
+        $customer_product->unit                 = $request->unit;
 
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/customer_products/photos');
-                array_push($photos, $path);
-                // ImageOptimizer::optimize(base_path('public/').$path);
-            }
-            $customer_product->photos = json_encode($photos);
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
         }
 
-        if($request->hasFile('thumbnail_img')){
-            $customer_product->thumbnail_img = $request->thumbnail_img->store('uploads/customer_products/thumbnail');
-            // ImageOptimizer::optimize(base_path('public/').$customer_product->thumbnail_img);
-        }
-
-        $customer_product->unit = $request->unit;
-        $customer_product->tags = implode('|',$request->tags);
-        $customer_product->description = $request->description;
-        $customer_product->video_provider = $request->video_provider;
-        $customer_product->video_link = $request->video_link;
-        $customer_product->unit_price = $request->unit_price;
-        $customer_product->meta_title = $request->meta_title;
-        $customer_product->meta_description = $request->meta_description;
-        if($request->hasFile('meta_img')){
-            $customer_product->meta_img = $request->meta_img->store('uploads/customer_products/meta');
-            // ImageOptimizer::optimize(base_path('public/').$customer_product->meta_img);
-        }
-        $customer_product->slug = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5));
+        $customer_product->tags                 = implode(',', $tags);
+        $customer_product->description          = $request->description;
+        $customer_product->video_provider       = $request->video_provider;
+        $customer_product->video_link           = $request->video_link;
+        $customer_product->unit_price           = $request->unit_price;
+        $customer_product->meta_title           = $request->meta_title;
+        $customer_product->meta_description     = $request->meta_description;
+        $customer_product->meta_img             = $request->meta_img;
+        $customer_product->pdf                  = $request->pdf;
+        $customer_product->slug                 = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5));
         if($customer_product->save()){
             $user = Auth::user();
             $user->remaining_uploads -= 1;
             $user->save();
+
+            $customer_product_translation               = CustomerProductTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'customer_product_id' => $customer_product->id]);
+            $customer_product_translation->name         = $request->name;
+            $customer_product_translation->unit         = $request->unit;
+            $customer_product_translation->description  = $request->description;
+            $customer_product_translation->save();
+
             flash(translate('Product has been inserted successfully'))->success();
             return redirect()->route('customer_products.index');
         }
@@ -129,11 +127,12 @@ class CustomerProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $categories = Category::all();
-        $product = CustomerProduct::find(decrypt($id));
-        return view('frontend.customer.product_edit', compact('categories', 'product'));
+        $product    = CustomerProduct::find($id);
+        $lang       = $request->lang;
+        return view('frontend.user.customer.product_edit', compact('categories', 'product','lang'));
     }
 
     /**
@@ -145,53 +144,45 @@ class CustomerProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $customer_product = CustomerProduct::find($id);
-        $customer_product->name = $request->name;
-        $customer_product->status = '1';
-        $customer_product->user_id = Auth::user()->id;
-        $customer_product->category_id = $request->category_id;
-        $customer_product->subcategory_id = $request->subcategory_id;
-        $customer_product->subsubcategory_id = $request->subsubcategory_id;
-        $customer_product->brand_id = $request->brand_id;
-        $customer_product->conditon = $request->conditon;
-        $customer_product->location = $request->location;
-        $photos = array();
-
-        if($request->has('previous_photos')){
-            $photos = $request->previous_photos;
+        $customer_product                       = CustomerProduct::find($id);
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $customer_product->name             = $request->name;
+            $customer_product->unit             = $request->unit;
+            $customer_product->description      = $request->description;
         }
-        else{
-            $photos = array();
-        }
+        $customer_product->status               = '1';
+        $customer_product->user_id              = Auth::user()->id;
+        $customer_product->category_id          = $request->category_id;
+        $customer_product->subcategory_id       = $request->subcategory_id;
+        $customer_product->subsubcategory_id    = $request->subsubcategory_id;
+        $customer_product->brand_id             = $request->brand_id;
+        $customer_product->conditon             = $request->conditon;
+        $customer_product->location             = $request->location;
+        $customer_product->photos               = $request->photos;
+        $customer_product->thumbnail_img        = $request->thumbnail_img;
 
-        if($request->hasFile('photos')){
-            foreach ($request->photos as $key => $photo) {
-                $path = $photo->store('uploads/customer_products/photos');
-                array_push($photos, $path);
-            }
-        }
-        $customer_product->photos = json_encode($photos);
-
-        $customer_product->thumbnail_img = $request->previous_thumbnail_img;
-        if($request->hasFile('thumbnail_img')){
-            $customer_product->thumbnail_img = $request->thumbnail_img->store('uploads/customer_products/thumbnail');
-            // ImageOptimizer::optimize(base_path('public/').$customer_product->thumbnail_img);
+        $tags = array();
+        foreach (json_decode($request->tags[0]) as $key => $tag) {
+            array_push($tags, $tag->value);
         }
 
-        $customer_product->unit = $request->unit;
-        $customer_product->tags = implode('|',$request->tags);
-        $customer_product->description = $request->description;
-        $customer_product->video_provider = $request->video_provider;
-        $customer_product->video_link = $request->video_link;
-        $customer_product->unit_price = $request->unit_price;
-        $customer_product->meta_title = $request->meta_title;
-        $customer_product->meta_description = $request->meta_description;
-        if($request->hasFile('meta_img')){
-            $customer_product->meta_img = $request->meta_img->store('uploads/customer_products/meta');
-            // ImageOptimizer::optimize(base_path('public/').$customer_product->meta_img);
-        }
+        $customer_product->tags                 = implode(',', $tags);
+        $customer_product->video_provider       = $request->video_provider;
+        $customer_product->video_link           = $request->video_link;
+        $customer_product->unit_price           = $request->unit_price;
+        $customer_product->meta_title           = $request->meta_title;
+        $customer_product->meta_description     = $request->meta_description;
+        $customer_product->meta_img             = $request->meta_img;
+        $customer_product->pdf                  = $request->pdf;
         $customer_product->slug = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5));
         if($customer_product->save()){
+
+            $customer_product_translation               = CustomerProductTranslation::firstOrNew(['lang' => $request->lang, 'customer_product_id' => $customer_product->id]);
+            $customer_product_translation->name         = $request->name;
+            $customer_product_translation->unit         = $request->unit;
+            $customer_product_translation->description  = $request->description;
+            $customer_product_translation->save();
+
             flash(translate('Product has been inserted successfully'))->success();
             return redirect()->route('customer_products.index');
         }
@@ -210,6 +201,11 @@ class CustomerProductController extends Controller
     public function destroy($id)
     {
         $product = CustomerProduct::findOrFail($id);
+
+        foreach ($product->customer_product_translations as $key => $customer_product_translations) {
+            $customer_product_translations->delete();
+        }
+
         if (CustomerProduct::destroy($id)) {
             if(Auth::user()->user_type == "customer" || Auth::user()->user_type == "seller"){
                 flash(translate('Product has been deleted successfully'))->success();

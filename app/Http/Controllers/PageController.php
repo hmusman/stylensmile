@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Page;
+use App\PageTranslation;
+
 
 class PageController extends Controller
 {
@@ -14,8 +16,7 @@ class PageController extends Controller
      */
     public function index()
     {
-        $pages = Page::all();
-        return view('pages.index', compact('pages'));
+
     }
 
     /**
@@ -25,7 +26,7 @@ class PageController extends Controller
      */
     public function create()
     {
-        return view('pages.create');
+        return view('backend.website_settings.pages.create');
     }
 
     /**
@@ -39,18 +40,22 @@ class PageController extends Controller
         $page = new Page;
         $page->title = $request->title;
         if (Page::where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
-            $page->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-            $page->content = $request->content;
-            $page->meta_title = $request->meta_title;
+            $page->slug             = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
+            $page->type             = "custom_page";
+            $page->content          = $request->content;
+            $page->meta_title       = $request->meta_title;
             $page->meta_description = $request->meta_description;
-            $page->keywords = $request->keywords;
-            if ($request->hasFile('meta_image')) {
-                $page->meta_image = $request->meta_image->store('uploads/custom-pages');;
-            }
+            $page->keywords         = $request->keywords;
+            $page->meta_image       = $request->meta_image;
             $page->save();
 
+            $page_translation           = PageTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'page_id' => $page->id]);
+            $page_translation->title    = $request->title;
+            $page_translation->content  = $request->content;
+            $page_translation->save();
+
             flash(translate('New page has been created successfully'))->success();
-            return redirect()->route('pages.index');
+            return redirect()->route('website.pages');
         }
 
         flash(translate('Slug has been used already'))->warning();
@@ -74,11 +79,18 @@ class PageController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+   public function edit(Request $request, $id)
+   {
+        $lang = $request->lang;
+        $page_name = $request->page;
         $page = Page::where('slug', $id)->first();
         if($page != null){
-            return view('pages.edit', compact('page'));
+          if ($page_name == 'home') {
+            return view('backend.website_settings.pages.home_page_edit', compact('page','lang'));
+          }
+          else{
+            return view('backend.website_settings.pages.edit', compact('page','lang'));
+          }
         }
         abort(404);
     }
@@ -93,24 +105,32 @@ class PageController extends Controller
     public function update(Request $request, $id)
     {
         $page = Page::findOrFail($id);
-        $page->title = $request->title;
-        if (Page::where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() != null) {
-            $page->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
-            $page->content = $request->content;
-            $page->meta_title = $request->meta_title;
-            $page->meta_description = $request->meta_description;
-            $page->keywords = $request->keywords;
-            if ($request->hasFile('meta_image')) {
-                $page->meta_image = $request->meta_image->store('uploads/custom-pages');;
+        if (Page::where('id','!=', $id)->where('slug', preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug)))->first() == null) {
+            if($page->type == 'custom_page'){
+              $page->slug           = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->slug));
             }
+            if($request->lang == env("DEFAULT_LANGUAGE")){
+              $page->title          = $request->title;
+              $page->content        = $request->content;
+            }
+            $page->meta_title       = $request->meta_title;
+            $page->meta_description = $request->meta_description;
+            $page->keywords         = $request->keywords;
+            $page->meta_image       = $request->meta_image;
             $page->save();
 
-            flash(translate('New page has been created successfully'))->success();
-            return redirect()->route('pages.index');
+            $page_translation           = PageTranslation::firstOrNew(['lang' => $request->lang, 'page_id' => $page->id]);
+            $page_translation->title    = $request->title;
+            $page_translation->content  = $request->content;
+            $page_translation->save();
+
+            flash(translate('Page has been updated successfully'))->success();
+            return redirect()->route('website.pages');
         }
 
-        flash(translate('Slug has been used already'))->warning();
-        return back();
+      flash(translate('Slug has been used already'))->warning();
+      return back();
+
     }
 
     /**
@@ -121,6 +141,10 @@ class PageController extends Controller
      */
     public function destroy($id)
     {
+        $page = Page::findOrFail($id);
+        foreach ($page->page_translations as $key => $page_translation) {
+            $page_translation->delete();
+        }
         if(Page::destroy($id)){
             flash(translate('Page has been deleted successfully'))->success();
             return redirect()->back();

@@ -37,7 +37,7 @@ class SellerController extends Controller
             $sellers = $sellers->where('verification_status', $approved);
         }
         $sellers = $sellers->paginate(15);
-        return view('sellers.index', compact('sellers', 'sort_search', 'approved'));
+        return view('backend.sellers.index', compact('sellers', 'sort_search', 'approved'));
     }
 
     /**
@@ -47,7 +47,7 @@ class SellerController extends Controller
      */
     public function create()
     {
-        return view('sellers.create');
+        return view('backend.sellers.create');
     }
 
     /**
@@ -79,7 +79,6 @@ class SellerController extends Controller
                 return redirect()->route('sellers.index');
             }
         }
-
         flash(translate('Something went wrong'))->error();
         return back();
     }
@@ -104,7 +103,7 @@ class SellerController extends Controller
     public function edit($id)
     {
         $seller = Seller::findOrFail(decrypt($id));
-        return view('sellers.edit', compact('seller'));
+        return view('backend.sellers.edit', compact('seller'));
     }
 
     /**
@@ -161,7 +160,7 @@ class SellerController extends Controller
     public function show_verification_request($id)
     {
         $seller = Seller::findOrFail($id);
-        return view('sellers.verification', compact('seller'));
+        return view('backend.sellers.verification', compact('seller'));
     }
 
     public function approve_seller($id)
@@ -193,13 +192,13 @@ class SellerController extends Controller
     public function payment_modal(Request $request)
     {
         $seller = Seller::findOrFail($request->id);
-        return view('sellers.payment_modal', compact('seller'));
+        return view('backend.sellers.payment_modal', compact('seller'));
     }
 
     public function profile_modal(Request $request)
     {
         $seller = Seller::findOrFail($request->id);
-        return view('sellers.profile_modal', compact('seller'));
+        return view('backend.sellers.profile_modal', compact('seller'));
     }
 
     public function updateApproved(Request $request)
@@ -228,12 +227,13 @@ class SellerController extends Controller
 
         if($seller->user->banned == 1) {
             $seller->user->banned = 0;
+            flash(translate('Seller has been unbanned successfully'))->success();
         } else {
             $seller->user->banned = 1;
+            flash(translate('Seller has been banned successfully'))->success();
         }
 
         $seller->user->save();
-
         return back();
     }
 }

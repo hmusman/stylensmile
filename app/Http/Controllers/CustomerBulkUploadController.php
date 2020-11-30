@@ -33,7 +33,7 @@ class CustomerBulkUploadController extends Controller
                         'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
                         'logOutputFile' => storage_path('logs/log.htm'),
                         'tempDir' => storage_path('logs/')
-                    ])->loadView('downloads.user', compact('users'));
+                    ])->loadView('backend.downloads.user', compact('users'));
 
         return $pdf->download('user.pdf');
     }

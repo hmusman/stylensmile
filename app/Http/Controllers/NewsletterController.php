@@ -12,9 +12,9 @@ class NewsletterController extends Controller
 {
     public function index(Request $request)
     {
-    	$users = User::all();
+        $users = User::all();
         $subscribers = Subscriber::all();
-    	return view('newsletters.index', compact('users', 'subscribers'));
+        return view('backend.marketing.newsletters.index', compact('users', 'subscribers'));
     }
 
     public function send(Request $request)

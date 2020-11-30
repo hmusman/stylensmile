@@ -14,7 +14,7 @@ class PosProductCollection extends ResourceCollection
                     'id' => $data->id,
                     'name' => $data->name,
                     'variant_product' => $data->variant_product,
-                    'thumbnail_image' => my_asset($data->thumbnail_img),
+                    'thumbnail_image' => api_asset($data->thumbnail_img),
                     'price' => single_price($data->unit_price)
                 ];
             })

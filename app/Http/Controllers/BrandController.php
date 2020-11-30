@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Brand;
+use App\BrandTranslation;
 use App\Product;
 use Illuminate\Support\Str;
 
@@ -23,7 +24,7 @@ class BrandController extends Controller
             $brands = $brands->where('name', 'like', '%'.$sort_search.'%');
         }
         $brands = $brands->paginate(15);
-        return view('brands.index', compact('brands', 'sort_search'));
+        return view('backend.product.brands.index', compact('brands', 'sort_search'));
     }
 
     /**
@@ -33,7 +34,6 @@ class BrandController extends Controller
      */
     public function create()
     {
-        return view('brands.create');
     }
 
     /**
@@ -54,18 +54,17 @@ class BrandController extends Controller
         else {
             $brand->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         }
-        if($request->hasFile('logo')){
-            $brand->logo = $request->file('logo')->store('uploads/brands');
-        }
 
-        if($brand->save()){
-            flash(translate('Brand has been inserted successfully'))->success();
-            return redirect()->route('brands.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $brand->logo = $request->logo;
+        $brand->save();
+
+        $brand_translation = BrandTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'brand_id' => $brand->id]);
+        $brand_translation->name = $request->name;
+        $brand_translation->save();
+
+        flash(translate('Brand has been inserted successfully'))->success();
+        return redirect()->route('brands.index');
+
     }
 
     /**
@@ -85,10 +84,11 @@ class BrandController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $brand = Brand::findOrFail(decrypt($id));
-        return view('brands.edit', compact('brand'));
+        $lang   = $request->lang;
+        $brand  = Brand::findOrFail($id);
+        return view('backend.product.brands.edit', compact('brand','lang'));
     }
 
     /**
@@ -101,7 +101,9 @@ class BrandController extends Controller
     public function update(Request $request, $id)
     {
         $brand = Brand::findOrFail($id);
-        $brand->name = $request->name;
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $brand->name = $request->name;
+        }
         $brand->meta_title = $request->meta_title;
         $brand->meta_description = $request->meta_description;
         if ($request->slug != null) {
@@ -110,18 +112,16 @@ class BrandController extends Controller
         else {
             $brand->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         }
-        if($request->hasFile('logo')){
-            $brand->logo = $request->file('logo')->store('uploads/brands');
-        }
+        $brand->logo = $request->logo;
+        $brand->save();
 
-        if($brand->save()){
-            flash(translate('Brand has been updated successfully'))->success();
-            return redirect()->route('brands.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $brand_translation = BrandTranslation::firstOrNew(['lang' => $request->lang, 'brand_id' => $brand->id]);
+        $brand_translation->name = $request->name;
+        $brand_translation->save();
+
+        flash(translate('Brand has been updated successfully'))->success();
+        return redirect()->route('brands.index');
+
     }
 
     /**
@@ -134,16 +134,13 @@ class BrandController extends Controller
     {
         $brand = Brand::findOrFail($id);
         Product::where('brand_id', $brand->id)->delete();
-        if(Brand::destroy($id)){
-            if($brand->logo != null){
-                //unlink($brand->logo);
-            }
-            flash(translate('Brand has been deleted successfully'))->success();
-            return redirect()->route('brands.index');
+        foreach ($brand->brand_translations as $key => $brand_translation) {
+            $brand_translation->delete();
         }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        Brand::destroy($id);
+
+        flash(translate('Brand has been deleted successfully'))->success();
+        return redirect()->route('brands.index');
+
     }
 }

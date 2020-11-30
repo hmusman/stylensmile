@@ -24,8 +24,8 @@
     <label class="mega-radio w-100">
         <input type="radio" name="pickup_point_id" value="{{ $pick_up_point->id }}" checked required>
         <span class="d-block">
-            <br><strong>{{ translate('Address') }}: {{ $pick_up_point->name }}</strong>
-            <br><strong>{{ translate('Address') }}: {{ $pick_up_point->address }}</strong>
+            <br><strong>{{ translate('Address') }}: {{ $pick_up_point->getTranslation('name') }}</strong>
+            <br><strong>{{ translate('Address') }}: {{ $pick_up_point->getTranslation('address') }}</strong>
             <br><strong>{{ translate('Phone') }}: {{ $pick_up_point->phone }}</strong>
         </span>
     </label>

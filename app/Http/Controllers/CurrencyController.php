@@ -17,23 +17,17 @@ class CurrencyController extends Controller
 
     public function currency(Request $request)
     {
-        $currencies = Currency::all();
-        $active_currencies = Currency::where('status', 1)->get();
-        return view('business_settings.currency', compact('currencies', 'active_currencies'));
-    }
+        $sort_search =null;
+        $currencies = Currency::orderBy('created_at', 'desc');
+        if ($request->has('search')){
+            $sort_search = $request->search;
+            $currencies = $currencies->where('name', 'like', '%'.$sort_search.'%');
+        }
+        $currencies = $currencies->paginate(10);
 
-    // public function updateCurrency(Request $request)
-    // {
-    //     $currency = Currency::findOrFail($request->id);
-    //     $currency->exchange_rate = $request->exchange_rate;
-    //     $currency->status = $request->status;
-    //     if($currency->save()){
-    //         flash(translate('Currency updated successfully'))->success();
-    //         return '1';
-    //     }
-    //     flash(translate('Something went wrong'))->error();
-    //     return '0';
-    // }
+        $active_currencies = Currency::where('status', 1)->get();
+        return view('backend.setup_configurations.currencies.index', compact('currencies', 'active_currencies','sort_search'));
+    }
 
     public function updateYourCurrency(Request $request)
     {
@@ -55,13 +49,13 @@ class CurrencyController extends Controller
 
     public function create()
     {
-        return view('partials.currency_create');
+        return view('backend.setup_configurations.currencies.create');
     }
 
     public function edit(Request $request)
     {
         $currency = Currency::findOrFail($request->id);
-        return view('partials.currency_edit', compact('currency'));
+        return view('backend.setup_configurations.currencies.edit', compact('currency'));
     }
 
     public function store(Request $request)

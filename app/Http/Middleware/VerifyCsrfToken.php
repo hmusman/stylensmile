@@ -25,6 +25,7 @@ class VerifyCsrfToken extends Middleware
          '/sslcommerz/ipn',
          '/config_content',
          '/paytm*',
-         '/payhere*'
+         '/payhere*',
+         '/stripe*'
      ];
 }

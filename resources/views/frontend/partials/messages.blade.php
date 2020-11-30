@@ -5,9 +5,9 @@
                 <div class="pl-3">
                     <div class="block-image">
                         @if ($message->user->avatar_original != null)
-                            <img src="{{ my_asset($message->user->avatar_original) }}" class="rounded-circle">
+                            <img src="{{ uploaded_asset($message->user->avatar_original) }}" class="rounded-circle">
                         @else
-                            <img src="{{ static_asset('frontend/images/user.png') }}" class="rounded-circle">
+                            <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="rounded-circle">
                         @endif
                     </div>
                 </div>
@@ -27,9 +27,9 @@
                 <div class="pr-3">
                     <div class="block-image">
                         @if ($message->user->avatar_original != null)
-                            <img src="{{ my_asset($message->user->avatar_original) }}" class="rounded-circle">
+                            <img src="{{ uploaded_asset($message->user->avatar_original) }}" class="rounded-circle">
                         @else
-                            <img src="{{ static_asset('frontend/images/user.png') }}" class="rounded-circle">
+                            <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="rounded-circle">
                         @endif
                     </div>
                 </div>

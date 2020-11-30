@@ -12,8 +12,8 @@ class ProductCollection extends ResourceCollection
             'data' => $this->collection->map(function($data) {
                 return [
                     'name' => $data->name,
-                    'photos' => json_decode($data->photos),
-                    'thumbnail_image' => $data->thumbnail_img,
+                    'photos' => explode(',', $data->photos),
+                    'thumbnail_image' => api_asset($data->thumbnail_img),
                     'base_price' => (double) homeBasePrice($data->id),
                     'base_discounted_price' => (double) homeDiscountedBasePrice($data->id),
                     'todays_deal' => (integer) $data->todays_deal,

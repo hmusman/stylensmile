@@ -173,6 +173,7 @@ return [
         Netshell\Paypal\PaypalServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         Mehedi\Paystack\PaystackServiceProvider::class,
+        MehediIitdu\CoreComponentRepository\CoreComponentRepositoryServiceProvider::class,
         Nexmo\Laravel\NexmoServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Anand\LaravelPaytmWallet\PaytmWalletServiceProvider::class,

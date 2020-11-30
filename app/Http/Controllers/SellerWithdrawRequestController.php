@@ -17,13 +17,13 @@ class SellerWithdrawRequestController extends Controller
     public function index()
     {
         $seller_withdraw_requests = SellerWithdrawRequest::where('user_id', Auth::user()->seller->id)->paginate(9);
-        return view('frontend.seller.seller_withdraw_requests.index', compact('seller_withdraw_requests'));
+        return view('frontend.user.seller.seller_withdraw_requests.index', compact('seller_withdraw_requests'));
     }
 
     public function request_index()
     {
         $seller_withdraw_requests = SellerWithdrawRequest::paginate(15);
-        return view('seller_withdraw_requests.index', compact('seller_withdraw_requests'));
+        return view('backend.sellers.seller_withdraw_requests.index', compact('seller_withdraw_requests'));
     }
 
     /**
@@ -109,7 +109,7 @@ class SellerWithdrawRequestController extends Controller
     {
         $seller = Seller::findOrFail($request->id);
         $seller_withdraw_request = SellerWithdrawRequest::where('id', $request->seller_withdraw_request_id)->first();
-        return view('seller_withdraw_requests.payment_modal', compact('seller', 'seller_withdraw_request'));
+        return view('backend.sellers.seller_withdraw_requests.payment_modal', compact('seller', 'seller_withdraw_request'));
     }
 
     public function message_modal(Request $request)
@@ -119,7 +119,7 @@ class SellerWithdrawRequestController extends Controller
             return view('frontend.partials.withdraw_message_modal', compact('seller_withdraw_request'));
         }
         elseif (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
-            return view('seller_withdraw_requests.withdraw_message_modal', compact('seller_withdraw_request'));
+            return view('backend.sellers.seller_withdraw_requests.withdraw_message_modal', compact('seller_withdraw_request'));
         }
     }
 }

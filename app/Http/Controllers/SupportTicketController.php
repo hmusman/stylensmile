@@ -20,7 +20,7 @@ class SupportTicketController extends Controller
     public function index()
     {
         $tickets = Ticket::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->paginate(9);
-        return view('frontend.support_ticket.index', compact('tickets'));
+        return view('frontend.user.support_ticket.index', compact('tickets'));
     }
 
     public function admin_index(Request $request)
@@ -32,7 +32,7 @@ class SupportTicketController extends Controller
             $tickets = $tickets->where('code', 'like', '%'.$sort_search.'%');
         }
         $tickets = $tickets->paginate(15);
-        return view('support_tickets.index', compact('tickets', 'sort_search'));
+        return view('backend.support.support_tickets.index', compact('tickets', 'sort_search'));
     }
 
     /**
@@ -59,17 +59,7 @@ class SupportTicketController extends Controller
         $ticket->user_id = Auth::user()->id;
         $ticket->subject = $request->subject;
         $ticket->details = $request->details;
-
-        $files = array();
-
-        if($request->hasFile('attachments')){
-            foreach ($request->attachments as $key => $attachment) {
-                $item['name'] = $attachment->getClientOriginalName();
-                $item['path'] = $attachment->store('uploads/support_tickets/');
-                array_push($files, $item);
-            }
-            $ticket->files = json_encode($files);
-        }
+        $ticket->files = $request->attachments;
 
         if($ticket->save()){
             $this->send_support_mail_to_admin($ticket);
@@ -110,8 +100,6 @@ class SupportTicketController extends Controller
         $array['sender'] = $tkt_reply->user->name;
         $array['details'] = $tkt_reply->reply;
 
-        // dd($array);
-        // dd(User::where('user_type', 'admin')->first()->email);
         try {
             Mail::to($ticket->user->email)->queue(new SupportMailManager($array));
         } catch (\Exception $e) {
@@ -125,22 +113,10 @@ class SupportTicketController extends Controller
         $ticket_reply->ticket_id = $request->ticket_id;
         $ticket_reply->user_id = Auth::user()->id;
         $ticket_reply->reply = $request->reply;
-
-        $files = array();
-
-        if($request->hasFile('attachments')){
-            foreach ($request->attachments as $key => $attachment) {
-                $item['name'] = $attachment->getClientOriginalName();
-                $item['path'] = $attachment->store('uploads/support_tickets/');
-                array_push($files, $item);
-            }
-            $ticket_reply->files = json_encode($files);
-        }
-
+        $ticket_reply->files = $request->attachments;
         $ticket_reply->ticket->client_viewed = 0;
         $ticket_reply->ticket->status = $request->status;
         $ticket_reply->ticket->save();
-
 
         if($ticket_reply->save()){
             flash(translate('Reply has been sent successfully'))->success();
@@ -158,18 +134,7 @@ class SupportTicketController extends Controller
         $ticket_reply->ticket_id = $request->ticket_id;
         $ticket_reply->user_id = $request->user_id;
         $ticket_reply->reply = $request->reply;
-
-        $files = array();
-
-        if($request->hasFile('attachments')){
-            foreach ($request->attachments as $key => $attachment) {
-                $item['name'] = $attachment->getClientOriginalName();
-                $item['path'] = $attachment->store('uploads/support_tickets/');
-                array_push($files, $item);
-            }
-            $ticket_reply->files = json_encode($files);
-        }
-
+        $ticket_reply->files = $request->attachments;
         $ticket_reply->ticket->viewed = 0;
         $ticket_reply->ticket->status = 'pending';
         $ticket_reply->ticket->save();
@@ -195,7 +160,7 @@ class SupportTicketController extends Controller
         $ticket->client_viewed = 1;
         $ticket->save();
         $ticket_replies = $ticket->ticketreplies;
-        return view('frontend.support_ticket.show', compact('ticket','ticket_replies'));
+        return view('frontend.user.support_ticket.show', compact('ticket','ticket_replies'));
     }
 
     public function admin_show($id)
@@ -203,7 +168,7 @@ class SupportTicketController extends Controller
         $ticket = Ticket::findOrFail(decrypt($id));
         $ticket->viewed = 1;
         $ticket->save();
-        return view('support_tickets.show', compact('ticket'));
+        return view('backend.support.support_tickets.show', compact('ticket'));
     }
 
     /**

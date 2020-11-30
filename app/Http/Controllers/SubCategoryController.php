@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\SubCategory;
+use App\SubCategoryTranslation;
 use App\SubSubCategory;
 use App\Category;
 use App\Product;
@@ -26,7 +27,7 @@ class SubCategoryController extends Controller
             $subcategories = $subcategories->where('name', 'like', '%'.$sort_search.'%');
         }
         $subcategories = $subcategories->paginate(15);
-        return view('subcategories.index', compact('subcategories', 'sort_search'));
+        return view('backend.product.subcategories.index', compact('subcategories', 'sort_search'));
     }
 
     /**
@@ -37,7 +38,7 @@ class SubCategoryController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('subcategories.create', compact('categories'));
+        return view('backend.product.subcategories.create', compact('categories'));
     }
 
     /**
@@ -60,18 +61,15 @@ class SubCategoryController extends Controller
             $subcategory->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         }
 
-        $data = openJSONFile('en');
-        $data[$subcategory->name] = $subcategory->name;
-        saveJSONFile('en', $data);
+        $subcategory->save();
 
-        if($subcategory->save()){
-            flash(translate('Subcategory has been inserted successfully'))->success();
-            return redirect()->route('subcategories.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $sub_category_translation = SubCategoryTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'sub_category_id' => $subcategory->id]);
+        $sub_category_translation->name = $request->name;
+        $sub_category_translation->save();
+
+        flash(translate('Subcategory has been inserted successfully'))->success();
+        return redirect()->route('subcategories.index');
+
     }
 
     /**
@@ -91,11 +89,12 @@ class SubCategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $subcategory = SubCategory::findOrFail(decrypt($id));
-        $categories = Category::all();
-        return view('subcategories.edit', compact('categories', 'subcategory'));
+        $lang           = $request->lang;
+        $subcategory    = SubCategory::findOrFail($id);
+        $categories     = Category::all();
+        return view('backend.product.subcategories.edit', compact('categories', 'subcategory','lang'));
     }
 
     /**
@@ -108,15 +107,9 @@ class SubCategoryController extends Controller
     public function update(Request $request, $id)
     {
         $subcategory = SubCategory::findOrFail($id);
-
-        foreach (Language::all() as $key => $language) {
-            $data = openJSONFile($language->code);
-            unset($data[$subcategory->name]);
-            $data[$request->name] = "";
-            saveJSONFile($language->code, $data);
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $subcategory->name = $request->name;
         }
-
-        $subcategory->name = $request->name;
         $subcategory->category_id = $request->category_id;
         $subcategory->meta_title = $request->meta_title;
         $subcategory->meta_description = $request->meta_description;
@@ -127,14 +120,15 @@ class SubCategoryController extends Controller
             $subcategory->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)).'-'.Str::random(5);
         }
 
-        if($subcategory->save()){
-            flash(translate('Subcategory has been updated successfully'))->success();
-            return redirect()->route('subcategories.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $subcategory->save();
+
+        $sub_category_translation = SubCategoryTranslation::firstOrNew(['lang' => $request->lang, 'sub_category_id' => $subcategory->id]);
+        $sub_category_translation->name = $request->name;
+        $sub_category_translation->save();
+
+        flash(translate('Subcategory has been updated successfully'))->success();
+        return redirect()->route('subcategories.index');
+
     }
 
     /**
@@ -146,23 +140,24 @@ class SubCategoryController extends Controller
     public function destroy($id)
     {
         $subcategory = SubCategory::findOrFail($id);
+        // Sub Subcategories delete
         foreach ($subcategory->subsubcategories as $key => $subsubcategory) {
+            // Sub Subcategories Translations delete
+            foreach ($subsubcategory->sub_sub_category_translations as $key => $sub_sub_category_translation) {
+                $sub_sub_category_translation->delete();
+            }
             $subsubcategory->delete();
         }
+        // Sub categories Translations delete
+        foreach ($subcategory->sub_category_translations as $key => $sub_category_translation) {
+            $sub_category_translation->delete();
+        }
+
         Product::where('subcategory_id', $subcategory->id)->delete();
-        if(SubCategory::destroy($id)){
-            foreach (Language::all() as $key => $language) {
-                $data = openJSONFile($language->code);
-                unset($data[$subcategory->name]);
-                saveJSONFile($language->code, $data);
-            }
-            flash(translate('Subcategory has been deleted successfully'))->success();
-            return redirect()->route('subcategories.index');
-        }
-        else{
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        SubCategory::destroy($id);
+
+        flash(translate('Subcategory has been deleted successfully'))->success();
+        return redirect()->route('subcategories.index');
     }
 
 

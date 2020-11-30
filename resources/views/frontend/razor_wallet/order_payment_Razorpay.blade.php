@@ -11,7 +11,7 @@
                 data-buttontext=""
                 data-name="{{ env('APP_NAME') }}"
                 data-description="Cart Payment"
-                data-image="{{ my_asset(\App\GeneralSetting::first()->logo) }}"
+                data-image="{{ uploaded_asset(get_setting('header_logo')) }}"
                 data-prefill.name= {{ Session::get('shipping_info')['name'] }}
                 data-prefill.email= {{ Session::get('shipping_info')['email'] }}
                 data-theme.color="#ff7529">

@@ -31,9 +31,8 @@ class InvoiceEmailManager extends Mailable
          return $this->view($this->array['view'])
                      ->from($this->array['from'], env('MAIL_FROM_NAME'))
                      ->subject($this->array['subject'])
-                     ->attach($this->array['file'],[
-                         'as' => $this->array['file_name'],
-                         'mime' => 'application/pdf'
+                     ->with([
+                         'order' => $this->array['order']
                      ]);
      }
 }

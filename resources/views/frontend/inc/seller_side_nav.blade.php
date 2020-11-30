@@ -2,9 +2,9 @@
     <div class="widget mb-0">
         <div class="widget-profile-box text-center p-3">
             @if (Auth::user()->avatar_original != null)
-                <div class="image" style="background-image:url('{{ my_asset(Auth::user()->avatar_original) }}')"></div>
+                <div class="image" style="background-image:url('{{ uploaded_asset(Auth::user()->avatar_original) }}')"></div>
             @else
-                <img src="{{ static_asset('frontend/images/user.png') }}" class="image rounded-circle">
+                <img src="{{ static_asset('assets/img/avatar-place.png') }}" class="image rounded-circle">
             @endif
             @if(Auth::user()->seller->verification_status == 1)
                 <div class="name mb-0">{{ Auth::user()->name }} <span class="ml-2"><i class="fa fa-check-circle" style="color:green"></i></span></div>

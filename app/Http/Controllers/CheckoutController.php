@@ -91,8 +91,8 @@ class CheckoutController extends Controller
                     $paytm = new PaytmController;
                     return $paytm->index();
                 } elseif ($request->payment_option == 'cash_on_delivery') {
-                    $request->session()->put('cart', collect([]));
-                    // $request->session()->forget('order_id');
+                    $request->session()->put('cart', Session::get('cart')->where('owner_id', '!=', Session::get('owner_id')));
+                    $request->session()->forget('owner_id');
                     $request->session()->forget('delivery_info');
                     $request->session()->forget('coupon_id');
                     $request->session()->forget('coupon_discount');
@@ -101,16 +101,19 @@ class CheckoutController extends Controller
                     return redirect()->route('order_confirmed');
                 } elseif ($request->payment_option == 'wallet') {
                     $user = Auth::user();
-                    $user->balance -= Order::findOrFail($request->session()->get('order_id'))->grand_total;
-                    $user->save();
-                    return $this->checkout_done($request->session()->get('order_id'), null);
+                    $order = Order::findOrFail($request->session()->get('order_id'));
+                    if($user->balanc >= $order->grand_total){
+                        $user->balance -= $order->grand_total;
+                        $user->save();
+                        return $this->checkout_done($request->session()->get('order_id'), null);
+                    }
                 } else {
                     $order = Order::findOrFail($request->session()->get('order_id'));
                     $order->manual_payment = 1;
                     $order->save();
 
-                    $request->session()->put('cart', collect([]));
-                    // $request->session()->forget('order_id');
+                    $request->session()->put('cart', Session::get('cart')->where('owner_id', '!=', Session::get('owner_id')));
+                    $request->session()->forget('owner_id');
                     $request->session()->forget('delivery_info');
                     $request->session()->forget('coupon_id');
                     $request->session()->forget('coupon_discount');
@@ -181,8 +184,8 @@ class CheckoutController extends Controller
         $order->commission_calculated = 1;
         $order->save();
 
-        Session::put('cart', collect([]));
-        // Session::forget('order_id');
+        Session::put('cart', Session::get('cart')->where('owner_id', '!=', Session::get('owner_id')));
+        Session::forget('owner_id');
         Session::forget('payment_type');
         Session::forget('delivery_info');
         Session::forget('coupon_id');
@@ -254,22 +257,17 @@ class CheckoutController extends Controller
 
     public function store_delivery_info(Request $request)
     {
+        $request->session()->put('owner_id', $request->owner_id);
+
         if (Session::has('cart') && count(Session::get('cart')) > 0) {
             $cart = $request->session()->get('cart', collect([]));
             $cart = $cart->map(function ($object, $key) use ($request) {
-                if (\App\Product::find($object['id'])->added_by == 'admin') {
-                    if ($request['shipping_type_admin'] == 'home_delivery') {
+                if (\App\Product::find($object['id'])->user_id == $request->owner_id) {
+                    if ($request['shipping_type_' . $request->owner_id] == 'home_delivery') {
                         $object['shipping_type'] = 'home_delivery';
                     } else {
                         $object['shipping_type'] = 'pickup_point';
-                        $object['pickup_point'] = $request->pickup_point_id_admin;
-                    }
-                } else {
-                    if ($request['shipping_type_' . \App\Product::find($object['id'])->user_id] == 'home_delivery') {
-                        $object['shipping_type'] = 'home_delivery';
-                    } else {
-                        $object['shipping_type'] = 'pickup_point';
-                        $object['pickup_point'] = $request['pickup_point_id_' . \App\Product::find($object['id'])->user_id];
+                        $object['pickup_point'] = $request['pickup_point_id_' . $request->owner_id];
                     }
                 }
                 return $object;
@@ -278,7 +276,12 @@ class CheckoutController extends Controller
             $request->session()->put('cart', $cart);
 
             $cart = $cart->map(function ($object, $key) use ($request) {
-                $object['shipping'] = getShippingCost($key);
+                if (\App\Product::find($object['id'])->user_id == $request->owner_id) {
+                    $object['shipping'] = getShippingCost($key);
+                }
+                else {
+                    $object['shipping'] = 0;
+                }
                 return $object;
             });
 
@@ -298,8 +301,6 @@ class CheckoutController extends Controller
             if (Session::has('coupon_discount')) {
                 $total -= Session::get('coupon_discount');
             }
-
-            //dd($total);
 
             return view('frontend.payment_select', compact('total'));
         } else {
@@ -328,13 +329,14 @@ class CheckoutController extends Controller
         return view('frontend.payment_select', compact('total'));
     }
 
-     public function apply_coupon_code(Request $request)
+    public function apply_coupon_code(Request $request)
     {
         //dd($request->all());
         $coupon = Coupon::where('code', $request->code)->first();
+
         if ($coupon != null) {
             if (strtotime(date('d-m-Y')) >= $coupon->start_date && strtotime(date('d-m-Y')) <= $coupon->end_date) {
-                if (CouponUsage::where('user_id', Auth::user()->id)->where('coupon_id', $coupon->id)->first() == null && $coupon->multiple_use==0) {
+                if (CouponUsage::where('user_id', Auth::user()->id)->where('coupon_id', $coupon->id)->first() == null) {
                     $coupon_details = json_decode($coupon->details);
 
                     if ($coupon->type == 'cart_base') {
@@ -348,7 +350,7 @@ class CheckoutController extends Controller
                         }
                         $sum = $subtotal + $tax + $shipping;
 
-                        if ($sum > $coupon_details->min_buy) {
+                        if ($sum >= $coupon_details->min_buy) {
                             if ($coupon->discount_type == 'percent') {
                                 $coupon_discount = ($sum * $coupon->discount) / 100;
                                 if ($coupon_discount > $coupon_details->max_discount) {
@@ -378,52 +380,7 @@ class CheckoutController extends Controller
                         $request->session()->put('coupon_discount', $coupon_discount);
                         flash(translate('Coupon has been applied'))->success();
                     }
-                } else if  ((CouponUsage::where('user_id', Auth::user()->id)->where('coupon_id', $coupon->id)->first() == null || CouponUsage::where('user_id', Auth::user()->id)->where('coupon_id', $coupon->id)->first() != null) && $coupon->multiple_use==1) {
-                    $coupon_details = json_decode($coupon->details);
-
-                    if ($coupon->type == 'cart_base') {
-                        $subtotal = 0;
-                        $tax = 0;
-                        $shipping = 0;
-                        foreach (Session::get('cart') as $key => $cartItem) {
-                            $subtotal += $cartItem['price'] * $cartItem['quantity'];
-                            $tax += $cartItem['tax'] * $cartItem['quantity'];
-                            $shipping += $cartItem['shipping'] * $cartItem['quantity'];
-                        }
-                        $sum = $subtotal + $tax + $shipping;
-
-                        if ($sum > $coupon_details->min_buy) {
-                            if ($coupon->discount_type == 'percent') {
-                                $coupon_discount = ($sum * $coupon->discount) / 100;
-                                if ($coupon_discount > $coupon_details->max_discount) {
-                                    $coupon_discount = $coupon_details->max_discount;
-                                }
-                            } elseif ($coupon->discount_type == 'amount') {
-                                $coupon_discount = $coupon->discount;
-                            }
-                            $request->session()->put('coupon_id', $coupon->id);
-                            $request->session()->put('coupon_discount', $coupon_discount);
-                            flash(translate('Coupon has been applied'))->success();
-                        }
-                    } elseif ($coupon->type == 'product_base') {
-                        $coupon_discount = 0;
-                        foreach (Session::get('cart') as $key => $cartItem) {
-                            foreach ($coupon_details as $key => $coupon_detail) {
-                                if ($coupon_detail->product_id == $cartItem['id']) {
-                                    if ($coupon->discount_type == 'percent') {
-                                        $coupon_discount += $cartItem['price'] * $coupon->discount / 100;
-                                    } elseif ($coupon->discount_type == 'amount') {
-                                        $coupon_discount += $coupon->discount;
-                                    }
-                                }
-                            }
-                        }
-                        $request->session()->put('coupon_id', $coupon->id);
-                        $request->session()->put('coupon_discount', $coupon_discount);
-                        flash(translate('Coupon has been applied'))->success();
-                    }
-                } 
-                else {
+                } else {
                     flash(translate('You already used this coupon!'))->warning();
                 }
             } else {

@@ -18,37 +18,21 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
     public function headings(): array
     {
         return [
-            'Name',
-            'Brand',
-            'Unit',
-            'Category',
-            'Sub Category',
-            'Sub Sub Category',
-            'Tag',
-            'Barcode Type',
-            'Manage Stock',
-            'Alert Security',
-            'Expores In',
-            'Expiry Period Unit',
-            'Applicable Tax',
-            'Selling Price Tax Type',
-            'Product Type',
-            'Variation Name',
-            'Variation Value',
-            'Purchase Price',
-            'Profit Margin',
-            'Selling Price',
-            'Opening Stock',
-            'Location',
-            'Expiry Date',
-            'Serial Number',
-            'Weight',
-            'Rack',
-            'Row',
-            'Position',
-            'Image',
-            'Description',
-            'No For Selling',
+            'name',
+            'added_by',
+            'user_id',
+            'category_id',
+            'subcategory_id',
+            'subsubcategory_id',
+            'brand_id',
+            'video_provider',
+            'video_link',
+            'unit_price',
+            'purchase_price',
+            'unit',
+            'current_stock',
+            'meta_title',
+            'meta_description',
         ];
     }
 
@@ -57,46 +41,20 @@ class ProductsExport implements FromCollection, WithMapping, WithHeadings
     */
     public function map($product): array
     {
-        $productList;
-        foreach ($product->stocks as $row)
-        {
-
-            if($product->subsubcategory_id){ $subsubcategory = $product->subsubcategory->name; }else{ $subsubcategory = '';}
-            $productList[] = 
-            [
-                $product->name,
-                $product->brand->name,
-                'Each',
-                $product->category->name,
-                $product->subcategory->name,
-                $subsubcategory,
-                $product->tags,
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                'Size',
-                $row->variant,
-                $product->purchase_price,
-                '',
-                $row->price,
-                $row->qty,
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                $product->description,
-                '',
-            ];
-        }
-        return $productList;
+        return [
+            $product->name,
+            $product->added_by,
+            $product->user_id,
+            $product->category_id,
+            $product->subcategory_id,
+            $product->subsubcategory_id,
+            $product->brand_id,
+            $product->video_provider,
+            $product->video_link,
+            $product->unit_price,
+            $product->purchase_price,
+            $product->unit,
+            $product->current_stock,
+        ];
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\ClubPointController;
 use App\Http\Controllers\AffiliateController;
 use App\Order;
 use App\Product;
+use App\ProductStock;
 use App\Color;
 use App\OrderDetail;
 use App\CouponUsage;
@@ -20,8 +21,7 @@ use DB;
 use PDF;
 use Mail;
 use App\Mail\InvoiceEmailManager;
-use Excel;
-use App\OrdersExport;
+use CoreComponentRepository;
 
 class OrderController extends Controller
 {
@@ -63,16 +63,35 @@ class OrderController extends Controller
             $order->save();
         }
 
-        return view('frontend.seller.orders', compact('orders','payment_status','delivery_status', 'sort_search'));
+        return view('frontend.user.seller.orders', compact('orders','payment_status','delivery_status', 'sort_search'));
     }
 
-    /**
-     * Display a listing of the resource to admin.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // All Orders
+    public function all_orders(Request $request)
+    {
+         CoreComponentRepository::instantiateShopRepository();
+
+         $sort_search = null;
+         $orders = Order::orderBy('code', 'desc');
+         if ($request->has('search')){
+             $sort_search = $request->search;
+             $orders = $orders->where('code', 'like', '%'.$sort_search.'%');
+         }
+         $orders = $orders->paginate(15);
+         return view('backend.sales.all_orders.index', compact('orders', 'sort_search'));
+    }
+
+    public function all_orders_show($id)
+    {
+         $order = Order::findOrFail(decrypt($id));
+         return view('backend.sales.all_orders.show', compact('order'));
+    }
+
+    // Inhouse Orders
     public function admin_orders(Request $request)
     {
+        CoreComponentRepository::instantiateShopRepository();
+
         $payment_status = null;
         $delivery_status = null;
         $sort_search = null;
@@ -97,33 +116,60 @@ class OrderController extends Controller
             $orders = $orders->where('code', 'like', '%'.$sort_search.'%');
         }
         $orders = $orders->paginate(15);
-        return view('orders.index', compact('orders','payment_status','delivery_status', 'sort_search', 'admin_user_id'));
+        return view('backend.sales.inhouse_orders.index', compact('orders','payment_status','delivery_status', 'sort_search', 'admin_user_id'));
     }
 
-    public function export_orders(Request $request)
+    public function show($id)
     {
-        $orders = Order::whereIn('id',$request->checkboxes)->get();
-        return Excel::download(new OrdersExport($orders), 'orders.xlsx');
+        $order = Order::findOrFail(decrypt($id));
+        $order->viewed = 1;
+        $order->save();
+        return view('backend.sales.inhouse_orders.show', compact('order'));
     }
-    /**
-     * Display a listing of the sales to admin.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function sales(Request $request)
+
+    // Seller Orders
+    public function seller_orders(Request $request)
     {
+        CoreComponentRepository::instantiateShopRepository();
+
+        $payment_status = null;
+        $delivery_status = null;
         $sort_search = null;
-        $orders = Order::orderBy('code', 'desc');
+        $admin_user_id = User::where('user_type', 'admin')->first()->id;
+        $orders = DB::table('orders')
+                    ->orderBy('code', 'desc')
+                    ->join('order_details', 'orders.id', '=', 'order_details.order_id')
+                    ->where('order_details.seller_id', '!=' ,$admin_user_id)
+                    ->select('orders.id')
+                    ->distinct();
+
+        if ($request->payment_type != null){
+            $orders = $orders->where('order_details.payment_status', $request->payment_type);
+            $payment_status = $request->payment_type;
+        }
+        if ($request->delivery_status != null) {
+            $orders = $orders->where('order_details.delivery_status', $request->delivery_status);
+            $delivery_status = $request->delivery_status;
+        }
         if ($request->has('search')){
             $sort_search = $request->search;
             $orders = $orders->where('code', 'like', '%'.$sort_search.'%');
         }
         $orders = $orders->paginate(15);
-        return view('sales.index', compact('orders', 'sort_search'));
+        return view('backend.sales.seller_orders.index', compact('orders','payment_status','delivery_status', 'sort_search', 'admin_user_id'));
+    }
+
+    public function seller_orders_show($id)
+    {
+        $order = Order::findOrFail(decrypt($id));
+        $order->viewed = 1;
+        $order->save();
+        return view('backend.sales.seller_orders.show', compact('order'));
     }
 
 
-    public function order_index(Request $request)
+    // Pickup point orders
+    public function pickup_point_order_index(Request $request)
     {
         if (Auth::user()->user_type == 'staff' && Auth::user()->staff->pick_up_point != null) {
             //$orders = Order::where('pickup_point_id', Auth::user()->staff->pick_up_point->id)->get();
@@ -135,7 +181,7 @@ class OrderController extends Controller
                         ->distinct()
                         ->paginate(15);
 
-            return view('pickup_point.orders.index', compact('orders'));
+            return view('backend.sales.pickup_point_orders.index', compact('orders'));
         }
         else{
             //$orders = Order::where('shipping_type', 'Pick-up Point')->get();
@@ -147,7 +193,7 @@ class OrderController extends Controller
                         ->distinct()
                         ->paginate(15);
 
-            return view('pickup_point.orders.index', compact('orders'));
+            return view('backend.sales.pickup_point_orders.index', compact('orders'));
         }
     }
 
@@ -155,11 +201,11 @@ class OrderController extends Controller
     {
         if (Auth::user()->user_type == 'staff') {
             $order = Order::findOrFail(decrypt($id));
-            return view('pickup_point.orders.show', compact('order'));
+            return view('backend.sales.pickup_point_orders.show', compact('order'));
         }
         else{
             $order = Order::findOrFail(decrypt($id));
-            return view('pickup_point.orders.show', compact('order'));
+            return view('backend.sales.pickup_point_orders.show', compact('order'));
         }
     }
 
@@ -168,11 +214,7 @@ class OrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function sales_show($id)
-    {
-        $order = Order::findOrFail(decrypt($id));
-        return view('sales.show', compact('order'));
-    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -218,7 +260,7 @@ class OrderController extends Controller
             $seller_products = array();
 
             //Order Details Storing
-            foreach (Session::get('cart') as $key => $cartItem){
+            foreach (Session::get('cart')->where('owner_id', Session::get('owner_id')) as $key => $cartItem){
                 $product = Product::find($cartItem['id']);
 
                 if($product->added_by == 'admin'){
@@ -290,21 +332,10 @@ class OrderController extends Controller
 
             $order->save();
 
-            //stores the pdf for invoice
-            $pdf = PDF::setOptions([
-                            'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
-                            'logOutputFile' => storage_path('logs/log.htm'),
-                            'tempDir' => storage_path('logs/')
-                        ])->loadView('invoices.customer_invoice', compact('order'));
-            $output = $pdf->output();
-    		file_put_contents('public/invoices/'.'Order#'.$order->code.'.pdf', $output);
-
             $array['view'] = 'emails.invoice';
-            $array['subject'] = 'Order Placed - '.$order->code;
+            $array['subject'] = 'Your order has been placed - '.$order->code;
             $array['from'] = env('MAIL_USERNAME');
-            $array['content'] = translate('Hi. A new order has been placed. Please check the attached invoice.');
-            $array['file'] = 'public/invoices/Order#'.$order->code.'.pdf';
-            $array['file_name'] = 'Order#'.$order->code.'.pdf';
+            $array['order'] = $order;
 
             foreach($seller_products as $key => $seller_product){
                 try {
@@ -332,7 +363,6 @@ class OrderController extends Controller
 
                 }
             }
-            unlink($array['file']);
 
             $request->session()->put('order_id', $order->id);
         }
@@ -344,13 +374,7 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        $order = Order::findOrFail(decrypt($id));
-        $order->viewed = 1;
-        $order->save();
-        return view('orders.show', compact('order'));
-    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -386,6 +410,18 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
         if($order != null){
             foreach($order->orderDetails as $key => $orderDetail){
+                if ($orderDetail->variantion != null) {
+                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)->where('variant', $orderDetail->variantion)->first();
+                    if($product_stock != null){
+                        $product_stock->qty += $orderDetail->quantity;
+                        $product_stock->save();
+                    }
+                }
+                else {
+                    $product = $orderDetail->product;
+                    $product->current_stock += $orderDetail->quantity;
+                    $product->save();
+                }
                 $orderDetail->delete();
             }
             $order->delete();
@@ -402,7 +438,7 @@ class OrderController extends Controller
         $order = Order::findOrFail($request->order_id);
         //$order->viewed = 1;
         $order->save();
-        return view('frontend.partials.order_details_seller', compact('order'));
+        return view('frontend.user.seller.order_details_seller', compact('order'));
     }
 
     public function update_delivery_status(Request $request)
@@ -499,7 +535,7 @@ class OrderController extends Controller
                             $orderDetail->save();
                             if($orderDetail->product->user->user_type == 'seller'){
                                 $seller = $orderDetail->product->user->seller;
-                                $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100;
+                                $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100 + $orderDetail->tax + $orderDetail->shipping_cost;
                                 $seller->save();
                             }
                         }
@@ -511,7 +547,7 @@ class OrderController extends Controller
                             if($orderDetail->product->user->user_type == 'seller'){
                                 $commission_percentage = $orderDetail->product->category->commision_rate;
                                 $seller = $orderDetail->product->user->seller;
-                                $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100;
+                                $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100 + $orderDetail->tax + $orderDetail->shipping_cost;
                                 $seller->save();
                             }
                         }

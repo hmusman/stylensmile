@@ -22,8 +22,8 @@
     @endphp
 @else
     @php
-        $meta_title = env('APP_NAME');
-        $meta_description = \App\SeoSetting::first()->description;
+        $meta_title = get_setting('meta_title');
+        $meta_description = get_setting('meta_description');
     @endphp
 @endif
 
@@ -46,86 +46,148 @@
 
 @section('content')
 
-    <div class="breadcrumb-area">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <ul class="breadcrumb">
-                        <li><a href="{{ route('home') }}">{{ translate('Home')}}</a></li>
-                        <li><a href="{{ route('customer.products') }}">{{ translate('All Categories')}}</a></li>
-                        @if(isset($category_id))
-                            <li class="active"><a href="{{ route('customer_products.category', \App\Category::find($category_id)->slug) }}">{{ \App\Category::find($category_id)->name }}</a></li>
-                        @endif
-                        @if(isset($subcategory_id))
-                            <li ><a href="{{ route('products.category', \App\SubCategory::find($subcategory_id)->category->slug) }}">{{ \App\SubCategory::find($subcategory_id)->category->name }}</a></li>
-                            <li class="active"><a href="{{ route('customer_products.subcategory', \App\SubCategory::find($subcategory_id)->slug) }}">{{ \App\SubCategory::find($subcategory_id)->name }}</a></li>
-                        @endif
-                        @if(isset($subsubcategory_id))
-                            <li ><a href="{{ route('customer_products.category', \App\SubSubCategory::find($subsubcategory_id)->subcategory->category->slug) }}">{{ \App\SubSubCategory::find($subsubcategory_id)->subcategory->category->name }}</a></li>
-                            <li ><a href="{{ route('customer_products.subcategory', \App\SubsubCategory::find($subsubcategory_id)->subcategory->slug) }}">{{ \App\SubsubCategory::find($subsubcategory_id)->subcategory->name }}</a></li>
-                            <li class="active"><a href="{{ route('customer_products.subsubcategory', \App\SubSubCategory::find($subsubcategory_id)->slug) }}">{{ \App\SubSubCategory::find($subsubcategory_id)->name }}</a></li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
 
-
-    <section class="gry-bg py-4">
+    <section class="mb-4 pt-3">
         <div class="container sm-px-0">
             <form class="" id="search-form" action="" method="GET">
                 <div class="row">
-                <div class="col-xl-3 side-filter d-xl-block">
-                    <div class="filter-overlay filter-close"></div>
-                    <div class="filter-wrapper c-scrollbar">
-                        <div class="filter-title d-flex d-xl-none justify-content-between pb-3 align-items-center">
-                            <h3 class="h6">{{ translate('Filters') }}</h3>
-                            <button type="button" class="close filter-close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="bg-white sidebar-box mb-3">
-                            <div class="box-title text-center">
-                                {{ translate('Categories')}}
-                            </div>
-                            <div class="box-content">
-                                <div class="category-filter">
-                                    <ul>
-                                        @if(!isset($category_id) && !isset($subcategory_id) && !isset($subsubcategory_id))
-                                            @foreach(\App\Category::all() as $category)
-                                                <li class=""><a href="{{ route('customer_products.category', $category->slug) }}">{{  __($category->name) }} ({{ count($category->classified_products) }})</a></li>
-                                            @endforeach
-                                        @endif
-                                        @if(isset($category_id))
-                                            <li class="active"><a href="{{ route('customer.products') }}">{{ translate('All Categories')}}</a></li>
-                                            <li class="active"><a href="{{ route('customer_products.category', \App\Category::find($category_id)->slug) }}">{{  translate(\App\Category::find($category_id)->name) }}</a></li>
-                                            @foreach (\App\Category::find($category_id)->subcategories as $key2 => $subcategory)
-                                                <li class="child"><a href="{{ route('customer_products.subcategory', $subcategory->slug) }}">{{  __($subcategory->name) }} ({{ count($subcategory->classified_products) }})</a></li>
-                                            @endforeach
-                                        @endif
-                                        @if(isset($subcategory_id))
-                                            <li class="active"><a href="{{ route('customer.products') }}">{{ translate('All Categories')}}</a></li>
-                                            <li class="active"><a href="{{ route('customer_products.category', \App\SubCategory::find($subcategory_id)->category->slug) }}">{{  translate(\App\SubCategory::find($subcategory_id)->category->name) }}</a></li>
-                                            <li class="active"><a href="{{ route('customer_products.subcategory', \App\SubCategory::find($subcategory_id)->slug) }}">{{  translate(\App\SubCategory::find($subcategory_id)->name) }}</a></li>
-                                            @foreach (\App\SubCategory::find($subcategory_id)->subsubcategories as $key3 => $subsubcategory)
-                                                <li class="child"><a href="{{ route('customer_products.subsubcategory', $subsubcategory->slug) }}">{{  __($subsubcategory->name) }} ({{ count($subsubcategory->classified_products) }})</a></li>
-                                            @endforeach
-                                        @endif
-                                        @if(isset($subsubcategory_id))
-                                            <li class="active"><a href="{{ route('customer.products') }}">{{ translate('All Categories')}}</a></li>
-                                            <li class="active"><a href="{{ route('customer_products.category', \App\SubsubCategory::find($subsubcategory_id)->subcategory->category->slug) }}">{{  translate(\App\SubSubCategory::find($subsubcategory_id)->subcategory->category->name) }}</a></li>
-                                            <li class="active"><a href="{{ route('customer_products.subcategory', \App\SubsubCategory::find($subsubcategory_id)->subcategory->slug) }}">{{  translate(\App\SubsubCategory::find($subsubcategory_id)->subcategory->name) }}</a></li>
-                                            <li class="current"><a href="{{ route('customer_products.subsubcategory', \App\SubsubCategory::find($subsubcategory_id)->slug) }}">{{  translate(\App\SubsubCategory::find($subsubcategory_id)->name) }} ({{ count(\App\SubsubCategory::find($subsubcategory_id)->classified_products) }})</a></li>
-                                        @endif
-                                    </ul>
+                    <div class="col-xl-3 side-filter d-xl-block">
+                        <div class="aiz-filter-sidebar collapse-sidebar-wrap sidebar-xl sidebar-right z-1035">
+                            <div class="overlay overlay-fixed dark c-pointer" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" data-same=".filter-sidebar-thumb"></div>
+                            <div class="collapse-sidebar c-scrollbar-light text-left">
+                                <div class="d-flex d-xl-none justify-content-between align-items-center pl-3 border-bottom">
+                                    <h3 class="h6 mb-0 fw-600">{{ translate('Filters') }}</h3>
+                                    <button type="button" class="btn btn-sm p-2 filter-sidebar-thumb" data-toggle="class-toggle" data-target=".aiz-filter-sidebar" type="button">
+                                        <i class="las la-times la-2x"></i>
+                                    </button>
+                                </div>
+                                <div class="bg-white shadow-sm rounded mb-3 text-left">
+                                    <div class="fs-15 fw-600 p-3 border-bottom">
+                                        {{ translate('Categories')}}
+                                    </div>
+                                    <div class="p-3">
+                                        <ul class="list-unstyled">
+                                            @if(!isset($category_id) && !isset($category_id) && !isset($subcategory_id) && !isset($subsubcategory_id))
+                                                @foreach(\App\Category::all() as $category)
+                                                    <li class="mb-2 ml-2">
+                                                        <a class="text-reset fs-14" href="{{ route('customer_products.category', $category->slug) }}">{{ $category->getTranslation('name') }}</a>
+                                                    </li>
+                                                @endforeach
+                                            @endif
+                                            @if(isset($category_id))
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer.products') }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{ translate('All Categories')}}
+                                                    </a>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer_products.category', \App\Category::find($category_id)->slug) }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{  translate(\App\Category::find($category_id)->getTranslation('name')) }}
+                                                    </a>
+                                                </li>
+                                                @foreach (\App\Category::find($category_id)->subcategories as $key2 => $subcategory)
+                                                    <li class="ml-4 mb-2">
+                                                        <a class="text-reset fs-14" href="{{ route('customer_products.subcategory', $subcategory->slug) }}">{{ $subcategory->getTranslation('name') }}</a>
+                                                    </li>
+                                                @endforeach
+                                            @endif
+                                            @if(isset($subcategory_id))
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer.products') }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{ translate('All Categories')}}
+                                                    </a>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer_products.category', \App\SubCategory::find($subcategory_id)->category->slug) }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{  translate(\App\SubCategory::find($subcategory_id)->category->getTranslation('name')) }}
+                                                    </a>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer_products.subcategory', \App\SubCategory::find($subcategory_id)->slug) }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{  translate(\App\SubCategory::find($subcategory_id)->getTranslation('name')) }}
+                                                    </a>
+                                                </li>
+                                                @foreach (\App\SubCategory::find($subcategory_id)->subsubcategories as $key3 => $subsubcategory)
+                                                    <li class="ml-4 mb-2">
+                                                        <a class="text-reset fs-14" href="{{ route('customer_products.subsubcategory', $subsubcategory->slug) }}">{{ $subsubcategory->getTranslation('name') }}</a>
+                                                    </li>
+                                                @endforeach
+                                            @endif
+                                            @if(isset($subsubcategory_id))
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer.products') }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{ translate('All Categories')}}
+                                                    </a>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer_products.category', \App\SubsubCategory::find($subsubcategory_id)->subcategory->category->slug) }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{  \App\SubSubCategory::find($subsubcategory_id)->subcategory->category->getTranslation('name') }}
+                                                    </a>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <a class="text-reset fs-14 fw-600" href="{{ route('customer_products.subcategory', \App\SubsubCategory::find($subsubcategory_id)->subcategory->slug) }}">
+                                                        <i class="las la-angle-left"></i>
+                                                        {{ \App\SubsubCategory::find($subsubcategory_id)->subcategory->getTranslation('name') }}
+                                                    </a>
+                                                </li>
+                                                <li class="ml-4 mb-2">
+                                                    <a class="text-reset fs-14" href="{{ route('customer_products.subsubcategory', \App\SubsubCategory::find($subsubcategory_id)->slug) }}">{{ \App\SubsubCategory::find($subsubcategory_id)->getTranslation('name') }}</a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xl-9">
-                    <!-- <div class="bg-white"> -->
+                    <div class="col-xl-9">
+
+                        <ul class="breadcrumb bg-transparent p-0">
+                            <li class="breadcrumb-item opacity-50">
+                                <a class="text-reset" href="{{ route('home') }}">{{ translate('Home')}}</a>
+                            </li>
+                            @if(!isset($category_id) && !isset($subcategory_id) && !isset($subsubcategory_id))
+                                <li class="breadcrumb-item fw-600  text-dark">
+                                    <a class="text-reset" href="{{ route('customer.products') }}">"{{ translate('All Categories')}}"</a>
+                                </li>
+                            @else
+                                <li class="breadcrumb-item opacity-50">
+                                    <a class="text-reset" href="{{ route('customer.products') }}">{{ translate('All Categories')}}</a>
+                                </li>
+                            @endif
+                            @if(isset($category_id))
+                                <li class="breadcrumb-item text-dark fw-600">
+                                    <a class="text-reset" href="{{ route('customer_products.category', \App\Category::find($category_id)->slug) }}">"{{ \App\Category::find($category_id)->name }}"</a>
+                                </li>
+                            @endif
+                            @if(isset($subcategory_id))
+                                <li class="breadcrumb-item opacity-50">
+                                    <a class="text-reset" href="{{ route('products.category', \App\SubCategory::find($subcategory_id)->category->slug) }}">{{ \App\SubCategory::find($subcategory_id)->category->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item text-dark fw-600">
+                                    <a class="text-reset" href="{{ route('customer_products.subcategory', \App\SubCategory::find($subcategory_id)->slug) }}">"{{ \App\SubCategory::find($subcategory_id)->name }}"</a>
+                                </li>
+                            @endif
+                            @if(isset($subsubcategory_id))
+                                <li class="breadcrumb-item opacity-50">
+                                    <a class="text-reset" href="{{ route('customer_products.category', \App\SubSubCategory::find($subsubcategory_id)->subcategory->category->slug) }}">{{ \App\SubSubCategory::find($subsubcategory_id)->subcategory->category->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item opacity-50">
+                                    <a class="text-reset" href="{{ route('customer_products.subcategory', \App\SubsubCategory::find($subsubcategory_id)->subcategory->slug) }}">{{ \App\SubsubCategory::find($subsubcategory_id)->subcategory->name }}</a>
+                                </li>
+                                <li class="breadcrumb-item text-dark fw-600">
+                                    <a class="text-reset" href="{{ route('customer_products.subsubcategory', \App\SubSubCategory::find($subsubcategory_id)->slug) }}">"{{ \App\SubSubCategory::find($subsubcategory_id)->name }}"</a>
+                                </li>
+                            @endif
+                        </ul>
+
                         @isset($category_id)
                             <input type="hidden" name="category" value="{{ \App\Category::find($category_id)->slug }}">
                         @endisset
@@ -135,103 +197,82 @@
                         @isset($subsubcategory_id)
                             <input type="hidden" name="subsubcategory" value="{{ \App\SubSubCategory::find($subsubcategory_id)->slug }}">
                         @endisset
-                        <div class="sort-by-bar row no-gutters bg-white mb-3 px-3 pt-2">
-                            <div class="col-xl-4 d-flex d-xl-block justify-content-between align-items-end ">
-                                <div class="sort-by-box flex-grow-1">
-                                    <div class="form-group">
-                                        <label>{{ translate('Search')}}</label>
-                                        <div class="search-widget">
-                                            <input class="form-control input-lg" type="text" name="q" placeholder="{{ translate('Search products')}}" @isset($query) value="{{ $query }}" @endisset>
-                                            <button type="submit" class="btn-inner">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                        <div class="">
+                            <div class="d-flex">
+                                <div class="form-group w-200px">
+                                    <label class="mb-0 opacity-50">{{ translate('Sort by')}}</label>
+                                    <select class="form-control form-control-sm aiz-selectpicker" name="sort_by" onchange="filter()">
+                                        <option value="1" @isset($sort_by) @if ($sort_by == '1') selected @endif @endisset>{{ translate('Newest')}}</option>
+                                        <option value="2" @isset($sort_by) @if ($sort_by == '2') selected @endif @endisset>{{ translate('Oldest')}}</option>
+                                        <option value="3" @isset($sort_by) @if ($sort_by == '3') selected @endif @endisset>{{ translate('Price low to high')}}</option>
+                                        <option value="4" @isset($sort_by) @if ($sort_by == '4') selected @endif @endisset>{{ translate('Price high to low')}}</option>
+                                    </select>
                                 </div>
-                                <div class="d-xl-none ml-3 form-group">
-                                    <button type="button" class="btn p-1 btn-sm" id="side-filter">
+                                <div class="form-group ml-auto mr-0 w-200px d-none d-md-block">
+                                    <label class="mb-0 opacity-50">{{ translate('Condition')}}</label>
+                                    <select class="form-control form-control-sm aiz-selectpicker" name="condition" onchange="filter()">
+                                        <option value="">{{ translate('All Type')}}</option>
+                                        <option value="new" @isset($condition) @if ($condition == 'new') selected @endif @endisset>{{ translate('New')}}</option>
+                                        <option value="used" @isset($condition) @if ($condition == 'used') selected @endif @endisset>{{ translate('Used')}}</option>
+                                    </select>
+                                </div>
+                                <div class="form-group ml-2 mr-0 w-200px d-none d-md-block">
+                                    <label class="mb-0 opacity-50">{{ translate('Brands')}}</label>
+                                    <select class="form-control form-control-sm aiz-selectpicker" data-live-search="true" name="brand" onchange="filter()">
+                                        <option value="">{{ translate('All Brands')}}</option>
+                                        @foreach (\App\Brand::all() as $brand)
+                                            <option value="{{ $brand->slug }}" @isset($brand_id) @if ($brand_id == $brand->id) selected @endif @endisset>{{ $brand->getTranslation('name') }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="d-xl-none ml-auto ml-md-3 mr-0 form-group align-self-end">
+                                    <button type="button" class="btn btn-icon p-0" data-toggle="class-toggle" data-target=".aiz-filter-sidebar">
                                         <i class="la la-filter la-2x"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-xl-7 offset-xl-1">
-                                <div class="row no-gutters">
-                                    <div class="col-4">
-                                        <div class="sort-by-box px-1">
-                                            <div class="form-group">
-                                                <label>{{ translate('Sort by')}}</label>
-                                                <select class="form-control sortSelect" data-minimum-results-for-search="Infinity" name="sort_by" onchange="filter()">
-                                                    <option value="1" @isset($sort_by) @if ($sort_by == '1') selected @endif @endisset>{{ translate('Newest')}}</option>
-                                                    <option value="2" @isset($sort_by) @if ($sort_by == '2') selected @endif @endisset>{{ translate('Oldest')}}</option>
-                                                    <option value="3" @isset($sort_by) @if ($sort_by == '3') selected @endif @endisset>{{ translate('Price low to high')}}</option>
-                                                    <option value="4" @isset($sort_by) @if ($sort_by == '4') selected @endif @endisset>{{ translate('Price high to low')}}</option>
-                                                </select>
+                        </div>
+                        <div class="row gutters-5 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-4 row-cols-md-3 row-cols-2">
+                            @foreach ($customer_products as $key => $product)
+                                <div class="col">
+                                    <div class="aiz-card-box border border-light rounded shadow-sm hov-shadow-md mb-2 has-transition bg-white">
+                                        <div class="position-relative">
+                                            <a href="{{ route('customer.product', $product->slug) }}" class="d-block">
+                                                <img
+                                                    class="img-fit lazyload mx-auto h-140px h-md-210px"
+                                                    src="{{ static_asset('assets/img/placeholder.jpg') }}"
+                                                    data-src="{{ uploaded_asset($product->thumbnail_img) }}"
+                                                    alt="{{  $product->getTranslation('name')  }}"
+                                                    onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder.jpg') }}';"
+                                                >
+                                            </a>
+                                            <div class="absolute-top-left pt-2 pl-2">
+                                                @if($product->conditon == 'new')
+                                                   <span class="badge badge-inline badge-success">{{translate('new')}}</span>
+                                               @elseif($product->conditon == 'used')
+                                                   <span class="badge badge-inline badge-danger">{{translate('Used')}}</span>
+                                               @endif
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="sort-by-box px-1">
-                                            <div class="form-group">
-                                                <label>{{ translate('Condition')}}</label>
-                                                <select class="form-control sortSelect" data-minimum-results-for-search="Infinity" name="condition" onchange="filter()">
-                                                    <option value="">{{ translate('All Type')}}</option>
-                                                    <option value="new" @isset($condition) @if ($condition == 'new') selected @endif @endisset>{{ translate('New')}}</option>
-                                                    <option value="used" @isset($condition) @if ($condition == 'used') selected @endif @endisset>{{ translate('Used')}}</option>
-                                                </select>
+                                        <div class="p-md-3 p-2 text-left">
+                                            <div class="fs-15">
+                                                <span class="fw-700 text-primary">{{ single_price($product->unit_price) }}</span>
                                             </div>
+                                            <h3 class="fw-600 fs-13 text-truncate-2 lh-1-4 mb-0">
+                                                <a href="{{ route('customer.product', $product->slug) }}" class="d-block text-reset">{{  $product->getTranslation('name')  }}</a>
+                                            </h3>
                                         </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="sort-by-box px-1">
-                                            <div class="form-group">
-                                                <label>{{ translate('Brands')}}</label>
-                                                <select class="form-control sortSelect" data-placeholder="{{ translate('All Brands')}}" name="brand" onchange="filter()">
-                                                    <option value="">{{ translate('All Brands')}}</option>
-                                                    @foreach (\App\Brand::all() as $brand)
-                                                        <option value="{{ $brand->slug }}" @isset($brand_id) @if ($brand_id == $brand->id) selected @endif @endisset>{{ $brand->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   </div>
                                 </div>
-                            </div>
-                        </div>
-                        <!-- <hr class=""> -->
-                        <div class="products-box-bar p-3 bg-white">
-                            <div class="row sm-no-gutters gutters-5">
-                                @foreach ($customer_products as $key => $product)
-                                    <div class="col-xxl-3 col-xl-4 col-lg-3 col-md-4 col-6">
-                                        <div class="product-box-2 bg-white alt-box my-md-2">
-                                            <div class="position-relative overflow-hidden">
-                                                <a href="{{ route('customer.product', $product->slug) }}" class="d-block product-image h-100 text-center" tabindex="0">
-                                                    <img class="img-fit lazyload" src="{{ static_asset('frontend/images/placeholder.jpg') }}" data-src="{{ my_asset($product->thumbnail_img) }}" alt="{{  __($product->name) }}">
-                                                </a>
-                                            </div>
-                                            <div class="p-md-3 p-2">
-                                                <div class="price-box">
-                                                    <span class="product-price strong-600">{{ single_price($product->unit_price) }}</span>
-                                                </div>
-                                                <h2 class="product-title p-0">
-                                                    <a href="{{ route('customer.product', $product->slug) }}" class=" text-truncate">{{  __($product->name) }}</a>
-                                                </h2>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        <div class="products-pagination bg-white p-3">
-                            <nav aria-label="Center aligned pagination">
-                                <ul class="pagination justify-content-center">
-                                    {{ $customer_products->links() }}
-                                </ul>
-                            </nav>
+                            @endforeach
                         </div>
 
-                    <!-- </div> -->
+                        <div class="aiz-pagination aiz-pagination-center mt-4">
+                            {{ $customer_products->links() }}
+                        </div>
+
+                    </div>
                 </div>
-            </div>
             </form>
         </div>
     </section>

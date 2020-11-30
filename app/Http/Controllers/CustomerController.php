@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use App\Customer;
 use App\User;
 use App\Order;
@@ -30,7 +28,7 @@ class CustomerController extends Controller
             });
         }
         $customers = $customers->paginate(15);
-        return view('customers.index', compact('customers', 'sort_search'));
+        return view('backend.customer.customers.index', compact('customers', 'sort_search'));
     }
 
     /**
@@ -40,7 +38,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('customers.create');
+        //
     }
 
     /**
@@ -51,27 +49,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $validations = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-        if($validations->fails())
-        {
-            return back()->withErrors($validations)->withInput();
-        }
-        $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password),
-            ]);
-
-            $customer = new Customer;
-            $customer->user_id = $user->id;
-            $customer->save();
-            flash(translate('Customer has been added successfully'))->success();
-            return redirect()->route('customers.index');
+        //
     }
 
     /**
@@ -143,8 +121,10 @@ class CustomerController extends Controller
 
         if($customer->user->banned == 1) {
             $customer->user->banned = 0;
+            flash(translate('Customer UnBanned Successfully'))->success();
         } else {
             $customer->user->banned = 1;
+            flash(translate('Customer Banned Successfully'))->success();
         }
 
         $customer->user->save();

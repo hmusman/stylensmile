@@ -7,6 +7,9 @@ use App\SubSubCategory;
 use App\FlashDealProduct;
 use App\FlashDeal;
 use App\OtpConfiguration;
+use App\Upload;
+use App\Translation;
+use App\Utility\TranslationUtility;
 use Twilio\Rest\Client;
 
 
@@ -139,7 +142,7 @@ if (! function_exists('filter_customer_products')) {
 
 //highlights the selected navigation on admin panel
 if (! function_exists('areActiveRoutes')) {
-    function areActiveRoutes(Array $routes, $output = "active-link")
+    function areActiveRoutes(Array $routes, $output = "active")
     {
         foreach ($routes as $route) {
             if (Route::currentRouteName() == $route) return $output;
@@ -156,6 +159,14 @@ if (! function_exists('areActiveRoutesHome')) {
             if (Route::currentRouteName() == $route) return $output;
         }
 
+    }
+}
+
+//highlights the selected navigation on frontend
+if (! function_exists('default_language')) {
+    function default_language()
+    {
+        return env("DEFAULT_LANGUAGE");
     }
 }
 
@@ -176,30 +187,6 @@ if (! function_exists('loaded_class_select')) {
         return $l;
     }
 }
-
-/**
- * Open Translation File
- * @return Response
-*/
-function openJSONFile($code){
-    $jsonString = [];
-    if(File::exists(base_path('resources/lang/'.$code.'.json'))){
-        $jsonString = file_get_contents(base_path('resources/lang/'.$code.'.json'));
-        $jsonString = json_decode($jsonString, true);
-    }
-    return $jsonString;
-}
-
-/**
- * Save JSON File
- * @return Response
-*/
-function saveJSONFile($code, $data){
-    ksort($data);
-    $jsonData = json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
-    file_put_contents(base_path('resources/lang/'.$code.'.json'), stripslashes($jsonData));
-}
-
 
 /**
  * Return Class Selected Loader
@@ -282,9 +269,7 @@ if (! function_exists('combinations')) {
 //filter products based on vendor activation system
 if (! function_exists('filter_products')) {
     function filter_products($products) {
-
         $verified_sellers = verified_sellers_id();
-
         if(BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1){
             return $products->where('published', '1')->orderBy('created_at', 'desc')->where(function($p) use ($verified_sellers){
                 $p->where('added_by', 'admin')->orWhere(function($q) use ($verified_sellers){
@@ -294,6 +279,35 @@ if (! function_exists('filter_products')) {
         }
         else{
             return $products->where('published', '1')->where('added_by', 'admin');
+        }
+    }
+}
+
+//cache products based on category
+if (! function_exists('get_cached_products')) {
+    function get_cached_products($category_id = null) {
+        $products = \App\Product::where('published', 1);
+        $verified_sellers = verified_sellers_id();
+        if(BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1){
+            $products =  $products->where(function($p) use ($verified_sellers){
+                $p->where('added_by', 'admin')->orWhere(function($q) use ($verified_sellers){
+                    $q->whereIn('user_id', $verified_sellers);
+                });
+            });
+        }
+        else{
+            $products = $products->where('added_by', 'admin');
+        }
+
+        if ($category_id != null) {
+            return Cache::remember('products-category-'.$category_id, 86400, function () use ($category_id, $products) {
+                return $products->where('category_id', $category_id)->latest()->take(12)->get();
+            });
+        }
+        else {
+            return Cache::remember('products', 86400, function () use ($products) {
+                return $products->latest()->get();
+            });
         }
     }
 }
@@ -589,9 +603,9 @@ if (! function_exists('currency_symbol')) {
 
 if(! function_exists('renderStarRating')){
     function renderStarRating($rating,$maxRating=5) {
-        $fullStar = "<i class = 'fa fa-star active'></i>";
-        $halfStar = "<i class = 'fa fa-star half'></i>";
-        $emptyStar = "<i class = 'fa fa-star'></i>";
+        $fullStar = "<i class = 'las la-star active'></i>";
+        $halfStar = "<i class = 'las la-star half'></i>";
+        $emptyStar = "<i class = 'las la-star'></i>";
         $rating = $rating <= $maxRating?$rating:$maxRating;
 
         $fullStarCount = (int)$rating;
@@ -797,15 +811,77 @@ if (! function_exists('convertPrice')) {
 }
 
 
-function translate($key){
-    $key = ucfirst(str_replace('_', ' ', remove_invalid_charcaters($key)));
-    $jsonString = file_get_contents(base_path('resources/lang/en.json'));
-    $jsonString = json_decode($jsonString, true);
-    if(!isset($jsonString[$key])){
-        $jsonString[$key] = $key;
-        saveJSONFile('en', $jsonString);
+function translate($key, $lang = null){
+    if($lang == null){
+        $lang = App::getLocale();
     }
-    return __($key);
+    //Check for default lang
+
+    //$translations = cacheTranslations();
+
+    $translation_def = Translation::where('lang', env('DEFAULT_LANGUAGE', 'en'))->where('lang_key', $key)->first();
+    if($translation_def == null){
+        $translation_def = new Translation;
+        $translation_def->lang = env('DEFAULT_LANGUAGE', 'en');
+        $translation_def->lang_key = $key;
+        $translation_def->lang_value = $key;
+        $translation_def->save();
+
+        forgetCachedTranslations();
+    }
+
+    //Check for session lang
+    $translation_locale = Translation::where('lang_key', $key)->where('lang', $lang)->first();
+    if($translation_locale != null){
+        return $translation_locale->lang_value;
+    }
+    else {
+        return $translation_def->lang_value;
+    }
+}
+
+//re-written by hridoy
+// function translate($key, $lang = null){
+//     if($lang == null){
+//         $lang = App::getLocale();
+//     }
+//     //Check for default lang
+//     $tu = TranslationUtility::getInstance();
+//     $translation_def = $tu->cached_translation_row($key,  env('DEFAULT_LANGUAGE', 'en'));
+//
+//     if(empty($translation_def)){
+//         $translation_def_i = new Translation;
+//         $translation_def_i->lang = env('DEFAULT_LANGUAGE', 'en');
+//         $translation_def_i->lang_key = $key;
+//         $translation_def_i->lang_value = $key;
+//         $translation_def_i->save();
+//
+//         TranslationUtility::reInstantiate();
+//         $tu = TranslationUtility::getInstance();
+//         $translation_def = $tu->cached_translation_row($key, 'en');
+//
+//     }
+//
+//     //Check for session lang
+//     $translation_locale = $tu->cached_translation_row($key, $lang);
+//     /*$translation_locale = $tu->cached_translation_row('PRODUCTS', "bd");
+//     dd($translation_locale);*/
+//     if(!empty($translation_locale)){
+//         return $translation_locale['lang_value'];
+//     }
+//     else {
+//         return $translation_def['lang_value'];
+//     }
+// }
+
+function cacheTranslations(){
+    return Cache::rememberForever('translations', function () {
+        return Translation::all();
+    });
+}
+
+function forgetCachedTranslations(){
+    Cache::forget('translations');
 }
 
 function remove_invalid_charcaters($str)
@@ -824,7 +900,7 @@ function getShippingCost($index){
         $calculate_shipping = \App\BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
     }
     elseif (\App\BusinessSetting::where('type', 'shipping_type')->first()->value == 'seller_wise_shipping') {
-        foreach (Session::get('cart') as $key => $cartItem) {
+        foreach (Session::get('cart')->where('owner_id', Session::get('owner_id')) as $key => $cartItem) {
             $product = \App\Product::find($cartItem['id']);
             if($product->added_by == 'admin'){
                 array_push($admin_products, $cartItem['id']);
@@ -849,7 +925,7 @@ function getShippingCost($index){
     }
 
     $cartItem = Session::get('cart')[$index];
-
+    $product = \App\Product::find($cartItem['id']);
 
     if ($cartItem['shipping_type'] == 'home_delivery') {
         if (\App\BusinessSetting::where('type', 'shipping_type')->first()->value == 'flat_rate') {
@@ -1029,6 +1105,27 @@ if (!function_exists('app_timezone')) {
     }
 }
 
+if (!function_exists('api_asset')) {
+    function api_asset($id)
+    {
+        if (($asset = \App\Upload::find($id)) != null) {
+            return $asset->file_name;
+        }
+        return "";
+    }
+}
+
+//return file uploaded via uploader
+if (!function_exists('uploaded_asset')) {
+    function uploaded_asset($id)
+    {
+        if (($asset = \App\Upload::find($id)) != null) {
+            return my_asset($asset->file_name);
+        }
+        return null;
+    }
+}
+
 if (! function_exists('my_asset')) {
     /**
      * Generate an asset path for the application.
@@ -1062,6 +1159,30 @@ if (! function_exists('static_asset')) {
     }
 }
 
+if (!function_exists('getBaseURL')) {
+    function getBaseURL()
+    {
+        $root =(isset($_SERVER['HTTPS']) ? "https://" : "http://").$_SERVER['HTTP_HOST'];
+        $root .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+
+        return $root;
+    }
+}
+
+
+if (!function_exists('getFileBaseURL')) {
+    function getFileBaseURL()
+    {
+        if(env('FILESYSTEM_DRIVER') == 's3'){
+            return env('AWS_URL').'/';
+        }
+        else {
+            return getBaseURL().'public/';
+        }
+    }
+}
+
+
 if (! function_exists('isUnique')) {
     /**
      * Generate an asset path for the application.
@@ -1079,6 +1200,82 @@ if (! function_exists('isUnique')) {
         } else {
             return '0';
         }
+    }
+}
+
+if (!function_exists('get_setting')) {
+    function get_setting($key, $default = null)
+    {
+        $setting = BusinessSetting::where('type', $key)->first();
+        return $setting == null ? $default : $setting->value;
+    }
+}
+
+function hex2rgba($color, $opacity = false) {
+
+    $default = 'rgb(230,46,4)';
+
+    //Return default if no color provided
+    if(empty($color))
+          return $default;
+
+    //Sanitize $color if "#" is provided
+    if ($color[0] == '#' ) {
+        $color = substr( $color, 1 );
+    }
+
+    //Check if color has 6 or 3 characters and get values
+    if (strlen($color) == 6) {
+        $hex = array( $color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5] );
+    } elseif ( strlen( $color ) == 3 ) {
+        $hex = array( $color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2] );
+    } else {
+        return $default;
+    }
+
+    //Convert hexadec to rgb
+    $rgb = array_map('hexdec', $hex);
+
+    //Check if opacity is set(rgba or rgb)
+    if($opacity){
+        if(abs($opacity) > 1)
+            $opacity = 1.0;
+        $output = 'rgba('.implode(",",$rgb).','.$opacity.')';
+    } else {
+        $output = 'rgb('.implode(",",$rgb).')';
+    }
+
+    //Return rgb(a) color string
+    return $output;
+}
+
+if (!function_exists('isAdmin')) {
+    function isAdmin()
+    {
+        if (Auth::check() && (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff')) {
+            return true;
+        }
+        return false;
+    }
+}
+
+if (!function_exists('isSeller')) {
+    function isSeller()
+    {
+        if (Auth::check() && Auth::user()->user_type == 'seller') {
+            return true;
+        }
+        return false;
+    }
+}
+
+if (!function_exists('isCustomer')) {
+    function isCustomer()
+    {
+        if (Auth::check() && Auth::user()->user_type == 'customer') {
+            return true;
+        }
+        return false;
     }
 }
 

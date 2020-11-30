@@ -15,7 +15,7 @@ class CountryController extends Controller
     public function index(Request $request)
     {
         $countries = Country::paginate(15);
-        return view('countries.index', compact('countries'));
+        return view('backend.setup_configurations.countries.index', compact('countries'));
     }
 
     /**

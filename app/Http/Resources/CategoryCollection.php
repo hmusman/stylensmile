@@ -13,7 +13,7 @@ class CategoryCollection extends ResourceCollection
                 return [
                     'name' => $data->name,
                     'banner' => $data->banner,
-                    'icon' => $data->icon,
+                    'icon' => api_asset($data->icon),
                     // 'brands' => brandsOfCategory($data->id),
                     'links' => [
                         'products' => route('api.products.category', $data->id),

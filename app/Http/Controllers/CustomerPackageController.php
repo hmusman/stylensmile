@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\CustomerPackage;
+use App\CustomerPackageTranslation;
 use App\CustomerPackagePayment;
 use App\Wallet;
 use App\BusinessSetting;
@@ -27,7 +28,7 @@ class CustomerPackageController extends Controller
     public function index()
     {
         $customer_packages = CustomerPackage::all();
-        return view('customer_packages.index', compact('customer_packages'));
+        return view('backend.customer.customer_packages.index',compact('customer_packages'));
     }
 
     /**
@@ -37,7 +38,7 @@ class CustomerPackageController extends Controller
      */
     public function create()
     {
-        return view('customer_packages.create');
+        return view('backend.customer.customer_packages.create');
     }
 
     /**
@@ -52,17 +53,17 @@ class CustomerPackageController extends Controller
         $customer_package->name = $request->name;
         $customer_package->amount = $request->amount;
         $customer_package->product_upload = $request->product_upload;
-        if ($request->hasFile('logo')) {
-            $customer_package->logo = $request->file('logo')->store('uploads/customer_package');
-        }
+        $customer_package->logo = $request->logo;
 
-        if ($customer_package->save()) {
-            flash(translate('Package has been inserted successfully'))->success();
-            return redirect()->route('customer_packages.index');
-        } else {
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $customer_package->save();
+
+        $customer_package_translation       = CustomerPackageTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'customer_package_id' => $customer_package->id]);
+        $customer_package_translation->name = $request->name;
+        $customer_package_translation->save();
+
+
+        flash(translate('Package has been inserted successfully'))->success();
+        return redirect()->route('customer_packages.index');
     }
 
     /**
@@ -82,10 +83,11 @@ class CustomerPackageController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $customer_package = CustomerPackage::findOrFail(decrypt($id));
-        return view('customer_packages.edit', compact('customer_package'));
+        $lang = $request->lang;
+        $customer_package = CustomerPackage::findOrFail($id);
+        return view('backend.customer.customer_packages.edit', compact('customer_package','lang'));
     }
 
     /**
@@ -98,20 +100,23 @@ class CustomerPackageController extends Controller
     public function update(Request $request, $id)
     {
         $customer_package = CustomerPackage::findOrFail($id);
-        $customer_package->name = $request->name;
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+          $customer_package->name = $request->name;
+        }
         $customer_package->amount = $request->amount;
         $customer_package->product_upload = $request->product_upload;
         if ($request->hasFile('logo')) {
             $customer_package->logo = $request->file('logo')->store('uploads/customer_package');
         }
 
-        if ($customer_package->save()) {
-            flash(translate('Package has been updated successfully'))->success();
-            return redirect()->route('customer_packages.index');
-        } else {
-            flash(translate('Something went wrong'))->error();
-            return back();
-        }
+        $customer_package->save();
+
+        $customer_package_translation       = CustomerPackageTranslation::firstOrNew(['lang' => $request->lang, 'customer_package_id' => $customer_package->id]);
+        $customer_package_translation->name = $request->name;
+        $customer_package_translation->save();
+
+        flash(translate('Package has been updated successfully'))->success();
+        return redirect()->route('customer_packages.index');
     }
 
     /**
@@ -123,16 +128,13 @@ class CustomerPackageController extends Controller
     public function destroy($id)
     {
         $customer_package = CustomerPackage::findOrFail($id);
-        if (CustomerPackage::destroy($id)) {
-            if ($customer_package->logo != null) {
-                //unlink($customer_package->logo);
-            }
-            flash(translate('Package has been deleted successfully'))->success();
-            return redirect()->route('customer_packages.index');
-        } else {
-            flash(translate('Something went wrong'))->error();
-            return back();
+        foreach ($customer_package->customer_package_translations as $key => $customer_package_translation) {
+            $customer_package_translation->delete();
         }
+        CustomerPackage::destroy($id);
+
+        flash(translate('Package has been deleted successfully'))->success();
+        return redirect()->route('customer_packages.index');
     }
 
     public function purchase_package(Request $request)
@@ -199,7 +201,7 @@ class CustomerPackageController extends Controller
             $flutterwave = new FlutterwaveController();
             return $flutterwave->pay();
         }
-    } 
+    }
 
     public function purchase_payment_done($payment_data, $payment)
     {
@@ -222,9 +224,7 @@ class CustomerPackageController extends Controller
         $customer_package->payment_details = $request->trx_id;
         $customer_package->approval = 0;
         $customer_package->offline_payment = 1;
-        if ($request->hasFile('photo')) {
-            $customer_package->reciept = $request->file('photo')->store('uploads/customer_package_payment_reciept');
-        }
+        $customer_package->reciept = $request->photo;
         $customer_package->save();
         flash(translate('Offline payment has been done. Please wait for response.'))->success();
         return redirect()->route('customer_products.index');

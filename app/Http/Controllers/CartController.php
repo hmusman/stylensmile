@@ -36,6 +36,7 @@ class CartController extends Controller
 
         $data = array();
         $data['id'] = $product->id;
+        $data['owner_id'] = $product->user_id;
         $str = '';
         $tax = 0;
 
@@ -187,8 +188,10 @@ class CartController extends Controller
                         }
                     }
                 }
-                elseif($request->quantity >= $product->min_qty){
-                    $object['quantity'] = $request->quantity;
+                elseif ($product->current_stock >= $request->quantity) {
+                    if($request->quantity >= $product->min_qty){
+                        $object['quantity'] = $request->quantity;
+                    }
                 }
             }
             return $object;

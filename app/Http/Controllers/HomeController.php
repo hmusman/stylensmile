@@ -27,11 +27,9 @@ use Cookie;
 use Illuminate\Support\Str;
 use App\Mail\SecondEmailVerifyMailManager;
 use Mail;
-use App\OrderDetail;
-use App\Order as myorders;
-use Carbon\Carbon;
-use App\GeneralSetting;
-use DB;
+use App\Utility\TranslationUtility;
+
+
 class HomeController extends Controller
 {
     public function login()
@@ -104,55 +102,13 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        $todaySale =0;$today_sale_grand=0;$today_sale_discount=0; 
-        $todayordersdata = Order::whereDate('created_at', date('Y-m-d'))->get();
-        foreach ($todayordersdata as $key => $row)
-        {
-            $today_sale_discount += $row->coupon_discount;
-            $i=0;
-            foreach ($row->orderDetails as $data) {
-                if($i==0){ $today_sale_discount += $data->shipping_cost; }
-                $i++;
-            }
-            $today_sale_grand+= $row->grand_total;
-        }
-        $todaySale = $today_sale_grand - $today_sale_discount;
+        $tu = TranslationUtility::getInstance();
 
-        $currentWeekSale =0;$week_sale_grand=0;$week_sale_discount=0; 
-        $weekordersdata = Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
-        foreach ($weekordersdata as $key => $row)
-        {
-            $week_sale_discount += $row->coupon_discount;
-            $i=0;
-            foreach ($row->orderDetails as $data) {
-                if($i==0){ $week_sale_discount += $data->shipping_cost; }
-                $i++;
-            }
-            $week_sale_grand+= $row->grand_total;
-        }
-        $currentWeekSale = $week_sale_grand - $week_sale_discount;
-        
-        $currentWeekOrders= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
-        $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
-        $ordersTarget = GeneralSetting::first()->orders_target;
-        $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from orders GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
-       $weekorderitemscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from order_details GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
-       $orderscount;
-       $orderitemscount;
-       $ordersweek;
-       foreach($weekorderscount as $data)
-       {
-            $orderscount[] = $data->total;
-            $ordersweek[] = $data->week;
-       }
-       foreach($weekorderitemscount as $data){$orderitemscount[] = $data->total;}
-       $totalSale= Order::get()->sum('grand_total');
-       $totalPaidSale= Order::where('payment_status', 'paid')->get()->sum('grand_total');
-       $totalUnpaidSale= Order::where('payment_status', 'unpaid')->get()->sum('grand_total');
-       $orderscount = json_encode($orderscount);
-       $orderitemscount = json_encode($orderitemscount);
-       $ordersweek = json_encode($ordersweek);
-        return view('dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount','totalSale','totalPaidSale','totalUnpaidSale','orderitemscount']));
+        //dd($tu->getAllTranslations());
+        //dd($tu->cached_translation_row("Welcome to", 'bd'));
+
+        return view('backend.dashboard');
+        // return view('test');
     }
 
     /**
@@ -163,10 +119,10 @@ class HomeController extends Controller
     public function dashboard()
     {
         if(Auth::user()->user_type == 'seller'){
-            return view('frontend.seller.dashboard');
+            return view('frontend.user.seller.dashboard');
         }
         elseif(Auth::user()->user_type == 'customer'){
-            return view('frontend.customer.dashboard');
+            return view('frontend.user.customer.dashboard');
         }
         else {
             abort(404);
@@ -176,10 +132,10 @@ class HomeController extends Controller
     public function profile(Request $request)
     {
         if(Auth::user()->user_type == 'customer'){
-            return view('frontend.customer.profile');
+            return view('frontend.user.customer.profile');
         }
         elseif(Auth::user()->user_type == 'seller'){
-            return view('frontend.seller.profile');
+            return view('frontend.user.seller.profile');
         }
     }
 
@@ -201,10 +157,7 @@ class HomeController extends Controller
         if($request->new_password != null && ($request->new_password == $request->confirm_password)){
             $user->password = Hash::make($request->new_password);
         }
-
-        if($request->hasFile('photo')){
-            $user->avatar_original = $request->photo->store('uploads/users');
-        }
+        $user->avatar_original = $request->photo;
 
         if($user->save()){
             flash(translate('Your Profile has been updated successfully!'))->success();
@@ -234,10 +187,7 @@ class HomeController extends Controller
         if($request->new_password != null && ($request->new_password == $request->confirm_password)){
             $user->password = Hash::make($request->new_password);
         }
-
-        if($request->hasFile('photo')){
-            $user->avatar_original = $request->photo->store('uploads');
-        }
+        $user->avatar_original = $request->photo;
 
         $seller = $user->seller;
         $seller->cash_on_delivery_status = $request->cash_on_delivery_status;
@@ -371,7 +321,7 @@ class HomeController extends Controller
         if(\App\Addon::where('unique_identifier', 'seller_subscription')->first() != null && \App\Addon::where('unique_identifier', 'seller_subscription')->first()->activated){
             if(Auth::user()->seller->remaining_uploads > 0){
                 $categories = Category::all();
-                return view('frontend.seller.product_upload', compact('categories'));
+                return view('frontend.user.seller.product_upload', compact('categories'));
             }
             else {
                 flash(translate('Upload limit has been reached. Please upgrade your package.'))->warning();
@@ -379,26 +329,28 @@ class HomeController extends Controller
             }
         }
         $categories = Category::all();
-        return view('frontend.seller.product_upload', compact('categories'));
+        return view('frontend.user.seller.product_upload', compact('categories'));
     }
 
     public function show_product_edit_form(Request $request, $id)
     {
+        $product = Product::findOrFail($id);
+        $lang = $request->lang;
+        $tags = json_decode($product->tags);
         $categories = Category::all();
-        $product = Product::find(decrypt($id));
-        return view('frontend.seller.product_edit', compact('categories', 'product'));
+        return view('frontend.user.seller.product_edit', compact('product', 'categories', 'tags', 'lang'));
     }
 
     public function seller_product_list(Request $request)
     {
         $search = null;
-        $products = Product::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc');
+        $products = Product::where('user_id', Auth::user()->id)->where('digital', 0)->orderBy('created_at', 'desc');
         if ($request->has('search')) {
             $search = $request->search;
             $products = $products->where('name', 'like', '%'.$search.'%');
         }
         $products = $products->paginate(10);
-        return view('frontend.seller.products', compact('products', 'search'));
+        return view('frontend.user.seller.products', compact('products', 'search'));
     }
 
     public function ajax_search(Request $request)
@@ -724,13 +676,13 @@ class HomeController extends Controller
     public function premium_package_index()
     {
         $customer_packages = CustomerPackage::all();
-        return view('frontend.customer_packages_lists', compact('customer_packages'));
+        return view('frontend.user.customer_packages_lists', compact('customer_packages'));
     }
 
     public function seller_digital_product_list(Request $request)
     {
         $products = Product::where('user_id', Auth::user()->id)->where('digital', 1)->orderBy('created_at', 'desc')->paginate(10);
-        return view('frontend.seller.digitalproducts.products', compact('products'));
+        return view('frontend.user.seller.digitalproducts.products', compact('products'));
     }
     public function show_digital_product_upload_form(Request $request)
     {
@@ -738,7 +690,7 @@ class HomeController extends Controller
             if(Auth::user()->seller->remaining_digital_uploads > 0){
                 $business_settings = BusinessSetting::where('type', 'digital_product_upload')->first();
                 $categories = Category::where('digital', 1)->get();
-                return view('frontend.seller.digitalproducts.product_upload', compact('categories'));
+                return view('frontend.user.seller.digitalproducts.product_upload', compact('categories'));
             }
             else {
                 flash(translate('Upload limit has been reached. Please upgrade your package.'))->warning();
@@ -748,16 +700,16 @@ class HomeController extends Controller
 
         $business_settings = BusinessSetting::where('type', 'digital_product_upload')->first();
         $categories = Category::where('digital', 1)->get();
-        return view('frontend.seller.digitalproducts.product_upload', compact('categories'));
+        return view('frontend.user.seller.digitalproducts.product_upload', compact('categories'));
     }
 
     public function show_digital_product_edit_form(Request $request, $id)
     {
         $categories = Category::where('digital', 1)->get();
-        $product = Product::find(decrypt($id));
-        return view('frontend.seller.digitalproducts.product_edit', compact('categories', 'product'));
+        $lang = $request->lang;
+        $product = Product::find($id);
+        return view('frontend.user.seller.digitalproducts.product_edit', compact('categories', 'product', 'lang'));
     }
-
 
     // Ajax call
     public function new_verify(Request $request)

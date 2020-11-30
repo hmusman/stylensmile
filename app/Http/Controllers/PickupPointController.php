@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\PickupPoint;
+use App\PickupPointTranslation;
 
 class PickupPointController extends Controller
 {
@@ -12,10 +13,16 @@ class PickupPointController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pickup_points = PickupPoint::paginate(15);
-        return view('pickup_point.index', compact('pickup_points'));
+        $sort_search =null;
+        $pickup_points = PickupPoint::orderBy('created_at', 'desc');
+        if ($request->has('search')){
+            $sort_search = $request->search;
+            $pickup_points = $pickup_points->where('name', 'like', '%'.$sort_search.'%');
+        }
+        $pickup_points = $pickup_points->paginate(10);
+        return view('backend.setup_configurations.pickup_point.index', compact('pickup_points','sort_search'));
     }
 
     /**
@@ -25,7 +32,7 @@ class PickupPointController extends Controller
      */
     public function create()
     {
-        return view('pickup_point.create');
+        return view('backend.setup_configurations.pickup_point.create');
     }
 
     /**
@@ -41,11 +48,17 @@ class PickupPointController extends Controller
         $pickup_point->address = $request->address;
         $pickup_point->phone = $request->phone;
         $pickup_point->pick_up_status = $request->pick_up_status;
-        //$pickup_point->cash_on_pickup_status = $request->cash_on_pickup_status;
         $pickup_point->staff_id = $request->staff_id;
         if ($pickup_point->save()) {
+
+            $pickup_point_translation = PickupPointTranslation::firstOrNew(['lang' => env('DEFAULT_LANGUAGE'), 'pickup_point_id' => $pickup_point->id]);
+            $pickup_point_translation->name = $request->name;
+            $pickup_point_translation->address = $request->address;
+            $pickup_point_translation->save();
+
             flash(translate('PicupPoint has been inserted successfully'))->success();
             return redirect()->route('pick_up_points.index');
+
         }
         else{
             flash(translate('Something went wrong'))->error();
@@ -70,10 +83,11 @@ class PickupPointController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $pickup_point = PickupPoint::findOrFail(decrypt($id));
-        return view('pickup_point.edit', compact('pickup_point'));
+        $lang           = $request->lang;
+        $pickup_point   = PickupPoint::findOrFail($id);
+        return view('backend.setup_configurations.pickup_point.edit', compact('pickup_point','lang'));
     }
 
     /**
@@ -86,13 +100,21 @@ class PickupPointController extends Controller
     public function update(Request $request, $id)
     {
         $pickup_point = PickupPoint::findOrFail($id);
-        $pickup_point->name = $request->name;
-        $pickup_point->address = $request->address;
+        if($request->lang == env("DEFAULT_LANGUAGE")){
+            $pickup_point->name = $request->name;
+            $pickup_point->address = $request->address;
+        }
+
         $pickup_point->phone = $request->phone;
         $pickup_point->pick_up_status = $request->pick_up_status;
-        //$pickup_point->cash_on_pickup_status = $request->cash_on_pickup_status;
         $pickup_point->staff_id = $request->staff_id;
         if ($pickup_point->save()) {
+
+            $pickup_point_translation = PickupPointTranslation::firstOrNew(['lang' => $request->lang,  'pickup_point_id' => $pickup_point->id]);
+            $pickup_point_translation->name = $request->name;
+            $pickup_point_translation->address = $request->address;
+            $pickup_point_translation->save();
+
             flash(translate('PicupPoint has been updated successfully'))->success();
             return redirect()->route('pick_up_points.index');
         }
@@ -111,6 +133,11 @@ class PickupPointController extends Controller
     public function destroy($id)
     {
         $pickup_point = PickupPoint::findOrFail($id);
+
+        foreach ($pickup_point->pickup_point_translations as $key => $pickup_point_translation) {
+            $pickup_point_translation->delete();
+        }
+
         if(PickupPoint::destroy($id)){
             flash(translate('PicupPoint has been deleted successfully'))->success();
             return redirect()->route('pick_up_points.index');

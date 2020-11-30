@@ -12,8 +12,8 @@ class HomeCategoryCollection extends ResourceCollection
             'data' => $this->collection->map(function($data) {
                 return [
                     'name' => $data->category->name,
-                    'banner' => $data->category->banner,
-                    'icon' => $data->category->icon,
+                    'banner' => api_asset($data->category->banner),
+                    'icon' => api_asset($data->category->icon),
                     'links' => [
                         'products' => route('api.products.category', $data->category->id),
                         'sub_categories' => route('subCategories.index', $data->category->id)

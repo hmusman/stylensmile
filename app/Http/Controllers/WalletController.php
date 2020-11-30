@@ -18,7 +18,7 @@ class WalletController extends Controller
     public function index()
     {
         $wallets = Wallet::where('user_id', Auth::user()->id)->paginate(9);
-        return view('frontend.wallet', compact('wallets'));
+        return view('frontend.user.wallet.index', compact('wallets'));
     }
 
     public function recharge(Request $request)
@@ -108,9 +108,7 @@ class WalletController extends Controller
         $wallet->payment_details = $request->trx_id;
         $wallet->approval = 0;
         $wallet->offline_payment = 1;
-        if ($request->hasFile('photo')) {
-            $wallet->reciept = $request->file('photo')->store('uploads/wallet_recharge_reciept');
-        }
+        $wallet->reciept = $request->photo;
         $wallet->save();
         flash(translate('Offline Recharge has been done. Please wait for response.'))->success();
         return redirect()->route('wallet.index');
