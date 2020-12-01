@@ -167,10 +167,17 @@
             				<td><strong class="text-muted">{{translate('Tax')}} :</strong></td>
             				<td>{{ single_price($order->orderDetails->where('seller_id', $admin_user_id)->sum('tax')) }}</td>
             			</tr>
+                        
                         <tr>
             				<td><strong class="text-muted"> {{translate('Shipping')}} :</strong></td>
             				<td>{{ single_price($order->orderDetails->where('seller_id', $admin_user_id)->sum('shipping_cost')) }}</td>
             			</tr>
+
+                        <tr>
+                            <td><strong class="text-muted"> {{translate('Coupon Discount')}} :</strong></td>
+                            <td>{{ single_price($order->coupon_discount')) }}</td>
+                        </tr>
+
             			<tr>
             				<td><strong class="text-muted">{{translate('TOTAL')}} :</strong></td>
             				<td class="text-muted h5">

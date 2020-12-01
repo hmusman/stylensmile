@@ -27,6 +27,11 @@ use Cookie;
 use Illuminate\Support\Str;
 use App\Mail\SecondEmailVerifyMailManager;
 use Mail;
+use App\OrderDetail;
+use App\Order as myorders;
+use Carbon\Carbon;
+use App\GeneralSetting;
+use DB;
 use App\Utility\TranslationUtility;
 
 
@@ -102,13 +107,59 @@ class HomeController extends Controller
      */
     public function admin_dashboard()
     {
-        $tu = TranslationUtility::getInstance();
+       $tu = TranslationUtility::getInstance();
+        $todaySale =0;$today_sale_grand=0;$today_sale_discount=0; 
+        $todayordersdata = Order::whereDate('created_at', date('Y-m-d'))->get();
+        foreach ($todayordersdata as $key => $row)
+        {
+            $today_sale_discount += $row->coupon_discount;
+            $i=0;
+            foreach ($row->orderDetails as $data) {
+                if($i==0){ $today_sale_discount += $data->shipping_cost; }
+                $i++;
+            }
+            $today_sale_grand+= $row->grand_total;
+        }
+        $todaySale = $today_sale_grand - $today_sale_discount;
 
-        //dd($tu->getAllTranslations());
-        //dd($tu->cached_translation_row("Welcome to", 'bd'));
+        $currentWeekSale =0;$week_sale_grand=0;$week_sale_discount=0; 
+        $weekordersdata = Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get();
+        foreach ($weekordersdata as $key => $row)
+        {
+            $week_sale_discount += $row->coupon_discount;
+            $i=0;
+            foreach ($row->orderDetails as $data) {
+                if($i==0){ $week_sale_discount += $data->shipping_cost; }
+                $i++;
+            }
+            $week_sale_grand+= $row->grand_total;
+        }
+        $currentWeekSale = $week_sale_grand - $week_sale_discount;
+        $currentWeekOrders= Order::whereBetween('created_at',[Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->get()->count();
+        $todayOrders = Order::whereDate('created_at', date('Y-m-d'))->get()->count();
+        $ordersTarget = GeneralSetting::first()->orders_target;
+        $weekorderscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from orders GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
+       $weekorderitemscount = DB::select('SELECT WEEKOFYEAR(created_at) week,COUNT(ID) total from order_details GROUP BY YEAR(created_at), WEEKOFYEAR(created_at)');
+       $orderscount;
+       $orderitemscount;
+       $ordersweek;
+       foreach($weekorderscount as $data)
+       {
+            $orderscount[] = $data->total;
+            $ordersweek[] = $data->week;
+       }
+       foreach($weekorderitemscount as $data)
+       {
+            $orderitemscount[] = $data->total;
+       }
+       $totalSale= Order::get()->sum('grand_total');
+       $totalPaidSale= Order::where('payment_status', 'paid')->get()->sum('grand_total');
+       $totalUnpaidSale= Order::where('payment_status', 'unpaid')->get()->sum('grand_total');
+       $orderscount = json_encode($orderscount);
+       $orderitemscount = json_encode($orderitemscount);
+       $ordersweek = json_encode($ordersweek);
 
-        return view('backend.dashboard');
-        // return view('test');
+        return view('backend.dashboard',compact(['todaySale','currentWeekSale','currentWeekOrders','todayOrders','ordersTarget','ordersweek','orderscount','totalSale','totalPaidSale','totalUnpaidSale','orderitemscount']));
     }
 
     /**
