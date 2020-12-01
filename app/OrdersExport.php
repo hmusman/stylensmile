@@ -29,6 +29,8 @@ class OrdersExport implements FromCollection, WithMapping, WithHeadings
             'City',
             'Address',
             'Number Of Products',
+            'Number Of Pieces',
+            'Weight (kg)',
             'Amount',
             'Shipping Cost',
             'Total Amount',
@@ -42,6 +44,8 @@ class OrdersExport implements FromCollection, WithMapping, WithHeadings
     public function map($product): array
     {
         $productList;
+        $qty = 0;
+        foreach ($product->orderDetails as $item) { $qty+=$item->quantity;}
         $address = json_decode($product->shipping_address);
         $productList[] = 
         [
@@ -51,9 +55,11 @@ class OrdersExport implements FromCollection, WithMapping, WithHeadings
             $address->city,
             $address->address,
             $product->orderDetails->count(),
-            $product->grand_total,
+            $qty,
+            $qty * 0.5,
+            intval($product->grand_total),
             $product->orderDetails[0]->shipping_cost,
-            $product->grand_total + $product->orderDetails[0]->shipping_cost,
+            intval($product->grand_total + $product->orderDetails[0]->shipping_cost),
             $product->payment_status
         ];
         return $productList;
