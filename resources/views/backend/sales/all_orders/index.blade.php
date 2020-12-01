@@ -77,14 +77,24 @@
                             </td>
                             <td>
                                 @php
-                                    $status = 'Delivered';
-                                    foreach ($order->orderDetails as $key => $orderDetail) {
-                                        if($orderDetail->delivery_status != 'delivered'){
-                                            $status = 'Pending';
-                                        }
+                                    $status = '';
+                                    foreach ($order->orderDetails as $orderDetail) {
+                                       $status = $orderDetail->delivery_status;
                                     }
                                 @endphp
-                                {{ $status }}
+
+                                @if ($status=='pending')
+                                    @php $bc="badge-danger"; $stxt ="Pending" @endphp
+                                @elseif ($status=='delivered')
+                                    @php $bc="badge-success"; $stxt ="Delivered" @endphp
+                                @elseif ($status=='on_delivery')
+                                    @php $bc="badge-secondary";$stxt ="On Delivery" @endphp
+                                @elseif ($status=='on_review')
+                                    @php $bc="badge-warning";$stxt ="On Review" @endphp
+                                @endif
+
+                                <span class="badge badge-inline {{ $bc }}" >{{translate($stxt)}}</span>
+                                {{-- $status --}}
                             </td>
                             <td>
                                 @if ($order->payment_status == 'paid')

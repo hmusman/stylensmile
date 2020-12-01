@@ -23,7 +23,7 @@
     <div class="col-lg-6">
         <div class="row gutters-10">
             <div class="col-6">
-                <div class=" text-white rounded-lg mb-4 overflow-hidden" style="background-color: {{ $color }} !important; height:137px; color: white !important;">
+                <div class=" text-white rounded-lg mb-4 overflow-hidden" style="background-color: {{ $color }} !important; height:85%; color: white !important;">
                     <div class="px-3 pt-3">
                         <div class="opacity-50">
                             <span class="fs-12 d-block">{{ translate('Today Orders') }}</span>

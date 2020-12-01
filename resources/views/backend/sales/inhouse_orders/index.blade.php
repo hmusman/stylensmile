@@ -25,6 +25,7 @@
                 <option value="pending"   @isset($delivery_status) @if($delivery_status == 'pending') selected @endif @endisset>{{translate('Pending')}}</option>
                 <option value="confirmed"   @isset($delivery_status) @if($delivery_status == 'confirmed') selected @endif @endisset>{{translate('Confirmed')}}</option>
                 <option value="on_delivery"   @isset($delivery_status) @if($delivery_status == 'on_delivery') selected @endif @endisset>{{translate('On delivery')}}</option>
+                <option value="on_review"   @isset($delivery_status) @if($delivery_status == 'on_review') selected @endif @endisset>{{translate('On review')}}</option>
                 <option value="delivered"   @isset($delivery_status) @if($delivery_status == 'delivered') selected @endif @endisset>{{translate('Delivered')}}</option>
             </select>
           </div>
@@ -81,10 +82,22 @@
                                 {{ single_price($order->orderDetails->where('seller_id', $admin_user_id)->sum('price') + $order->orderDetails->where('seller_id', $admin_user_id)->sum('tax')) }}
                             </td>
                             <td>
-                                @php
-                                    $status = $order->orderDetails->first()->delivery_status;
+                               @php
+                                    $status=$order->orderDetails->first()->delivery_status;
                                 @endphp
-                                {{ ucfirst(str_replace('_', ' ', $status)) }}
+
+                                @if ($status=='pending')
+                                    @php $bc="badge-danger"; $stxt ="Pending" @endphp
+                                @elseif ($status=='delivered')
+                                    @php $bc="badge-success"; $stxt ="Delivered" @endphp
+                                @elseif ($status=='on_delivery')
+                                    @php $bc="badge-secondary";$stxt ="On Delivery" @endphp
+                                @else
+                                    @php $bc="badge-warning";$scolor="black"; $stxt ="On Review" @endphp
+                                @endif
+
+                                <span class="badge badge-inline {{ $bc }}" >{{translate($stxt)}}</span>
+                                {{-- ucfirst(str_replace('_', ' ', $status)) --}}
                             </td>
                             <td>
                                 {{ ucfirst(str_replace('_', ' ', $order->payment_type)) }}
