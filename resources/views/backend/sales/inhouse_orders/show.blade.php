@@ -175,7 +175,7 @@
 
                         <tr>
                             <td><strong class="text-muted"> {{translate('Coupon Discount')}} :</strong></td>
-                            <td>{{ single_price($order->coupon_discount')) }}</td>
+                            <td>{{ single_price($order->coupon_discount') }}</td>
                         </tr>
 
             			<tr>
