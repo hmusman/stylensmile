@@ -49,6 +49,7 @@
                     <th>{{translate('Delivery Status')}}</th>
                     <th>{{translate('Payment Method')}}</th>
                     <th>{{translate('Payment Status')}}</th>
+                    <th>{{ translate('Order Import') }}</th>
                     @if ($refund_request_addon != null && $refund_request_addon->activated == 1)
                         <th>{{translate('Refund')}}</th>
                     @endif
@@ -118,7 +119,9 @@
                                     @endif
                                 </td>
                             @endif
-
+                            <td>
+                                <a href="{{ route('admin.order.import.forrun',encrypt($order->id)) }}" class="btn btn-soft-primary" data-id="{{ $order->id }}">Import</a>
+                            </td>
                             <td class="text-right">
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('inhouse_orders.show', encrypt($order->id))}}" title="{{ translate('View') }}">
                                     <i class="las la-eye"></i>

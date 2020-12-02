@@ -87,6 +87,16 @@
     </script>
 @endif
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H2CTE48QML"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-H2CTE48QML');
+</script>
+
 @if (\App\BusinessSetting::where('type', 'facebook_pixel')->first()->value == 1)
     <!-- Facebook Pixel Code -->
     <script>

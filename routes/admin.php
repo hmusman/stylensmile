@@ -159,6 +159,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 	Route::get('/all_orders', 'OrderController@all_orders')->name('all_orders.index');
 	Route::get('/all_orders/{id}/show', 'OrderController@all_orders_show')->name('all_orders.show');
 	Route::post('/exportorders', 'OrderController@export_orders')->name('export.orders.admin');
+	Route::get('/orderimporttoforrun/{id?}', 'OrderController@order_import_to_forrun')->name('admin.order.import.forrun');
 
 	// Inhouse Orders
 	Route::get('/inhouse-orders', 'OrderController@admin_orders')->name('inhouse_orders.index');

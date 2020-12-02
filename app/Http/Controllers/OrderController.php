@@ -127,6 +127,54 @@ class OrderController extends Controller
         return Excel::download(new OrdersExport($orders), 'orders.xlsx');
     }
 
+    public function order_import_to_forrun(Request $request,$id)
+    {
+         $id = decrypt($id);
+        $data = Order::where('id',$id)->first();
+        $qty = 0;
+        foreach ($data->orderDetails as $item) { $qty+=$item->quantity;}
+        $address = json_decode($data->shipping_address);
+        $require_data = [
+            'account_id'=>13311,
+            'api_token'=>'T6ezzT0vGYBRAM4Fg9OGtsiuvugObxT1ijk3lBtKGF1HVgiF9uoP7T65NOuF',
+            'service_type'=>'COD',
+            'delivery_name'=>$address->name,
+            'delivery_phone'=>$address->phone,
+            'delivery_address'=>$address->address,
+            'delivery_city'=>$address->city,
+            'amount'=>intval($data->grand_total),
+            'no_of_pieces'=>$qty,
+            'weight'=>$qty*.5
+        ]; 
+        $json_data = json_encode($require_data);  
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://forrun.co/api/v1/addnewOrder');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json',
+            'Authorization: Basic'));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'PHP-MCAPI/2.0');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_POST, true);    
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+        $result = curl_exec($ch);
+        if($result)
+        {
+            $result_obj = json_decode($result);
+            // return $result_obj->message;
+            if($result_obj->code=='201'){
+                flash(translate($result_obj->message))->success();
+                return back();
+            }
+            else
+            {
+                flash(translate('Something is Wrong'))->error();
+                return back();
+            }
+        }
+
+    }
+
     public function show($id)
     {
         $order = Order::findOrFail(decrypt($id));
