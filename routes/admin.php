@@ -198,6 +198,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 
 	//Reviews
 	Route::get('/reviews', 'ReviewController@index')->name('reviews.index');
+	Route::get('/reviews/create', 'ReviewController@create')->name('reviews.create');
 	Route::post('/reviews/published', 'ReviewController@updatePublished')->name('reviews.published');
 
 	//Support_Ticket

@@ -3,9 +3,16 @@
 @section('content')
 
 <div class="aiz-titlebar text-left mt-2 mb-3">
-	<div class="align-items-center">
-			<h1 class="h3">{{translate('Product Reviews')}}</h1>
-	</div>
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="h3">{{translate('Product Reviews')}}</h1>
+        </div>
+        <div class="col-md-6 text-md-right">
+            <a href="{{ route('reviews.create') }}" class="btn btn-circle btn-info">
+                <span>{{translate('Add New Product Review ')}}</span>
+            </a>
+        </div>
+    </div>
 </div>
 
 <div class="card">

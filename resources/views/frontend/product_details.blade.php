@@ -209,28 +209,33 @@
                                 @if ($detailedProduct->choice_options != null)
                                     @foreach (json_decode($detailedProduct->choice_options) as $key => $choice)
 
-                                    <div class="row no-gutters">
-                                        <div class="col-2">
-                                            <div class="opacity-50 mt-2 ">{{ \App\Attribute::find($choice->attribute_id)->getTranslation('name') }}:</div>
+                                        <div class="row no-gutters">
+                                            <div class="col-12">
+                                                <div class="opacity-50 mt-2 ">{{ \App\Attribute::find($choice->attribute_id)->getTranslation('name') }}:</div>
+                                            </div>
+                                            
                                         </div>
-                                        <div class="col-10">
-                                            <div class="aiz-radio-inline">
-                                                @foreach ($choice->values as $key => $value)
-                                                <label class="aiz-megabox pl-0 mr-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="attribute_id_{{ $choice->attribute_id }}"
-                                                        value="{{ $value }}"
-                                                        @if($key == 0) checked @endif
-                                                    >
-                                                    <span class="aiz-megabox-elem rounded d-flex align-items-center justify-content-center py-2 px-3 mb-2">
-                                                        {{ $value }}
-                                                    </span>
-                                                </label>
-                                                @endforeach
+
+                                        <div class="row no-gutters mt-2">
+                                            
+                                            <div class="col-12">
+                                                <div class="aiz-radio-inline">
+                                                    @foreach ($choice->values as $key => $value)
+                                                    <label class="aiz-megabox pl-0 mr-2">
+                                                        <input
+                                                            type="radio"
+                                                            name="attribute_id_{{ $choice->attribute_id }}"
+                                                            value="{{ $value }}"
+                                                            @if($key == 0) checked @endif
+                                                        >
+                                                        <span class="aiz-megabox-elem rounded d-flex align-items-center justify-content-center py-2 px-3 mb-2">
+                                                            {{ $value }}
+                                                        </span>
+                                                    </label>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
                                     @endforeach
                                 @endif
@@ -264,10 +269,19 @@
 
                                 <!-- Quantity + Add to cart -->
                                 <div class="row no-gutters">
-                                    <div class="col-2">
+                                    <div class="col-4">
                                         <div class="opacity-50 mt-2">{{ translate('Quantity')}}:</div>
                                     </div>
-                                    <div class="col-10">
+                                    <div class="col-6">
+                                        <div class="product-quantity d-flex align-items-center">
+                                            <div class="avialable-amount opacity-60">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Quantity + Add to cart -->
+                                <div class="row no-gutters">
+                                    <div class="col-5">
                                         <div class="product-quantity d-flex align-items-center">
                                             <div class="row no-gutters align-items-center aiz-plus-minus mr-3" style="width: 130px;">
                                                 <button class="btn col-auto btn-icon btn-sm btn-circle btn-light" type="button" data-type="minus" data-field="quantity" disabled="">
@@ -278,8 +292,20 @@
                                                     <i class="las la-plus"></i>
                                                 </button>
                                             </div>
-                                            <div class="avialable-amount opacity-60">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div>
+                                            {{-- <div class="avialable-amount opacity-60">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div> --}}
                                         </div>
+                                    </div>
+                                    <div class="col-7">
+                                        @if ($qty > 0)
+                                            <button type="button" class="btn btn-soft-primary mr-2 add-to-cart fw-600 " onclick="addToCart()">
+                                                <i class="las la-shopping-bag"></i>
+                                                <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-secondary fw-600" disabled>
+                                                <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -320,6 +346,51 @@
 
                             <div class="d-table width-100 mt-3">
                                 <div class="d-table-cell">
+                                     @php
+                                        $photos = explode(',',$detailedProduct->photos);
+                                        if(count($photos) >0 ){
+                                            $enquiry=uploaded_asset($photos[0]);
+                                        }else
+                                        {
+                                            $enquiry=' ';
+                                        }
+                                        // $enquiry=my_asset(json_decode($detailedProduct->photos)[0]);
+                                        $generalsetting = \App\GeneralSetting::first();
+                                    @endphp
+                                    <!-- Buy Now button -->
+                                    @if ($qty > 0)
+                                        
+                                        <span class="my-custom-span">Order By:</span>
+                                        <a href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in {{  __($detailedProduct->name) }}  {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border pc_btn single-product-whatsapp-btn">
+                                            <img class="single-product-whatsapp-btn-img" src="{{ static_asset('frontend/images/whatsapp.png')}}">
+                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
+                                            <span> {{ translate('Whatsapp')}}</span>
+                                        </a>
+
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in {{  __($detailedProduct->name) }}.  {{ $enquiry }} " type="button" class="mybtn btn btn-styled my-btn-border mobile_btn single-product-whatsapp-btn" style="display:none;">
+                                            <img src="{{ static_asset('frontend/images/whatsapp.png')}}" class="single-product-whatsapp-btn-img">
+                                            <span> {{ translate('Whatsapp')}}</span>
+                                        </a>
+
+                                    @else
+                                        <button type="button" class="mybtn-50 btn btn-styled btn-base-3 btn-icon-left strong-700 mymargin-top" disabled>
+                                            <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
+                                        </button>
+
+                                        <span class="my-custom-span">Order By:</span>
+                                        <a href="https://web.whatsapp.com/send?phone=&text=Hi! i'm interested in {{  __($detailedProduct->name) }} .  {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border pc_btn single-product-whatsapp-btn">
+                                            <img class="single-product-whatsapp-btn-img" src="{{ static_asset('frontend/images/whatsapp.png')}}">
+                                            <!-- <span class="d-none d-md-inline-block"> {{ translate('Add To Enquiry')}}</span> -->
+                                            <span> {{ translate('Whatsapp')}}</span>
+                                        </a>
+
+                                        <a href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested in {{  __($detailedProduct->name) }} .  {{ $enquiry }}" type="button" class="mybtn btn btn-styled my-btn-border mobile_btn single-product-whatsapp-btn" style="display:none;">
+                                            <img src="{{ static_asset('frontend/images/whatsapp.png')}}" class="single-product-whatsapp-btn-img">
+                                            <span> {{ translate('Whatsapp')}}</span>
+                                        </a>
+
+                                    @endif
+
                                     <!-- Add to wishlist button -->
                                     <button type="button" class="btn pl-0 btn-link fw-600" onclick="addToWishList({{ $detailedProduct->id }})">
                                         {{ translate('Add to wishlist')}}

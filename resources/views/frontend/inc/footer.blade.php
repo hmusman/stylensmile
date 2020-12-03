@@ -1,3 +1,13 @@
+@php
+    $generalsetting = \App\GeneralSetting::first();
+@endphp
+<div class="whatsapp text-center">
+   <a class="pc_btn" href="https://web.whatsapp.com/send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested." target="_blank" class="pc_btn"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
+
+    <a class="mobile_btn" style="display:none;" href="whatsapp://send?phone={{ $generalsetting->phone }}&text=Hi! i'm interested." target="_blank"><img src="{{ static_asset('frontend/images/whatsapp.png') }}"></a>
+
+</div>
+
 <section class="bg-white border-top mt-auto">
     <div class="container">
         <div class="row no-gutters">
@@ -274,3 +284,30 @@
         </div>
     </div>
 @endif
+<script type="text/javascript">
+
+    function detectMob()
+    {
+        const toMatch = [
+            /Android/i,
+            /webOS/i,
+            /iPhone/i,
+            /iPad/i,
+            /iPod/i,
+            /BlackBerry/i,
+            /Windows Phone/i
+        ];
+
+        return toMatch.some((toMatchItem) => {
+            return navigator.userAgent.match(toMatchItem);
+        });
+    }
+    
+    $(function(){
+        if(detectMob()){ 
+            $('.pc_btn').css('display','none');
+            $('.mobile_btn').css('display','block');
+        }
+    });
+    
+</script>
