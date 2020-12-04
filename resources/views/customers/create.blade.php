@@ -1,21 +1,19 @@
-@extends('layouts.app')
+@extends('backend.layouts.app')
 
 @section('content')
 
 
-
-<!-- Basic Data Tables -->
-<!--===================================================-->
-
-<div class="panel">
-    <div class="panel-heading bord-btm clearfix pad-all h-100">
-        <h3 class="panel-title pull-left pad-no">{{translate('New Customer')}}</h3>
-    </div>
-
-    <form class="form-horizontal" action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-        <div class="panel-body">
-            <div class="form-group">
+<div class="col-md-10 mx-auto">
+    <form class="form form-horizontal mar-top" action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data" id="choice_form">
+        @csrf
+        <input type="hidden" name="added_by" value="admin">
+       
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 h6">{{translate('Add New Customer')}}</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
                 <label class="col-sm-2 control-label" for="name">{{translate('Name')}}</label>
                 <div class="col-sm-10">
                     <input type="text" placeholder="{{translate('Name')}}" id="name" name="name" class="form-control" value="{{ old('name') }}"  required>
@@ -36,7 +34,7 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-2 control-label" for="password">{{translate('password')}}</label>
+                <label class="col-sm-2 control-label" for="password">{{translate('Password')}}</label>
                 <div class="col-sm-10">
                      <input type="password" placeholder="{{translate('Password')}}" id="password" name="password" class="form-control" required>
                      @error('password')
@@ -53,14 +51,14 @@
                 <div class="col-sm-10">
                      <input type="password" placeholder="{{translate('Confirm Password')}}" id="password_confirmation" name="password_confirmation" class="form-control" required>
                 </div>
+            </div>   
             </div>
-            
         </div>
-        <div class="panel-footer text-right">
-            <button class="btn btn-purple" type="submit">{{translate('Save')}}</button>
+       
+        <div class="mar-all text-right">
+            <button type="submit" name="button" class="btn btn-info">{{ translate('Add New Customer') }}</button>
         </div>
     </form>
-
 </div>
 
 @endsection
