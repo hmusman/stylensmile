@@ -106,8 +106,7 @@
     </noscript>
     <!-- End Facebook Pixel Code -->
 @endif
-<!--Rich snipets-->
- <script type="application/ld+json">
+<script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Store",
@@ -151,7 +150,7 @@
           "@type": "OpeningHoursSpecification",
           "dayOfWeek": "Sunday",
           "opens": "11:00",
-          "closes": "17:00"
+          "closes": "16:00"
         }
       ],
       "department": [
@@ -161,7 +160,7 @@
         "https://stylensmile.pk/public/uploads/all/TnXZAFxXbOdb67Ct6vtmtDfHL9OUOegedfvJ6rrU.png",
         "https://stylensmile.pk/public/uploads/all/hgbcVKsvSmc5nY4QbPMXEax0F1ecwypMENvHw6Kq.png"
        ],
-          "name": "Style n Smile Store",
+          "name": "Style n Smile Shop",
           "telephone": "+923026650909",
           "openingHoursSpecification": [
             {
@@ -205,7 +204,6 @@
       }
     }
     </script>
-    <!--Rich snipets-->
 </head>
 <body>
 
