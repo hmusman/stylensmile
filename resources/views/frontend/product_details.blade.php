@@ -326,7 +326,7 @@
 
                             </form>
 
-                            <div class="mt-3">
+                           {{-- <div class="mt-3">
                                 @if ($qty > 0)
                                     <button type="button" class="btn btn-soft-primary mr-2 add-to-cart fw-600" onclick="addToCart()">
                                         <i class="las la-shopping-bag"></i>
@@ -340,7 +340,7 @@
                                         <i class="la la-cart-arrow-down"></i> {{ translate('Out of Stock')}}
                                     </button>
                                 @endif
-                            </div>
+                            </div>--}}
 
 
 
