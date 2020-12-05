@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use App\Customer;
 use App\User;
 use App\Order;
@@ -40,7 +38,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('backend.customer.customers.create');
+        //
     }
 
     /**
@@ -51,27 +49,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $validations = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-        if($validations->fails())
-        {
-            return back()->withErrors($validations)->withInput();
-        }
-        $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password),
-            ]);
-
-        $customer = new Customer;
-        $customer->user_id = $user->id;
-        $customer->save();
-        flash(translate('Customer has been added successfully'))->success();
-        return redirect()->route('customers.index');
+        //
     }
 
     /**

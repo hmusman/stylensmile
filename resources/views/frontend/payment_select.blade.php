@@ -24,16 +24,16 @@
                             <h3 class="fs-14 fw-600 d-none d-lg-block text-capitalize">{{ translate('3. Delivery info')}}</h3>
                         </div>
                     </div>
-                    {{-- <div class="col">
+                    <div class="col">
                         <div class="text-center text-primary">
                             <i class="la-3x mb-2 las la-credit-card"></i>
                             <h3 class="fs-14 fw-600 d-none d-lg-block text-capitalize">{{ translate('4. Payment')}}</h3>
                         </div>
-                    </div> --}}
+                    </div>
                     <div class="col">
                         <div class="text-center">
                             <i class="la-3x mb-2 opacity-50 las la-check-circle"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50 text-capitalize">{{ translate('4. Confirmation')}}</h3>
+                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50 text-capitalize">{{ translate('5. Confirmation')}}</h3>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
         </div>
     </div>
 </section>
-<section class="mb-4" style="display: none;">
+<section class="mb-4">
     <div class="container text-left">
         <div class="row">
             <div class="col-lg-8">
@@ -299,7 +299,7 @@
                     </div>
                     <div class="pt-3">
                         <label class="aiz-checkbox">
-                            <input type="checkbox" required id="agree_checkbox" checked>
+                            <input type="checkbox" required id="agree_checkbox">
                             <span class="aiz-square-check"></span>
                             <span>{{ translate('I agree to the')}}</span>
                         </label>
@@ -334,7 +334,6 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
-            $('#checkout-form').submit();
             $(".online_payment").click(function(){
                 $('#manual_payment_description').parent().addClass('d-none');
             });
@@ -349,7 +348,6 @@
                 AIZ.plugins.notify('danger','{{ translate('You need to agree with our policies') }}');
             }
         }
-        
         function submitOrder(el){
             $(el).prop('disabled', true);
             if($('#agree_checkbox').is(":checked")){
