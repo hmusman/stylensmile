@@ -25,16 +25,16 @@
                             <h3 class="fs-14 fw-600 d-none d-lg-block text-capitalize">{{ translate('3. Delivery info')}}</h3>
                         </div>
                     </div>
-                    <div class="col">
+                    {{-- <div class="col">
                         <div class="text-center">
                             <i class="la-3x mb-2 opacity-50 las la-credit-card"></i>
                             <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50 text-capitalize">{{ translate('4. Payment')}}</h3>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="col">
                         <div class="text-center">
                             <i class="la-3x mb-2 opacity-50 las la-check-circle"></i>
-                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50 text-capitalize">{{ translate('5. Confirmation')}}</h3>
+                            <h3 class="fs-14 fw-600 d-none d-lg-block opacity-50 text-capitalize">{{ translate('4. Confirmation')}}</h3>
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                 @endphp
 
                 @if (!empty($admin_products))
-                <form class="form-default" action="{{ route('checkout.store_delivery_info') }}" role="form" method="POST">
+                <form class="form-default" action="{{ route('checkout.store_delivery_info') }}" role="form" method="POST" id="admin-products-form">
                     @csrf
                     <div class="card mb-3 shadow-sm border-0 rounded">
                         <div class="card-header p-3">
@@ -154,14 +154,15 @@
                                 </div>
                             </div>
                             @endif
+
                         </div>
                         <div class="card-footer justify-content-end">
-                            <button type="submit" name="owner_id" value="{{ App\User::where('user_type', 'admin')->first()->id }}" class="btn fw-600 btn-primary">{{ translate('Continue to Payment')}}</a>
+                            <button type="submit" name="owner_id" value="{{ App\User::where('user_type', 'admin')->first()->id }}" class="btn fw-600 btn-primary">{{ translate('Continue To Order Submition')}}</a>
                         </div>
                     </div>
                 </form>
                 @endif
-                <form class="form-default"  action="{{ route('checkout.store_delivery_info') }}" role="form" method="POST">
+                <form class="form-default"  action="{{ route('checkout.store_delivery_info') }}" role="form" method="POST" id="seller-products-form">
                     @csrf
                     @if (!empty($seller_products))
                         @foreach ($seller_products as $key => $seller_product)
@@ -259,9 +260,10 @@
                                             </div>
                                         </div>
                                     @endif
+
                                 </div>
                                 <div class="card-footer justify-content-end">
-                                    <button type="submit" name="owner_id" value="{{ $key }}" class="btn fw-600 btn-primary">{{ translate('Continue to Payment')}}</a>
+                                    <button type="submit" name="owner_id" value="{{ $key }}" class="btn fw-600 btn-primary">{{ translate('Continue To Order Submition')}}</a>
                                 </div>
                             </div>
                         @endforeach
@@ -298,6 +300,16 @@
         	}else{
         		$(target).removeClass('d-none');
         	}
+        }
+
+        function submitOrder(el,tpe){
+            $(el).prop('disabled', true);
+            if($('.agree_checkbox').is(":checked")){
+                $("#"+tpe+"-products-form").submit();
+            }else{
+                AIZ.plugins.notify('danger','{{ translate('You need to agree with our policies') }}');
+                $(el).prop('disabled', false);
+            }
         }
 
     </script>
