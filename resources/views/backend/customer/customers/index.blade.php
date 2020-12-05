@@ -3,16 +3,9 @@
 @section('content')
 
 <div class="aiz-titlebar text-left mt-2 mb-3">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h1 class="h3">{{translate('All Customers')}}</h1>
-        </div>
-        <div class="col-md-6 text-md-right">
-            <a href="{{ route('customers.create') }}" class="btn btn-circle btn-info">
-                <span>{{translate('Add New Customer')}}</span>
-            </a>
-        </div>
-    </div>
+	<div class="align-items-center">
+			<h1 class="h3">{{translate('All Customers')}}</h1>
+	</div>
 </div>
 
 
