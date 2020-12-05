@@ -17,12 +17,18 @@
                 <label class="col-sm-2 control-label" for="name">{{translate('Name')}}</label>
                 <div class="col-sm-10">
                     <input type="text" placeholder="{{translate('Name')}}" id="name" name="name" class="form-control" value="{{ old('name') }}"  required>
+                    @error('name')
+                        <p>{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label" for="name">{{translate('Email')}}</label>
                 <div class="col-sm-10">
-                     <input type="email" placeholder="{{translate('Email')}}" id="email" name="email" class="form-control" required value="{{ old('email') }}">
+                     <input type="email" placeholder="{{translate('Email')}}" id="email" name="email" class="form-control" value="{{ old('email') }}">
+                     @error('email')
+                        <p>{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -30,6 +36,9 @@
                 <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
                 <div class="col-sm-10">
                      <input type="number" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" maxlength="11"  value="{{ old('phone') }}" required>
+                     @error('phone')
+                        <p>{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 

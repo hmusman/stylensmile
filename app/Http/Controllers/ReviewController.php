@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use App\Review;
 use App\Product;
+use App\Customer;
 use Auth;
 use DB;
 use App\User;
@@ -61,9 +64,21 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+        $email = str_replace(' ', '_', $request->user_name);
+        $email.='@gmail.com';
+        $user = User::create([
+                'name' => $request->user_name,
+                'email' => $email,
+                'password' => Hash::make(rand(1,10)),
+            ]);
+
+        $customer = new Customer;
+        $customer->user_id = $user->id;
+        $customer->save();
+
         $review = new Review;
         $review->product_id = $request->product_id;
-        $review->user_id = $request->user_id;
+        $review->user_id = $user->id;
         $review->rating = $request->rating;
         $review->comment = $request->comment;
         $review->viewed = '0';

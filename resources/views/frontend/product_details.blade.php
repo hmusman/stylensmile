@@ -206,7 +206,41 @@
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $detailedProduct->id }}">
 
-                                @if ($detailedProduct->choice_options != null)
+                                @if ($detailedProduct->stocks->count()>0)
+
+                                    <div class="row no-gutters">
+                                        <div class="col-12">
+                                            <div class="opacity-50 mt-2 ">{{ \App\Attribute::find(1)->getTranslation('name') }}:</div>
+                                        </div>
+                                        
+                                    </div>
+
+                                    <div class="row no-gutters mt-2">
+                                        
+                                        <div class="col-12">
+                                            <div class="aiz-radio-inline">
+                                                @php $i=0; @endphp
+                                                @foreach ($detailedProduct->stocks as $key => $row)
+                                                    <label class="aiz-megabox pl-0 mr-2">
+                                                        @if($row->qty == 0)<div class="line1"></div> @endif
+                                                        <input
+                                                            type="radio"
+                                                            name="attribute_id_1"
+                                                            value="{{ $row->variant }}"
+                                                            @if($i == 0) checked @endif @if($row->qty == 0) disabled @endif
+                                                        >
+                                                        <span class="aiz-megabox-elem rounded d-flex align-items-center justify-content-center py-2 px-3 mb-2">
+                                                            {{ $row->variant }}
+                                                        </span>
+                                                    </label>
+                                                    @php $i++; @endphp
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                @endif
+                                {{--@if ($detailedProduct->choice_options != null)
                                     @foreach (json_decode($detailedProduct->choice_options) as $key => $choice)
 
                                         <div class="row no-gutters">
@@ -238,7 +272,7 @@
                                         </div>
 
                                     @endforeach
-                                @endif
+                                @endif--}}
 
                                 @if (count(json_decode($detailedProduct->colors)) > 0)
                                     <div class="row no-gutters">

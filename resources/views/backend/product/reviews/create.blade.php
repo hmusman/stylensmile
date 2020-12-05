@@ -15,15 +15,7 @@
                 <div class="form-group row">
                     <label class="col-sm-3 control-label" for="name">{{translate('Customer')}}</label>
                     <div class="col-sm-9">
-                        <select class="form-control" name="user_id" required="">
-                            <option disabled="" selected="" hidden="">Select Customer</option>
-                            @if($users->count()>0)
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-
-                            @endif
-                        </select>
+                        <input type="text" class="form-control" name="user_name" required="">
                     </div>
                 </div>
                 
