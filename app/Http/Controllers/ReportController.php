@@ -7,6 +7,7 @@ use App\Product;
 use App\Seller;
 use App\User;
 use App\Search;
+use PDF;
 
 class ReportController extends Controller
 {
@@ -61,5 +62,22 @@ class ReportController extends Controller
     public function user_search_report(Request $request){
         $searches = Search::orderBy('count', 'desc')->paginate(10);
         return view('backend.reports.user_search_report', compact('searches'));
+    }
+    
+    //downloads stock report
+    public function stock_report_download(Request $request)
+    {
+        if($request->has('category_id')){
+            $products = Product::where('category_id', $request->category_id)->get();
+        }
+        else{
+            $products = Product::all();
+        }
+        $pdf = PDF::setOptions([
+                        'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+                        'logOutputFile' => storage_path('logs/log.htm'),
+                        'tempDir' => storage_path('logs/')
+                    ])->loadView('backend.reports.stock_report_download', compact('products'));
+        return $pdf->download('stock-report-'.date('d-m-Y').'.pdf');
     }
 }

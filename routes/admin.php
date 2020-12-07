@@ -185,6 +185,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'admin']], function()
 
 	//Reports
 	Route::get('/stock_report', 'ReportController@stock_report')->name('stock_report.index');
+	Route::get('/stock_report_download', 'ReportController@stock_report_download')->name('stock_report_download');
 	Route::get('/in_house_sale_report', 'ReportController@in_house_sale_report')->name('in_house_sale_report.index');
 	Route::get('/seller_sale_report', 'ReportController@seller_sale_report')->name('seller_sale_report.index');
 	Route::get('/wish_report', 'ReportController@wish_report')->name('wish_report.index');

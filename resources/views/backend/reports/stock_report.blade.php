@@ -30,10 +30,13 @@
                     <thead>
                         <tr>
                             <th>{{ translate('Product Name') }}</th>
+                            <th>{{ translate('Product Tag') }}</th>
+                            <th>{{ translate('Product Size') }}</th>
                             <th>{{ translate('Stock') }}</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php $pro_name =" "; @endphp
                         @foreach ($products as $key => $product)
                             @php
                                 $qty = 0;
@@ -46,10 +49,17 @@
                                     $qty = $product->current_stock;
                                 }
                             @endphp
-                            <tr>
-                                <td>{{ $product->getTranslation('name') }}</td>
-                                <td>{{ $qty }}</td>
-                            </tr>
+                            @php $i=0; @endphp
+                            @foreach ($product->stocks as $key => $row)
+                                <tr>
+                                    <td> @if($pro_name != $product->name && $i==0) {{ $product->getTranslation('name') }} @endif</td>
+                                    <td>@if($pro_name != $product->name && $i==0) {{ $product->getTranslation('tags') }} @endif</td>
+                                    <td>{{ $row->variant }}</td>
+                                    <td>{{ $row->qty }}</td>
+                                </tr>
+                                 @php $i++; @endphp
+                            @endforeach
+                            @php $pro_name =$product->name @endphp
                         @endforeach
                     </tbody>
                 </table>
