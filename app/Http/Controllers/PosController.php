@@ -234,7 +234,10 @@ class PosController extends Controller
     //set Shipping Cost
     public function setShipping(Request $request){
         if($request->shipping != null){
-            Session::put('shipping', $request->shipping);
+            if (\App\BusinessSetting::where('type', 'shipping_type')->first()->value == 'flat_rate') {
+                $calculate_shipping = \App\BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
+            }
+            Session::put('shipping', $calculate_shipping);
         }
         return view('pos.cart');
     }
