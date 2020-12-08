@@ -32,6 +32,7 @@
     <meta property="og:price:amount" content="{{ single_price($detailedProduct->unit_price) }}" />
     <meta property="product:price:currency" content="{{ \App\Currency::findOrFail(\App\BusinessSetting::where('type', 'system_default_currency')->first()->value)->code }}" />
     <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
+
 @endsection
 
 @section('content')
@@ -315,7 +316,7 @@
 
                                 <!-- Quantity + Add to cart -->
                                 <div class="row no-gutters">
-                                    <div class="col-5">
+                                    <div class="col-3">
                                         <div class="product-quantity d-flex align-items-center">
                                             <div class="row no-gutters align-items-center aiz-plus-minus mr-3" style="width: 130px;">
                                                 <button class="btn col-auto btn-icon btn-sm btn-circle btn-light" type="button" data-type="minus" data-field="quantity" disabled="">
@@ -329,7 +330,7 @@
                                             {{-- <div class="avialable-amount opacity-60">(<span id="available-quantity">{{ $qty }}</span> {{ translate('available')}})</div> --}}
                                         </div>
                                     </div>
-                                    <div class="col-7">
+                                    <div class="col-9">
                                         @if ($qty > 0)
                                             <button type="button" class="btn btn-soft-primary mr-2 add-to-cart fw-600 " onclick="addToCart()">
                                                 <i class="las la-shopping-bag"></i>

@@ -76,7 +76,12 @@
             <tr>
                 <td class="text-center">{{ single_price($subtotal) }}</td>
                 <td class="text-center">{{ single_price($tax) }}</td>
+                @if($shipping > 0)
+                     
+                <td class="text-center">{{ single_price('200') }}</td>
+                @else
                 <td class="text-center">{{ single_price($shipping) }}</td>
+                @endif
                 <td class="text-center">{{ single_price(Session::get('pos_discount', 0)) }}</td>
                 <td class="text-center">{{ single_price($subtotal+$tax+$shipping - Session::get('pos_discount', 0)) }}</td>
             </tr>

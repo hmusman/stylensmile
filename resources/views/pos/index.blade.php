@@ -421,6 +421,7 @@
         function setShipping(){
             var shipping = $('input[name=shipping]:checked').val();
             $.post('{{ route('pos.setShipping') }}',{_token:'{{ csrf_token() }}', shipping:shipping}, function(data){
+                
                 $('#cart-details').html(data);
                 $('#product-variation').modal('hide');
             });
