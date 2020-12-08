@@ -54,13 +54,11 @@ class CustomerController extends Controller
         if(empty($request->email)){
             $validations = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
-                'password' => 'required|string|min:6|confirmed',
             ]);
         }else{
             $validations = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'email',
-                'password' => 'required|string|min:6|confirmed',
             ]);
         }
       
@@ -76,7 +74,7 @@ class CustomerController extends Controller
                 'name' => $request->name,
                 'email' => $email,
                 'phone' => $request->phone,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make(rand(1,10)),
             ]);
 
         $customer = new Customer;

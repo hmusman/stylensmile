@@ -262,7 +262,17 @@
                             <div class=" row">
                                 <label class="col-sm-2 control-label" for="city">{{translate('City')}}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" placeholder="{{translate('City')}}" id="city" name="city" class="form-control" required>
+                                    {{-- <input type="text" placeholder="{{translate('City')}}" id="city" name="city" class="form-control" required> --}}
+                                    @php
+                                        $cities = DB::table('cities')->get();
+                                    @endphp
+
+                                    <select name="city" id="city" class="form-control" required="">
+                                        <option disabled="" hidden="" selected="">Select City </option>
+                                        @foreach($cities as $city)
+                                            <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +322,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal">{{translate('Close')}}</button>
-                    <button type="button" onclick="submitOrder('cash')" class="btn btn-styled btn-base-1 btn-primary">{{translate('Comfirm Order')}}</button>
+                    <button type="button" onclick="submitOrder(this,'cash')" class="btn btn-styled btn-base-1 btn-primary">{{translate('Confirm Order')}}</button>
                 </div>
             </div>
         </div><!-- /.modal-dialog -->
@@ -441,20 +451,21 @@
             $("#close-button").click();
         }
 
-        function submitOrder(payment_type){
+        function submitOrder(element,payment_type){
+            $(element).prop('disabled', true);
             var user_id = $('select[name=user_id]').val();
             var name = $('input[name=name]').val();
             var email = $('input[name=email]').val();
             var address = $('textarea[name=address]').val();
             var country = $('select[name=country]').val();
-            var city = $('input[name=city]').val();
+            var city = $('select[name=city]').val();
             var postal_code = $('input[name=postal_code]').val();
             var phone = $('input[name=phone]').val();
             var shipping = $('input[name=shipping]:checked').val();
             var discount = $('input[name=discount]').val();
-            var address = $('input[name=address_id]:checked').val();
+            var shipping_address = $('input[name=address_id]:checked').val();
 
-            $.post('{{ route('pos.order_place') }}',{_token:'{{ csrf_token() }}', user_id:user_id, name:name, email:email, address:address, country:country, city:city, postal_code:postal_code, phone:phone, shipping_address:address, payment_type:payment_type, shipping:shipping, discount:discount}, function(data){
+            $.post('{{ route('pos.order_place') }}',{_token:'{{ csrf_token() }}', user_id:user_id, name:name, email:email, address:address, country:country, city:city, postal_code:postal_code, phone:phone, shipping_address:shipping_address, payment_type:payment_type, shipping:shipping, discount:discount}, function(data){
                 if(data == 1){
                     AIZ.plugins.notify('success', '{{ translate('Order Completed Successfully.') }}');
                     location.reload();

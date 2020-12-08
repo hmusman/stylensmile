@@ -42,7 +42,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            {{-- <div class="form-group">
                 <label class="col-sm-2 control-label" for="password">{{translate('Password')}}</label>
                 <div class="col-sm-10">
                      <input type="password" placeholder="{{translate('Password')}}" id="password" name="password" class="form-control" required>
@@ -50,17 +50,15 @@
                         <p class="text-danger">{{ $message }}</p>
                     @enderror
                 </div>
+            </div> --}}
 
-
-                <p></p>
-            </div>
-
-            <div class="form-group">
+           {{--  <div class="form-group">
                 <label class="col-sm-2 control-label" for="password_confirmation">{{translate('Confirm Password')}}</label>
                 <div class="col-sm-10">
                      <input type="password" placeholder="{{translate('Confirm Password')}}" id="password_confirmation" name="password_confirmation" class="form-control" required>
                 </div>
-            </div>   
+            </div>  --}} 
+             
             </div>
         </div>
        

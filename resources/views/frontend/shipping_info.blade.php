@@ -126,7 +126,17 @@
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label class="control-label">{{ translate('City')}}</label>
-                                            <input type="text" class="form-control" placeholder="{{ translate('City')}}" name="city" required>
+                                            {{-- <input type="text" class="form-control" placeholder="{{ translate('City')}}" name="city" required> --}}
+                                            @php
+                                                $cities = DB::table('cities')->get();
+                                            @endphp
+
+                                            <select name="city" id="" class="form-control mb-3" required="">
+                                                <option disabled="" hidden="" selected="">Select Your City </option>
+                                                @foreach($cities as $city)
+                                                    <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

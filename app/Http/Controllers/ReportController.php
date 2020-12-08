@@ -64,6 +64,24 @@ class ReportController extends Controller
         return view('backend.reports.user_search_report', compact('searches'));
     }
     
+    //in_house_sale_report_download
+    public function in_house_sale_report_download(Request $request)
+    {
+        $sort_by =null;
+        $products = Product::orderBy('num_of_sale', 'desc')->where('added_by', 'admin');
+        if ($request->has('category_id')){
+            $sort_by = $request->category_id;
+            $products = $products->where('category_id', $sort_by);
+        }
+        $products = $products->get();
+        $pdf = PDF::setOptions([
+                        'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
+                        'logOutputFile' => storage_path('logs/log.htm'),
+                        'tempDir' => storage_path('logs/')
+                    ])->loadView('backend.reports.in_house_sale_report_download', compact('products'));
+        return $pdf->download('in-house-sale-report-'.date('d-m-Y').'.pdf');
+    }
+
     //downloads stock report
     public function stock_report_download(Request $request)
     {
