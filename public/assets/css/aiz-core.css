@@ -966,7 +966,7 @@ fixed-bottom 1030*/
 
 
 
-.border-primary { border-color: var(--primary) !important; }
+.border-primary {     border-color: #0d111b !important; }
 
 .border-secondary { border-color: var(--secondary) !important; }
 
@@ -10495,9 +10495,8 @@ input[type="number"] {
 
 .show>.btn-outline-primary.dropdown-toggle{
 
-    background-color: var(--hov-primary);
-
-    border-color: var(--hov-primary)
+   background-color: #1f73b7;
+    border-color: #1f73b7
 
 }
 
@@ -10507,11 +10506,9 @@ input[type="number"] {
 
 .btn-outline-primary:hover {
 
-    background-color: var(--primary);
-
-    border-color: var(--primary);
-
-    color: var(--white);
+background-color: #ffffff;
+    border-color: #0d111b;
+    color: #0d111b;
 
 }
 
@@ -11651,7 +11648,7 @@ div.footable-loader > span.fooicon:after {
 
 .badge-primary {
 
-    background-color: var(--primary);
+    background-color: #1d1d1d;
 
 }
 
@@ -12998,7 +12995,7 @@ ul.social.colored [class*="linkedin"] {
 
     z-index: 10;
 
-    background: #fff;
+      background:  #0d111b !important;
 
     box-shadow: -2px 3px 5px rgb(0 0 0 / 0.1);
 

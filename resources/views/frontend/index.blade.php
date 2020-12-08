@@ -8,11 +8,11 @@
 
     <div class="home-banner-area mb-4 pt-3">
 
-        <div class="container">
 
-            <div class="row gutters-10 position-relative">
 
-                <div class="col-lg-3 position-static d-none d-lg-block">
+            <div class="row position-relative">
+
+                <div class="col-lg-12 position-static d-none d-lg-block">
 
                     @include('frontend.partials.category_menu')
 
@@ -29,7 +29,7 @@
                 @endphp
 
 
-
+               <div class="container">
                 <div class="@if($num_todays_deal > 0) col-lg-7 @else col-lg-9 @endif">
 
                     @if (get_setting('home_slider_images') != null)
@@ -48,7 +48,7 @@
 
                                             class="d-block mw-100 lazyload img-fit rounded shadow-sm"
 
-                                            src="{{ static_asset('assets/img/placeholder-rect.jpg') }}"
+                                           src="{{ static_asset('assets/img/sliders3.jpg') }}"
 
                                             data-src="{{ uploaded_asset($slider_images[$key]) }}"
 
@@ -64,7 +64,7 @@
 
                                             @endif
 
-                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
+                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/sliders3.jpg') }}';"
 
                                         >
 
@@ -100,7 +100,7 @@
 
                                             height="78"
 
-                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/placeholder-rect.jpg') }}';"
+                                            onerror="this.onerror=null;this.src='{{ static_asset('assets/img/n3.jpg') }}';"
 
                                         >
 
@@ -373,10 +373,55 @@
     @endif
 
 
+<section class="sec1">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-6 imgCol" >
+              <img class="firstSectionImg" src="{{ static_asset('assets/img/n3.jpg') }}"/>
+        </div>
+         <div class="col-md-6">
+              <img class="firstSectionImg" src="{{ static_asset('assets/img/n1.jpg') }}"/>
+         </div>
+    </div>
+    </div>
+</section>
+
+
+<section class="sec1">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-6 imgCol" >
+              <img class="firstSectionImg" src="{{ static_asset('assets/img/n4.jpg') }}"/>
+        </div>
+         <div class="col-md-6">
+              <img class="firstSectionImg" src="{{ static_asset('assets/img/n2.jpg') }}"/>
+         </div>
+    </div>
+    </div>
+</section>
+
+
+
+<section class="sec1">
+    <div class="container">
+    <div class="row">
+        <div class="col-md-3" >
+         
+        </div>
+         <div class="col-md-6">
+              <img class="firstSectionImg" src="{{ static_asset('assets/img/izAQtQN7NGzg760bFm73e4CpjjkqYxOOZ24mBLpr.jpeg') }}"/>
+         </div>
+
+          <div class="col-md-3" >
+             
+        </div>
+    </div>
+    </div>
+</section>
 
     {{-- Banner section 1 --}}
 
-    <div class="mb-4">
+    <!-- <div class="mb-4">
 
         <div class="container">
 
@@ -410,7 +455,7 @@
 
         </div>
 
-    </div>
+    </div> -->
 
 
 
@@ -426,11 +471,11 @@
 
     {{-- Best Selling  --}}
 
-    <div id="section_best_selling">
+    <!-- <div id="section_best_selling">
 
 
 
-    </div>
+    </div> -->
 
 
 
@@ -456,7 +501,7 @@
 
            @if (count($customer_products) > 0)
 
-               <section class="mb-4">
+               <!-- <section class="mb-4">
 
                    <div class="container">
 
@@ -546,7 +591,7 @@
 
                    </div>
 
-               </section>
+               </section> -->
 
            @endif
 
@@ -556,7 +601,7 @@
 
     {{-- Banner Section 2 --}}
 
-    <div class="mb-4">
+    <!-- <div class="mb-4">
 
         <div class="container">
 
@@ -590,7 +635,7 @@
 
         </div>
 
-    </div>
+    </div> -->
 
 
 

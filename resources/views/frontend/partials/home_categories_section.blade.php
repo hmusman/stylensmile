@@ -22,7 +22,7 @@
 
                 </div>
 
-                <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="3" data-xl-items="2" data-lg-items="2"  data-md-items="2" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='true'>
+                <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="3" data-xl-items="3" data-lg-items="2"  data-md-items="2" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='true'>
 
                     @foreach (get_cached_products($category->id) as $key => $product)
 

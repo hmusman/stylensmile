@@ -1,5 +1,32 @@
 /*your custom css goes here*/
 
+   .newUlDes{
+        
+    display: flex !important;
+    flex-direction: row !important;
+       justify-content: center !important;
+    color: white; 
+}
+
+@media(min-width: 1200px){
+  .container{
+    max-width: 1205px !important;
+  }
+}
+
+img[class="d-block mw-100 img-fit rounded shadow-sm lazyloaded"]{
+    width: 100% !important;
+}
+.firstSectionImg{
+width: 100% !important;
+}
+
+.sec1{
+    margin-bottom: 25px !important;
+}
+.imgCol{
+    margin-bottom: 25px !important;
+}
 .whatsapp {
     width: 100px;
     height: 100px;
