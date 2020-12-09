@@ -51,28 +51,18 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        if(empty($request->email)){
-            $validations = Validator::make($request->all(), [
+        $validations = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
+                'phone' => 'required|numeric|unique:users'
             ]);
-        }else{
-            $validations = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'email',
-            ]);
-        }
       
         if($validations->fails())
         {
             return back()->withErrors($validations)->withInput();
         }
-        if(empty($request->email)){
-            $email = str_replace(' ', '_', $request->name);
-            $email.='@gmail.com';
-        }else{ $email = $request->email; }
+
         $user = User::create([
                 'name' => $request->name,
-                'email' => $email,
                 'phone' => $request->phone,
                 'password' => Hash::make(rand(1,10)),
             ]);

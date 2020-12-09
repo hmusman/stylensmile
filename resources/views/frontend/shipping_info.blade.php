@@ -215,7 +215,17 @@
                                 <label>{{ translate('City')}}</label>
                             </div>
                             <div class="col-md-10">
-                                <input type="text" class="form-control mb-3" placeholder="{{ translate('Your City')}}" name="city" value="" required>
+                                {{-- <input type="text" class="form-control mb-3" placeholder="{{ translate('Your City')}}" name="city" value="" required> --}}
+                                @php
+                                    $cities = DB::table('cities')->get();
+                                @endphp
+
+                                <select name="city" id="" class="form-control mb-3" required="">
+                                    <option disabled="" hidden="" selected="">Select Your City </option>
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city->name }}">{{ $city->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                         <div class="row">

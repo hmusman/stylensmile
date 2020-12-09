@@ -18,11 +18,12 @@
                 <div class="col-sm-10">
                     <input type="text" placeholder="{{translate('Name')}}" id="name" name="name" class="form-control" value="{{ old('name') }}"  required>
                     @error('name')
-                        <p>{{ $message }}</p>
+                        <p class="text-danger">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
-            <div class="form-group">
+
+            {{-- <div class="form-group">
                 <label class="col-sm-2 control-label" for="name">{{translate('Email')}}</label>
                 <div class="col-sm-10">
                      <input type="email" placeholder="{{translate('Email')}}" id="email" name="email" class="form-control" value="{{ old('email') }}">
@@ -30,14 +31,14 @@
                         <p>{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
+            </div> --}}
 
             <div class="form-group">
                 <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
                 <div class="col-sm-10">
                      <input type="number" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" maxlength="11"  value="{{ old('phone') }}" required>
                      @error('phone')
-                        <p>{{ $message }}</p>
+                        <p class="text-danger">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
@@ -50,15 +51,16 @@
                         <p class="text-danger">{{ $message }}</p>
                     @enderror
                 </div>
-            </div> --}}
+            </div>
 
-           {{--  <div class="form-group">
+            <div class="form-group">
                 <label class="col-sm-2 control-label" for="password_confirmation">{{translate('Confirm Password')}}</label>
                 <div class="col-sm-10">
                      <input type="password" placeholder="{{translate('Confirm Password')}}" id="password_confirmation" name="password_confirmation" class="form-control" required>
                 </div>
-            </div>  --}} 
-             
+            </div>  --}}
+
+              
             </div>
         </div>
        
