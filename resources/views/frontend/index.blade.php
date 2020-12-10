@@ -870,7 +870,7 @@
 
             });
 
-            $.post('{{ route('home.section.qasim_home_categories') }}', {_token:'{{ csrf_token() }}'}, function(data){
+            $.post('{{ route('home.section.home_categories') }}', {_token:'{{ csrf_token() }}'}, function(data){
 
                 $('#section_home_categories').html(data);
 

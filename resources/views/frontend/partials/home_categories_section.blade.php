@@ -36,7 +36,7 @@
 
                                         <img
 
-                                            class="img-fit lazyload mx-auto h-140px h-md-210px big-car-cstm"
+                                            class="img-fit lazyload mx-auto h-140px h-md-350px big-car-cstm"
 
                                             src="{{ static_asset('assets/img/placeholder.jpg') }}"
 
