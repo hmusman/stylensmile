@@ -160,181 +160,8 @@
 				</div>
 			</div>
 
-
 			{{-- Home Banner 1 --}}
 			<div class="col-lg-6">
-				<div class="card shadow-none bg-light">
-					<div class="card-header">
-						<h6 class="mb-0">{{ translate('Home Banner 1 (Max 2)') }}</h6>
-					</div>
-					<div class="card-body">
-						<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
-							@csrf
-							<div class="form-group">
-								<label>{{ translate('Banner & Links') }}</label>
-								<div class="home-banner1-target">
-									<input type="hidden" name="types[]" value="home_banner1_images">
-									<input type="hidden" name="types[]" value="home_banner1_links">
-									@if (get_setting('home_banner1_images') != null)
-										@foreach (json_decode(get_setting('home_banner1_images'), true) as $key => $value)
-											<div class="row gutters-5">
-												<div class="col-5">
-													<div class="input-group" data-toggle="aizuploader" data-type="image">
-						                                <div class="input-group-prepend">
-						                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-						                                </div>
-						                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-														<input type="hidden" name="types[]" value="home_banner1_images">
-						                                <input type="hidden" name="home_banner1_images[]" class="selected-files" value="{{ json_decode(get_setting('home_banner1_images'), true)[$key] }}">
-						                            </div>
-						                            <div class="file-preview box sm">
-						                            </div>
-												</div>
-												<div class="col">
-													<div class="form-group">
-														<input type="hidden" name="types[]" value="home_banner1_links">
-														<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]" value="{{ json_decode(get_setting('home_banner1_links'), true)[$key] }}">
-													</div>
-												</div>
-												<div class="col-auto">
-													<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-														<i class="las la-times"></i>
-													</button>
-												</div>
-											</div>
-										@endforeach
-									@endif
-								</div>
-								<button
-									type="button"
-									class="btn btn-soft-secondary btn-sm"
-									data-toggle="add-more"
-									data-content='
-									<div class="row gutters-5">
-										<div class="col-5">
-											<div class="input-group" data-toggle="aizuploader" data-type="image">
-												<div class="input-group-prepend">
-													<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-												</div>
-												<div class="form-control file-amount">{{ translate('Choose File') }}</div>
-												<input type="hidden" name="types[]" value="home_banner1_images">
-												<input type="hidden" name="home_banner1_images[]" class="selected-files">
-											</div>
-											<div class="file-preview box sm">
-											</div>
-										</div>
-										<div class="col">
-											<div class="form-group">
-												<input type="hidden" name="types[]" value="home_banner1_links">
-												<input type="text" class="form-control" placeholder="http://" name="home_banner1_links[]">
-											</div>
-										</div>
-										<div class="col-auto">
-											<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-												<i class="las la-times"></i>
-											</button>
-										</div>
-									</div>'
-									data-target=".home-banner1-target">
-									{{ translate('Add New') }}
-								</button>
-							</div>
-							<div class="text-right">
-								<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-
-			{{-- Home Banner 2 --}}
-			<div class="col-lg-6">
-				<div class="card shadow-none bg-light">
-					<div class="card-header">
-						<h6 class="mb-0">{{ translate('Home Banner 2 (Max 2)') }}</h6>
-					</div>
-					<div class="card-body">
-						<form action="{{ route('business_settings.update') }}" method="POST" enctype="multipart/form-data">
-							@csrf
-							<div class="form-group">
-								<label>{{ translate('Banner & Links') }}</label>
-								<div class="home-banner2-target">
-									<input type="hidden" name="types[]" value="home_banner2_images">
-									<input type="hidden" name="types[]" value="home_banner2_links">
-									@if (get_setting('home_banner2_images') != null)
-										@foreach (json_decode(get_setting('home_banner2_images'), true) as $key => $value)
-											<div class="row gutters-5">
-												<div class="col-5">
-													<div class="input-group" data-toggle="aizuploader" data-type="image">
-						                                <div class="input-group-prepend">
-						                                    <div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-						                                </div>
-						                                <div class="form-control file-amount">{{ translate('Choose File') }}</div>
-														<input type="hidden" name="types[]" value="home_banner2_images">
-						                                <input type="hidden" name="home_banner2_images[]" class="selected-files" value="{{ json_decode(get_setting('home_banner2_images'), true)[$key] }}">
-						                            </div>
-						                            <div class="file-preview box sm">
-						                            </div>
-												</div>
-												<div class="col">
-													<div class="form-group">
-														<input type="hidden" name="types[]" value="home_banner2_links">
-														<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]" value="{{ json_decode(get_setting('home_banner2_links'), true)[$key] }}">
-													</div>
-												</div>
-												<div class="col-auto">
-													<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-														<i class="las la-times"></i>
-													</button>
-												</div>
-											</div>
-										@endforeach
-									@endif
-								</div>
-								<button
-									type="button"
-									class="btn btn-soft-secondary btn-sm"
-									data-toggle="add-more"
-									data-content='
-									<div class="row gutters-5">
-										<div class="col-5">
-											<div class="input-group" data-toggle="aizuploader" data-type="image">
-												<div class="input-group-prepend">
-													<div class="input-group-text bg-soft-secondary font-weight-medium">{{ translate('Browse')}}</div>
-												</div>
-												<div class="form-control file-amount">{{ translate('Choose File') }}</div>
-												<input type="hidden" name="types[]" value="home_banner2_images">
-												<input type="hidden" name="home_banner2_images[]" class="selected-files">
-											</div>
-											<div class="file-preview box sm">
-											</div>
-										</div>
-										<div class="col">
-											<div class="form-group">
-												<input type="hidden" name="types[]" value="home_banner2_links">
-												<input type="text" class="form-control" placeholder="http://" name="home_banner2_links[]">
-											</div>
-										</div>
-										<div class="col-auto">
-											<button type="button" class="mt-1 btn btn-icon btn-circle btn-sm btn-soft-danger" data-toggle="remove-parent" data-parent=".row">
-												<i class="las la-times"></i>
-											</button>
-										</div>
-									</div>'
-									data-target=".home-banner2-target">
-									{{ translate('Add New') }}
-								</button>
-							</div>
-							<div class="text-right">
-								<button type="submit" class="btn btn-primary">{{ translate('Update') }}</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-
-			{{-- Home Banner 1 --}}
-			{{-- <div class="col-lg-6">
 				<div class="card shadow-none bg-light">
 					<div class="card-header">
 						<h6 class="mb-0">{{ translate('Home Banner 1 (Max 3)') }}</h6>
@@ -417,10 +244,10 @@
 						</form>
 					</div>
 				</div>
-			</div> --}}
+			</div>
 
 			{{-- Home Banner 2 --}}
-			{{-- <div class="col-lg-6">
+			<div class="col-lg-6">
 				<div class="card shadow-none bg-light">
 					<div class="card-header">
 						<h6 class="mb-0">{{ translate('Home Banner 2 (Max 3)') }}</h6>
@@ -503,9 +330,9 @@
 						</form>
 					</div>
 				</div>
-			</div> --}}
+			</div>
 
-			{{-- Top 10 --}}
+			{{-- Home Banner 2 --}}
 			<div class="col-lg-12">
 				<div class="card shadow-none bg-light">
 					<div class="card-header">

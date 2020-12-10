@@ -1,38 +1,5 @@
 /*your custom css goes here*/
 
-
-   .newUlDes{
-        
-    display: flex !important;
-    flex-direction: row !important;
-       justify-content: center !important;
-    color: white; 
-}
-
-@media(min-width: 1200px){
-  .container{
-    max-width: 1205px !important;
-  }
-}
-
-img[class="d-block mw-100 img-fit rounded shadow-sm lazyloaded"]{
-    width: 100% !important;
-}
-.firstSectionImg{
-width: 100% !important;
-}
-
-.sec1{
-    margin-bottom: 25px !important;
-}
-.imgCol{
-    margin-bottom: 25px !important;
-}
-
-.imgCol img{
-    width: 100% !important;
-}
-
 .whatsapp {
     width: 100px;
     height: 100px;
@@ -61,6 +28,15 @@ width: 100% !important;
     text-transform: uppercase;
 }
 
+.line1 
+{
+  width: 44px;
+  height: 30px;
+  border-bottom: 1px solid red;
+  -webkit-transform: translateY(5px) translateX(11px) rotate(148deg);
+  position: absolute;
+  top: 10px;
+}
 .mybtn{ width: 100% !important; }
 .mybtn-50 { width: 46% !important;}
 .my-custom-add-btn { width:45% !important; padding: 3px !important;}
