@@ -334,7 +334,7 @@
                                         @if ($qty > 0)
                                             <button type="button" class="btn btn-soft-primary mr-2 add-to-cart fw-600 " onclick="addToCart()">
                                                 <i class="las la-shopping-bag"></i>
-                                                <span class="d-none d-md-inline-block"> {{ translate('Add to cart')}}</span>
+                                                <span class=" d-md-inline-block"> {{ translate('Add to cart')}}</span>
                                             </button>
                                         @else
                                             <button type="button" class="btn btn-secondary fw-600" disabled>
