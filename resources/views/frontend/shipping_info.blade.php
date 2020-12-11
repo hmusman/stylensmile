@@ -65,12 +65,10 @@
                                                         <span class="opacity-60">{{ translate('Address') }}:</span>
                                                         <span class="fw-600 ml-2">{{ $address->address }}</span>
                                                     </div>
-                                                    @if(!empty($address->postal_code))
                                                     <div>
                                                         <span class="opacity-60">{{ translate('Postal Code') }}:</span>
                                                         <span class="fw-600 ml-2">{{ $address->postal_code }}</span>
                                                     </div>
-                                                    @endif
                                                     <div>
                                                         <span class="opacity-60">{{ translate('City') }}:</span>
                                                         <span class="fw-600 ml-2">{{ $address->city }}</span>
@@ -147,13 +145,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label class="control-label">{{ translate('Postal code')}}</label>
-                                            <input type="text" class="form-control" placeholder="{{ translate('Postal code')}}" name="postal_code">
+                                            <input type="text" class="form-control" placeholder="{{ translate('Postal code')}}" name="postal_code" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group has-feedback">
                                             <label class="control-label">{{ translate('Phone')}}</label>
-                                            <input type="number" min="0" class="form-control" placeholder="{{ translate('+923012345678 / 03012345678')}}" name="phone" required>
+                                            <input type="number" min="0" class="form-control" placeholder="{{ translate('Phone')}}" name="phone" required>
                                         </div>
                                     </div>
                                 </div>
@@ -235,7 +233,7 @@
                                 <label>{{ translate('Postal code')}}</label>
                             </div>
                             <div class="col-md-10">
-                                <input type="text" class="form-control mb-3" placeholder="{{ translate('Your Postal Code')}}" name="postal_code" value="">
+                                <input type="text" class="form-control mb-3" placeholder="{{ translate('Your Postal Code')}}" name="postal_code" value="" required>
                             </div>
                         </div>
                         <div class="row">
@@ -243,7 +241,7 @@
                                 <label>{{ translate('Phone')}}</label>
                             </div>
                             <div class="col-md-10">
-                                <input type="text" class="form-control mb-3" placeholder="{{ translate('+923012345678 / 03012345678')}}" name="phone" value="" required>
+                                <input type="text" class="form-control mb-3" placeholder="{{ translate('+880')}}" name="phone" value="" required>
                             </div>
                         </div>
                     </div>

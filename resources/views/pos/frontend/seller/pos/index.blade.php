@@ -284,7 +284,7 @@
                             <div class=" row">
                                 <label class="col-sm-2 control-label" for="postal_code">{{translate('Postal code')}}</label>
                                 <div class="col-sm-10">
-                                    <input type="number" min="0" placeholder="{{translate('Postal code')}}" id="postal_code" name="postal_code" class="form-control" >
+                                    <input type="number" min="0" placeholder="{{translate('Postal code')}}" id="postal_code" name="postal_code" class="form-control" required>
                                 </div>
                             </div>
                         </div>
@@ -292,7 +292,7 @@
                                 <div class=" row">
                                     <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
                                     <div class="col-sm-10">
-                                        <input type="number" min="0" placeholder="{{translate('+923012345678 / 03012345678')}}" id="phone" name="phone" class="form-control" required>
+                                        <input type="number" min="0" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
                                     </div>
                                 </div>
                             </div>

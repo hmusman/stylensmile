@@ -45,16 +45,6 @@ width: 100% !important;
     width: 100%; 
 }
 
-.line1 
-{
-  width: 44px;
-  height: 30px;
-  border-bottom: 1px solid red;
-  -webkit-transform: translateY(5px) translateX(11px) rotate(148deg);
-  position: absolute;
-  top: 10px;
-}
-
 .single-product-whatsapp-btn{ width: 100%; background-color: black !important; color: white !important; }
 .single-product-whatsapp-btn-img{ width: 32px; height: 32px; }
 .my-btn-border{ border: 1px solid black !important;border-radius: 2px 2px !important; }
