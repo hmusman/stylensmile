@@ -21,12 +21,6 @@
                                                 <option value="">{{ translate('All Categories') }}</option>
                                                 @foreach (\App\Category::all() as $key => $category)
                                                     <option value="category-{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
-                                                    @foreach ($category->subcategories as $key => $subcategory)
-                                                        <option value="subcategory-{{ $subcategory->id }}">- {{ $subcategory->getTranslation('name') }}</option>
-                                                        @foreach ($subcategory->subsubcategories as $key => $subsubcategory)
-                                                            <option value="subsubcategory-{{ $subsubcategory->id }}">- - {{ $subsubcategory->getTranslation('name') }}</option>
-                                                        @endforeach
-                                                    @endforeach
                                                 @endforeach
                                             </select>
                                         </div>
@@ -82,7 +76,7 @@
                                 <table class="table aiz-table mb-0" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="60%">{{translate('Product')}}</th>
+                                            <th width="50%">{{translate('Product')}}</th>
                                             <th width="15%">{{translate('QTY')}}</th>
                                             <th>{{translate('Price')}}</th>
                                             <th>{{translate('Subtotal')}}</th>
@@ -116,7 +110,7 @@
                                                     </td>
                                                     <td>
                                                         <div class="input-group mb-3">
-                                                            <input type="number" class="form-control text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
+                                                            <input type="number" class="form-control px-0 text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
                                                         </div>
                                                     </td>
                                                     <td>{{ single_price($cartItem['price']) }}</td>

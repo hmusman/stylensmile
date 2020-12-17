@@ -1,5 +1,5 @@
 <div class="panel-body card-body">
-    <div class="aiz-pos-cart-list c-scrollbar c-scrollbar-light">
+    <div class="pos-cart c-scrollbar c-scrollbar-light">
         <table class="table table-bordered mb-0 mar-no" cellspacing="0" width="100%">
             <thead>
                 <tr>
@@ -30,7 +30,7 @@
                             <td>
                                 <span class="media">
                                     <div class="media-left">
-                                        <img class="mr-3" height="60" src="{{ uploaded_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
+                                        <img class="mr-3 mar-rgt" height="60" src="{{ my_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
                                     </div>
                                     <div class="media-body">
                                         {{ \App\Product::find($cartItem['id'])->name }} ({{ $cartItem['variant'] }})
@@ -38,20 +38,22 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="">
+                                <div class="input-group mb-3">
                                     <input type="number" class="form-control text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
                                 </div>
                             </td>
                             <td>{{ single_price($cartItem['price']) }}</td>
                             <td>{{ single_price($cartItem['price']*$cartItem['quantity']) }}</td>
                             <td class="text-right">
-                                <button type="button" class="btn btn-circle btn-icon btn-sm btn-danger" onclick="removeFromCart({{ $key }})"><i class="las la-trash-alt"></i></button>
+                                <button class="btn btn-circle btn-danger btn-xs" type="button" onclick="removeFromCart({{ $key }})">
+                                    <i class="fa fa-close"></i>
+                                </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="5" class="text-center">
-                                <i class="las la-frown la-3x opacity-50"></i>
+                                <img src="{{ asset('img/nothing-found.jpg') }}" class="img-fit" height="150">
                                 <p>No Product Added</p>
                             </td>
                         </tr>

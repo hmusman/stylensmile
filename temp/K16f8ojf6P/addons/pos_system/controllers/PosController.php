@@ -22,6 +22,7 @@ use PDF;
 use Mail;
 use App\Mail\InvoiceEmailManager;
 use App\Http\Resources\PosProductCollection;
+use App\Utility\CategoryUtility;
 
 class PosController extends Controller
 {
@@ -54,13 +55,9 @@ class PosController extends Controller
         if($request->category != null){
             $arr = explode('-', $request->category);
             if($arr[0] == 'category'){
-                $products = $products->where('category_id', $arr[1]);
-            }
-            elseif($arr[0] == 'subcategory'){
-                $products = $products->where('subcategory_id', $arr[1]);
-            }
-            elseif($arr[0] == 'subsubcategory'){
-                $products = $products->where('subsubcategory_id', $arr[1]);
+                $category_ids = CategoryUtility::children_ids($arr[1]);
+                $category_ids[] = $arr[1];
+                $products = $products->whereIn('category_id', $category_ids);
             }
         }
 
@@ -155,7 +152,21 @@ class PosController extends Controller
                 if($cartItem['id'] == $request->product_id){
                     if($cartItem['variant'] == $request->variant){
                         $foundInCart = true;
-                        $cartItem['quantity'] += $request->quantity;
+                        $product = \App\Product::find($cartItem['id']);
+                        if($cartItem['variant'] != null && $product->variant_product){
+                            $product_stock = $product->stocks->where('variant', $cartItem['variant'])->first();
+                            $quantity = $product_stock->qty;
+                            if($quantity >= $request->quantity){
+                                if($request->quantity >= $product->min_qty){
+                                    $cartItem['quantity'] = $request->quantity;
+                                }
+                            }
+                        }
+                        elseif ($product->current_stock >= $request->quantity) {
+                            if($request->quantity >= $product->min_qty){
+                                $cartItem['quantity'] = $request->quantity;
+                            }
+                        }
                     }
                 }
                 $cart->push($cartItem);
@@ -180,7 +191,21 @@ class PosController extends Controller
         $cart = $request->session()->get('posCart', collect([]));
         $cart = $cart->map(function ($object, $key) use ($request) {
             if($key == $request->key){
-                $object['quantity'] = $request->quantity;
+                $product = \App\Product::find($object['id']);
+                if($object['variant'] != null && $product->variant_product){
+                    $product_stock = $product->stocks->where('variant', $object['variant'])->first();
+                    $quantity = $product_stock->qty;
+                    if($quantity >= $request->quantity){
+                        if($request->quantity >= $product->min_qty){
+                            $object['quantity'] = $request->quantity;
+                        }
+                    }
+                }
+                elseif ($product->current_stock >= $request->quantity) {
+                    if($request->quantity >= $product->min_qty){
+                        $object['quantity'] = $request->quantity;
+                    }
+                }
             }
             return $object;
         });
@@ -310,12 +335,24 @@ class PosController extends Controller
 
                     if($product_variation != null){
                         $product_stock = $product->stocks->where('variant', $product_variation)->first();
-                        $product_stock->qty -= $cartItem['quantity'];
-                        $product_stock->save();
+                        if($cartItem['quantity'] > $product_stock->qty){
+                            $order->delete();
+                            return 0;
+                        }
+                        else {
+                            $product_stock->qty -= $cartItem['quantity'];
+                            $product_stock->save();
+                        }
                     }
                     else {
-                        $product->current_stock -= $cartItem['quantity'];
-                        $product->save();
+                        if ($cartItem['quantity'] > $product->current_stock) {
+                            $order->delete();
+                            return 0;
+                        }
+                        else {
+                            $product->current_stock -= $cartItem['quantity'];
+                            $product->save();
+                        }
                     }
 
                     $order_detail = new OrderDetail;
@@ -357,21 +394,10 @@ class PosController extends Controller
 
                 $order->save();
 
-                //stores the pdf for invoice
-                $pdf = PDF::setOptions([
-                                'isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true,
-                                'logOutputFile' => storage_path('logs/log.htm'),
-                                'tempDir' => storage_path('logs/')
-                            ])->loadView('invoices.customer_invoice', compact('order'));
-                $output = $pdf->output();
-        		file_put_contents('public/invoices/'.'Order#'.$order->code.'.pdf', $output);
-
                 $array['view'] = 'emails.invoice';
-                $array['subject'] = 'Order Placed - '.$order->code;
+                $array['subject'] = 'Your order has been placed - '.$order->code;
                 $array['from'] = env('MAIL_USERNAME');
-                $array['content'] = 'Hi. A new order has been placed. Please check the attached invoice.';
-                $array['file'] = 'public/invoices/Order#'.$order->code.'.pdf';
-                $array['file_name'] = 'Order#'.$order->code.'.pdf';
+                $array['order'] = $order;
 
                 $admin_products = array();
                 $seller_products = array();
@@ -397,6 +423,16 @@ class PosController extends Controller
                     }
                 }
 
+                //sends email to customer with the invoice pdf attached
+                if(env('MAIL_USERNAME') != null){
+                    try {
+                        Mail::to($request->session()->get('pos_shipping_info')['email'])->queue(new InvoiceEmailManager($array));
+                        Mail::to(User::where('user_type', 'admin')->first()->email)->queue(new InvoiceEmailManager($array));
+                    } catch (\Exception $e) {
+
+                    }
+                }
+
                 if($request->user_id != NULL){
                     if (\App\Addon::where('unique_identifier', 'club_point')->first() != null && \App\Addon::where('unique_identifier', 'club_point')->first()->activated) {
                         $clubpointController = new ClubPointController;
@@ -404,14 +440,14 @@ class PosController extends Controller
                     }
                 }
 
-                if (\App\BusinessSetting::where('type', 'category_wise_commission')->first()->value != 1) {
-                    $commission_percentage = \App\BusinessSetting::where('type', 'vendor_commission')->first()->value;
+                if (BusinessSetting::where('type', 'category_wise_commission')->first()->value != 1) {
+                    $commission_percentage = BusinessSetting::where('type', 'vendor_commission')->first()->value;
                     foreach ($order->orderDetails as $key => $orderDetail) {
                         $orderDetail->payment_status = 'paid';
                         $orderDetail->save();
                         if($orderDetail->product->user->user_type == 'seller'){
                             $seller = $orderDetail->product->user->seller;
-                            $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100;
+                            $seller->admin_to_pay = $seller->admin_to_pay - ($orderDetail->price*$commission_percentage)/100;
                             $seller->save();
                         }
                     }
@@ -423,7 +459,7 @@ class PosController extends Controller
                         if($orderDetail->product->user->user_type == 'seller'){
                             $commission_percentage = $orderDetail->product->category->commision_rate;
                             $seller = $orderDetail->product->user->seller;
-                            $seller->admin_to_pay = $seller->admin_to_pay + ($orderDetail->price*(100-$commission_percentage))/100;
+                            $seller->admin_to_pay = $seller->admin_to_pay - ($orderDetail->price*$commission_percentage)/100;
                             $seller->save();
                         }
                     }
@@ -431,17 +467,6 @@ class PosController extends Controller
 
                 $order->commission_calculated = 1;
                 $order->save();
-
-                //sends email to customer with the invoice pdf attached
-                if(env('MAIL_USERNAME') != null){
-                    try {
-                        Mail::to($request->session()->get('pos_shipping_info')['email'])->queue(new InvoiceEmailManager($array));
-                        Mail::to(User::where('user_type', 'admin')->first()->email)->queue(new InvoiceEmailManager($array));
-                    } catch (\Exception $e) {
-
-                    }
-                }
-                unlink($array['file']);
 
                 $request->session()->put('order_id', $order->id);
 

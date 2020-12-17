@@ -3,8 +3,8 @@
         <table class="table table-bordered mb-0 mar-no" cellspacing="0" width="100%">
             <thead>
                 <tr>
-                    <th width="60%">{{translate('Product')}}</th>
-                    <th width="10%">{{translate('QTY')}}</th>
+                    <th width="50%">{{translate('Product')}}</th>
+                    <th width="15%">{{translate('QTY')}}</th>
                     <th>{{translate('Price')}}</th>
                     <th>{{translate('Subtotal')}}</th>
                     <th class="text-right">{{translate('Remove')}}</th>
@@ -39,7 +39,7 @@
                             </td>
                             <td>
                                 <div class="">
-                                    <input type="number" class="form-control text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
+                                    <input type="number" class="form-control px-0 text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
                                 </div>
                             </td>
                             <td>{{ single_price($cartItem['price']) }}</td>

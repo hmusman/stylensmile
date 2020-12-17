@@ -1,4 +1,4 @@
-@extends('frontend.layouts.app')
+@extends('backend.layouts.app')
 
 @section('content')
 
@@ -9,48 +9,36 @@
             <div class="row gutters-10">
                 <div class="col-lg-5">
                     <div class="card">
-                        <div class="card-body">
-                            <div class="mb-2">
+                        <div class="card-header d-block">
+                            <div class="form-group">
                                 <input class="form-control form-control-sm" type="text" name="keyword" placeholder="Search by Product Name/Barcode" onkeyup="filterProducts()">
                             </div>
                             <div class="row gutters-5">
-                                <div class="col-6">
-                                    <div class="">
-                                        <div class="form-group">
-                                            <select name="poscategory" class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
-                                                <option value="">{{ translate('All Categories') }}</option>
-                                                @foreach (\App\Category::all() as $key => $category)
-                                                    <option value="category-{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
-                                                    @foreach ($category->subcategories as $key => $subcategory)
-                                                        <option value="subcategory-{{ $subcategory->id }}">- {{ $subcategory->getTranslation('name') }}</option>
-                                                        @foreach ($subcategory->subsubcategories as $key => $subsubcategory)
-                                                            <option value="subsubcategory-{{ $subsubcategory->id }}">- - {{ $subsubcategory->getTranslation('name') }}</option>
-                                                        @endforeach
-                                                    @endforeach
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6">
+                                    <select name="poscategory" class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
+                                        <option value="">All Categories</option>
+                                        @foreach (\App\Category::all() as $key => $category)
+                                            <option value="category-{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="col-6">
-                                    <div class="">
-                                        <div class="form-group">
-                                            <select name="brand" class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
-                                                <option value="">{{ translate('All Brands') }}</option>
-                                                @foreach (\App\Brand::all() as $key => $brand)
-                                                    <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6">
+                                    <select name="brand"  class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
+                                        <option value="">All Brands</option>
+                                        @foreach (\App\Brand::all() as $key => $brand)
+                                            <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
+                        </div>
+                        <div class="card-body">
                             <div class="aiz-pos-product-list c-scrollbar-light">
                                 <div class="row gutters-5" id="product-list">
 
                                 </div>
                                 <div id="load-more">
-                                    <p class="text-center fs-14 fw-600 p-2 bg-soft-primary c-pointer" onclick="loadMoreProduct()">{{ translate('Load More') }}</p>
+                                    <p class="text-center fs-14 fw-600 p-2 bg-soft-primary c-pointer" onclick="loadMoreProduct()">Load More</p>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +49,7 @@
                         <div class="card-body">
                             <div class="d-flex">
                                 <div class="flex-grow-1">
-                                    <select name="user_id" class="form-control form-control-sm pos-customer aiz-selectpicker" data-live-search="true" onchange="getShippingAddress()">
+                                    <select name="user_id" class="form-control form-control-sm aiz-selectpicker pos-customer" data-live-search="true" onchange="getShippingAddress()">
                                         <option value="">{{translate('Walk In Customer')}}</option>
                                         @foreach (\App\Customer::all() as $key => $customer)
                                             @if ($customer->user)
@@ -76,13 +64,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card mb-3" id="cart-details">
+                    <div class="card mar-btm" id="cart-details">
                         <div class="card-body">
-                            <div class="aiz-pos-cart-list c-scrollbar">
-                                <table class="table aiz-table mb-0" cellspacing="0" width="100%">
+                            <div class="aiz-pos-cart-list c-scrollbar-light">
+                                <table class="table aiz-table mb-0 mar-no" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th width="60%">{{translate('Product')}}</th>
+                                            <th width="50%">{{translate('Product')}}</th>
                                             <th width="15%">{{translate('QTY')}}</th>
                                             <th>{{translate('Price')}}</th>
                                             <th>{{translate('Subtotal')}}</th>
@@ -108,21 +96,23 @@
                                                 <tr>
                                                     <td>
                                                         <span class="media">
-                                                            <img class="mr-3" height="60" src="{{ uploaded_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
+                                                            <div class="media-left">
+                                                                <img class="mr-3" height="60" src="{{ uploaded_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
+                                                            </div>
                                                             <div class="media-body">
                                                                 {{ \App\Product::find($cartItem['id'])->name }} ({{ $cartItem['variant'] }})
                                                             </div>
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <div class="input-group mb-3">
-                                                            <input type="number" class="form-control text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
+                                                        <div class="">
+                                                            <input type="number" class="form-control px-0 text-center" placeholder="1" id="qty-{{ $key }}" value="{{ $cartItem['quantity'] }}" onchange="updateQuantity({{ $key }})" min="1">
                                                         </div>
                                                     </td>
                                                     <td>{{ single_price($cartItem['price']) }}</td>
                                                     <td>{{ single_price($cartItem['price']*$cartItem['quantity']) }}</td>
                                                     <td class="text-right">
-                                                        <button class="btn btn-circle btn-danger btn-xs" type="button" onclick="removeFromCart({{ $key }})">
+                                                        <button type="button" class="btn btn-circle btn-icon btn-sm btn-danger" onclick="removeFromCart({{ $key }})">
                                                             <i class="las la-trash-alt"></i>
                                                         </button>
                                                     </td>
@@ -130,7 +120,7 @@
                                             @empty
                                                 <tr>
                                                     <td colspan="5" class="text-center">
-                                                        <img src="{{ asset('img/nothing-found.jpg') }}" class="img-fit" height="150">
+                                                        <i class="las la-frown la-3x opacity-50"></i>
                                                         <p>{{ translate('No Product Added') }}</p>
                                                     </td>
                                                 </tr>
@@ -141,7 +131,7 @@
                             </div>
                         </div>
                         <div class="card-footer bord-top">
-                            <table class="table aiz-table mb-0" cellspacing="0" width="100%">
+                            <table class="table mb-0 mar-no" cellspacing="0" width="100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center">{{translate('Sub Total')}}</th>
@@ -167,7 +157,7 @@
                         <div class="d-flex justify-content-between">
                             <div class="d-flex">
                                 <div class="dropdown mr-3 dropup">
-                                    <button class="btn btn-outline-primary btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-outline-dark btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
                                         {{translate('Shipping')}}
                                     </button>
                                     <div class="dropdown-menu p-3 dropdown-menu-lg">
@@ -183,7 +173,7 @@
                                     </div>
                                 </div>
                                 <div class="dropdown dropup">
-                                    <button class="btn btn-outline-primary btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <button class="btn btn-outline-dark btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
                                         {{translate('Discount')}}
                                     </button>
                                     <div class="dropdown-menu p-3 dropdown-menu-lg">
@@ -197,7 +187,7 @@
                                 </div>
                             </div>
                             <div class="">
-                                <button type="button" class="btn btn-styled btn-success" data-target="#order-confirm" data-toggle="modal">{{translate('Pay With Cash')}}</button>
+                                <button type="button" class="btn btn-primary" data-target="#order-confirm" data-toggle="modal">{{ translate('Pay With Cash') }}</button>
                             </div>
                         </div>
                     </div>
@@ -214,8 +204,8 @@
     <div id="new-customer" class="modal fade" role="dialog">
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title h6">{{ translate('Shipping Address') }}</h4>
+                <div class="modal-header bord-btm">
+                    <h4 class="modal-title h6">{{translate('Shipping Address')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body" id="shipping_address">
@@ -223,8 +213,8 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal" id="close-button">{{translate('Close')}}</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{translate('Confirm')}}</button>
+                    <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal" id="close-button">{{translate('Close')}}</button>
+                    <button type="button" class="btn btn-primary btn-styled btn-base-1" data-dismiss="modal">{{translate('Confirm')}}</button>
                 </div>
             </div>
         </div>
@@ -254,7 +244,7 @@
                             <div class=" row">
                                 <label class="col-sm-2 control-label" for="email">{{translate('Country')}}</label>
                                 <div class="col-sm-10">
-                                    <select name="country" id="country" class="form-control selectpicker" data-live-search="true" required data-placeholder="{{translate('Select country')}}">
+                                    <select name="country" id="country" class="form-control aiz-selectpicker" required data-placeholder="{{translate('Select country')}}">
                                         @foreach (\App\Country::where('status',1)->get() as $key => $country)
                                             <option value="{{ $country->name }}">{{ $country->name }}</option>
                                         @endforeach
@@ -279,17 +269,17 @@
                             </div>
                         </div>
                         <div class="form-group">
-                                <div class=" row">
-                                    <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
-                                    <div class="col-sm-10">
-                                        <input type="number" min="0" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
-                                    </div>
+                            <div class=" row">
+                                <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
+                                <div class="col-sm-10">
+                                    <input type="number" min="0" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
                                 </div>
                             </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-dismiss="modal">{{translate('Close')}}</button>
-                        <button type="submit" class="btn btn-primary">{{translate('Save')}}</button>
+                        <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal">{{translate('Close')}}</button>
+                        <button type="submit" class="btn btn-primary btn-styled btn-base-1">{{translate('Save')}}</button>
                     </div>
                 </form>
             </div>
@@ -300,27 +290,29 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom modal-lg">
             <div class="modal-content" id="variants">
 
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
 
     <div id="order-confirm" class="modal fade">
         <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
-            <div class="modal-content" id="variants"><div class="modal-header">
+            <div class="modal-content" id="variants">
+                <div class="modal-header bord-btm">
                     <h4 class="modal-title h6">{{translate('Order Confirmation')}}</h4>
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body">
-                    <h4>{{translate('Are you sure to confirm this order?')}}</h4>
+                    <p>{{translate('Are you sure to confirm this order?')}}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">{{translate('Close')}}</button>
-                    <button type="button" onclick="submitOrder('cash')" class="btn btn-primary">{{translate('Comfirm Order')}}</button>
+                    <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal">{{translate('Close')}}</button>
+                    <button type="button" onclick="submitOrder('cash')" class="btn btn-styled btn-base-1 btn-primary">{{translate('Comfirm Order')}}</button>
                 </div>
             </div>
-        </div>
-    </div>
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 @endsection
+
 
 @section('script')
     <script type="text/javascript">
@@ -328,6 +320,7 @@
         var products = null;
 
         $(document).ready(function(){
+            $('#container').removeClass('mainnav-lg').addClass('mainnav-sm');
             $('#product-list').on('click','.product-card',function(){
                 var id = $(this).data('id');
                 $.get('{{ route('variants') }}', {id:id}, function(data){
@@ -369,7 +362,7 @@
                 $('#product-list').append('<div class="col-3">' +
                     '<div class="card bg-light c-pointer mb-2 product-card" data-id="'+data.data[i].id+'" >'+
                         '<span class="absolute-top-left bg-dark text-white px-1">'+data.data[i].price +'</span>'+
-                        '<img src="'+ data.data[i].thumbnail_image +'" class="card-img-top img-fit h-100px mw-100 mx-auto">'+
+                        '<img src="'+ data.data[i].thumbnail_image +'" class="card-img-top img-fit h-100px mw-100 mx-auto" >'+
                         '<div class="card-body p-2">'+
                             '<div class="text-truncate-2 small">'+ data.data[i].name +'</div>'+
                         '</div>'+
@@ -428,7 +421,8 @@
         }
 
         function getShippingAddress(){
-            $.post('{{ route('pos.getShippingAddressForSeller') }}',{_token:'{{ csrf_token() }}', id:$('select[name=user_id]').val()}, function(data){
+
+            $.post('{{ route('pos.getShippingAddress') }}',{_token:'{{ csrf_token() }}', id:$('select[name=user_id]').val()}, function(data){
                 $('#shipping_address').html(data);
             });
         }
@@ -444,7 +438,7 @@
             var user_id = $('select[name=user_id]').val();
             var name = $('input[name=name]').val();
             var email = $('input[name=email]').val();
-            var address = $('input[name=address]').val();
+            var address = $('textarea[name=address]').val();
             var country = $('select[name=country]').val();
             var city = $('input[name=city]').val();
             var postal_code = $('input[name=postal_code]').val();
@@ -453,7 +447,7 @@
             var discount = $('input[name=discount]').val();
             var address = $('input[name=address_id]:checked').val();
 
-            $.post('{{ route('pos.order_place') }}',{_token:'{{ csrf_token() }}', user_id:user_id, name:name, email:email, address:address, country:country, postal_code:postal_code, phone:phone, payment_type:payment_type, shipping:shipping, discount:discount, shipping_address:address }, function(data){
+            $.post('{{ route('pos.order_place') }}',{_token:'{{ csrf_token() }}', user_id:user_id, name:name, email:email, address:address, country:country, city:city, postal_code:postal_code, phone:phone, shipping_address:address, payment_type:payment_type, shipping:shipping, discount:discount}, function(data){
                 if(data == 1){
                     AIZ.plugins.notify('success', '{{ translate('Order Completed Successfully.') }}');
                     location.reload();

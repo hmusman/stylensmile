@@ -3842,7 +3842,7 @@ input[type="number"] {
 /*dropdown*/
 .dropdown-toggle {
     display: -ms-flexbox;
-    display: none;
+    /* display: none; */
     -ms-flex-align: center;
     align-items: center;
 }

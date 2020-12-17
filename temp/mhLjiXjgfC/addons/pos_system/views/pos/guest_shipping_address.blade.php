@@ -26,7 +26,7 @@
     <div class=" row">
         <label class="col-sm-2 control-label" for="email">{{translate('Country')}}</label>
         <div class="col-sm-10">
-            <select name="country" id="country" class="form-control aiz-selectpicker"  data-live-search="true" required data-placeholder="{{translate('Select country')}}">
+            <select name="country" id="country" class="form-control demo-select2" required data-placeholder="{{translate('Select country')}}">
                 @foreach (\App\Country::where('status',1)->get() as $key => $country)
                     <option value="{{ $country->name }}">{{ $country->name }}</option>
                 @endforeach
@@ -58,3 +58,7 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $('.demo-select2').select2();
+</script>

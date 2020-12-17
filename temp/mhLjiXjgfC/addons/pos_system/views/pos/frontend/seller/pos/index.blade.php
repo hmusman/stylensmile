@@ -11,20 +11,20 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="mb-2">
-                                <input class="form-control form-control-sm" type="text" name="keyword" placeholder="Search by Product Name/Barcode" onkeyup="filterProducts()">
+                                <input class="form-control" type="text" name="keyword" placeholder="Search by Product Name/Barcode" onkeyup="filterProducts()">
                             </div>
                             <div class="row gutters-5">
                                 <div class="col-6">
                                     <div class="">
                                         <div class="form-group">
-                                            <select name="poscategory" class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
-                                                <option value="">{{ translate('All Categories') }}</option>
+                                            <select name="poscategory" class="form-control selectpicker" onchange="filterProducts()">
+                                                <option value="">All Categories</option>
                                                 @foreach (\App\Category::all() as $key => $category)
-                                                    <option value="category-{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
+                                                    <option value="category-{{ $category->id }}">{{ $category->name }}</option>
                                                     @foreach ($category->subcategories as $key => $subcategory)
-                                                        <option value="subcategory-{{ $subcategory->id }}">- {{ $subcategory->getTranslation('name') }}</option>
+                                                        <option value="subcategory-{{ $subcategory->id }}">- {{ $subcategory->name }}</option>
                                                         @foreach ($subcategory->subsubcategories as $key => $subsubcategory)
-                                                            <option value="subsubcategory-{{ $subsubcategory->id }}">- - {{ $subsubcategory->getTranslation('name') }}</option>
+                                                            <option value="subsubcategory-{{ $subsubcategory->id }}">- - {{ $subsubcategory->name }}</option>
                                                         @endforeach
                                                     @endforeach
                                                 @endforeach
@@ -35,22 +35,22 @@
                                 <div class="col-6">
                                     <div class="">
                                         <div class="form-group">
-                                            <select name="brand" class="form-control form-control-sm aiz-selectpicker" data-live-search="true" onchange="filterProducts()">
-                                                <option value="">{{ translate('All Brands') }}</option>
+                                            <select name="brand" class="form-control selectpicker" onchange="filterProducts()">
+                                                <option value="">All Brands</option>
                                                 @foreach (\App\Brand::all() as $key => $brand)
-                                                    <option value="{{ $brand->id }}">{{ $brand->getTranslation('name') }}</option>
+                                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="aiz-pos-product-list c-scrollbar-light">
-                                <div class="row gutters-5" id="product-list">
+                            <div class="pos-product c-scrollbar">
+                                <div class="row gutters-10" id="product-list">
 
                                 </div>
                                 <div id="load-more">
-                                    <p class="text-center fs-14 fw-600 p-2 bg-soft-primary c-pointer" onclick="loadMoreProduct()">{{ translate('Load More') }}</p>
+                                    <p class="text-center h5 c-pointer" onclick="loadMoreProduct()">Load More</p>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                         <div class="card-body">
                             <div class="d-flex">
                                 <div class="flex-grow-1">
-                                    <select name="user_id" class="form-control form-control-sm pos-customer aiz-selectpicker" data-live-search="true" onchange="getShippingAddress()">
+                                    <select name="user_id" class="form-control pos-customer" onchange="getShippingAddress()">
                                         <option value="">{{translate('Walk In Customer')}}</option>
                                         @foreach (\App\Customer::all() as $key => $customer)
                                             @if ($customer->user)
@@ -70,16 +70,18 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <button type="button" class="btn btn-icon btn-soft-dark ml-3" data-target="#new-customer" data-toggle="modal">
-									<i class="las la-truck"></i>
-								</button>
+                                <div class="flex-shrink-0 ml-3" data-toggle="tooltip" data-placement="bottom" data-original-title="Shipping Address">
+                                    <button class="btn btn-dark" type="button" data-target="#new-customer" data-toggle="modal">
+                                        <i class="fa fa-truck"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="card mb-3" id="cart-details">
                         <div class="card-body">
-                            <div class="aiz-pos-cart-list c-scrollbar">
-                                <table class="table aiz-table mb-0" cellspacing="0" width="100%">
+                            <div class="pos-cart c-scrollbar">
+                                <table class="table table-bordered mb-0 mar-no" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th width="60%">{{translate('Product')}}</th>
@@ -108,7 +110,7 @@
                                                 <tr>
                                                     <td>
                                                         <span class="media">
-                                                            <img class="mr-3" height="60" src="{{ uploaded_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
+                                                            <img class="mr-3" height="60" src="{{ my_asset(\App\Product::find($cartItem['id'])->thumbnail_img) }}" >
                                                             <div class="media-body">
                                                                 {{ \App\Product::find($cartItem['id'])->name }} ({{ $cartItem['variant'] }})
                                                             </div>
@@ -123,7 +125,7 @@
                                                     <td>{{ single_price($cartItem['price']*$cartItem['quantity']) }}</td>
                                                     <td class="text-right">
                                                         <button class="btn btn-circle btn-danger btn-xs" type="button" onclick="removeFromCart({{ $key }})">
-                                                            <i class="las la-trash-alt"></i>
+                                                            <i class="fa fa-close"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -131,7 +133,7 @@
                                                 <tr>
                                                     <td colspan="5" class="text-center">
                                                         <img src="{{ asset('img/nothing-found.jpg') }}" class="img-fit" height="150">
-                                                        <p>{{ translate('No Product Added') }}</p>
+                                                        <p>No Product Added</p>
                                                     </td>
                                                 </tr>
                                             @endforelse
@@ -141,7 +143,7 @@
                             </div>
                         </div>
                         <div class="card-footer bord-top">
-                            <table class="table aiz-table mb-0" cellspacing="0" width="100%">
+                            <table class="table mb-0 mar-no" cellspacing="0" width="100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center">{{translate('Sub Total')}}</th>
@@ -166,8 +168,8 @@
                     <div class="pos-footer mar-btm">
                         <div class="d-flex justify-content-between">
                             <div class="d-flex">
-                                <div class="dropdown mr-3 dropup">
-                                    <button class="btn btn-outline-primary btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
+                                <div class="dropdown mr-3">
+                                    <button class="btn btn-outline-dark btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
                                         {{translate('Shipping')}}
                                     </button>
                                     <div class="dropdown-menu p-3 dropdown-menu-lg">
@@ -182,16 +184,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="dropdown dropup">
-                                    <button class="btn btn-outline-primary btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-dark btn-styled dropdown-toggle" type="button" data-toggle="dropdown">
                                         {{translate('Discount')}}
                                     </button>
                                     <div class="dropdown-menu p-3 dropdown-menu-lg">
-                                        <div class="input-group">
+                                        <div class="">
                                             <input type="number" min="0" placeholder="Amount" name="discount" class="form-control" value="{{ Session::get('pos_discount', 0) }}" required onchange="setDiscount()">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text">{{ translate('Flat') }}</span>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -207,119 +206,117 @@
     </div>
 </section>
 
-@endsection
-
-@section('modal')
-    <!-- Address Modal -->
-    <div id="new-customer" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title h6">{{ translate('Shipping Address') }}</h4>
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body" id="shipping_address">
+<!-- Address Modal -->
+<div id="new-customer" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title h6">Shipping Address</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="shipping_address">
 
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal" id="close-button">{{translate('Close')}}</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{translate('Confirm')}}</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal" id="close-button">{{translate('Close')}}</button>
+                <button type="button" class="btn btn-styled btn-base-1" data-dismiss="modal">{{translate('Confirm')}}</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- new address modal -->
-    <div id="new-address-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
-            <div class="modal-content">
-                <div class="modal-header bord-btm">
-                    <h4 class="modal-title h6">{{translate('Shipping Address')}}</h4>
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <form class="form-horizontal" action="{{ route('addresses.store') }}" method="POST" enctype="multipart/form-data">
-                	@csrf
-                    <div class="modal-body">
-                        <input type="hidden" name="customer_id" id="set_customer_id" value="">
-                        <div class="form-group">
-                            <div class=" row">
-                                <label class="col-sm-2 control-label" for="address">{{translate('Address')}}</label>
-                                <div class="col-sm-10">
-                                    <textarea placeholder="{{translate('Address')}}" id="address" name="address" class="form-control" required></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class=" row">
-                                <label class="col-sm-2 control-label" for="email">{{translate('Country')}}</label>
-                                <div class="col-sm-10">
-                                    <select name="country" id="country" class="form-control selectpicker" data-live-search="true" required data-placeholder="{{translate('Select country')}}">
-                                        @foreach (\App\Country::where('status',1)->get() as $key => $country)
-                                            <option value="{{ $country->name }}">{{ $country->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class=" row">
-                                <label class="col-sm-2 control-label" for="city">{{translate('City')}}</label>
-                                <div class="col-sm-10">
-                                    <input type="text" placeholder="{{translate('City')}}" id="city" name="city" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class=" row">
-                                <label class="col-sm-2 control-label" for="postal_code">{{translate('Postal code')}}</label>
-                                <div class="col-sm-10">
-                                    <input type="number" min="0" placeholder="{{translate('Postal code')}}" id="postal_code" name="postal_code" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                                <div class=" row">
-                                    <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
-                                    <div class="col-sm-10">
-                                        <input type="number" min="0" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-dismiss="modal">{{translate('Close')}}</button>
-                        <button type="submit" class="btn btn-primary">{{translate('Save')}}</button>
-                    </div>
-                </form>
+<!-- new address modal -->
+<div id="new-address-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom" role="document">
+        <div class="modal-content">
+            <div class="modal-header bord-btm">
+                <h4 class="modal-title h6">{{translate('Shipping Address')}}</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
             </div>
-        </div>
-    </div>
-
-    <div id="product-variation" class="modal fade">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom modal-lg">
-            <div class="modal-content" id="variants">
-
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-
-    <div id="order-confirm" class="modal fade">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
-            <div class="modal-content" id="variants"><div class="modal-header">
-                    <h4 class="modal-title h6">{{translate('Order Confirmation')}}</h4>
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
-                </div>
+            <form class="form-horizontal" action="{{ route('addresses.store') }}" method="POST" enctype="multipart/form-data">
+            	@csrf
                 <div class="modal-body">
-                    <h4>{{translate('Are you sure to confirm this order?')}}</h4>
+                    <input type="hidden" name="customer_id" id="set_customer_id" value="">
+                    <div class="form-group">
+                        <div class=" row">
+                            <label class="col-sm-2 control-label" for="address">{{translate('Address')}}</label>
+                            <div class="col-sm-10">
+                                <textarea placeholder="{{translate('Address')}}" id="address" name="address" class="form-control" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class=" row">
+                            <label class="col-sm-2 control-label" for="email">{{translate('Country')}}</label>
+                            <div class="col-sm-10">
+                                <select name="country" id="country" class="form-control selectpicker" required data-placeholder="{{translate('Select country')}}">
+                                    @foreach (\App\Country::where('status',1)->get() as $key => $country)
+                                        <option value="{{ $country->name }}">{{ $country->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class=" row">
+                            <label class="col-sm-2 control-label" for="city">{{translate('City')}}</label>
+                            <div class="col-sm-10">
+                                <input type="text" placeholder="{{translate('City')}}" id="city" name="city" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class=" row">
+                            <label class="col-sm-2 control-label" for="postal_code">{{translate('Postal code')}}</label>
+                            <div class="col-sm-10">
+                                <input type="number" min="0" placeholder="{{translate('Postal code')}}" id="postal_code" name="postal_code" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                            <div class=" row">
+                                <label class="col-sm-2 control-label" for="phone">{{translate('Phone')}}</label>
+                                <div class="col-sm-10">
+                                    <input type="number" min="0" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">{{translate('Close')}}</button>
-                    <button type="button" onclick="submitOrder('cash')" class="btn btn-primary">{{translate('Comfirm Order')}}</button>
+                    <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal">{{translate('Close')}}</button>
+                    <button type="submit" class="btn btn-primary btn-styled btn-base-1">{{translate('Save')}}</button>
                 </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="product-variation" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom modal-lg">
+        <div class="modal-content" id="variants">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="order-confirm" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-zoom">
+        <div class="modal-content" id="variants"><div class="modal-header">
+                <h4 class="modal-title h6">{{translate('Order Confirmation')}}</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <h4>{{translate('Are you sure to confirm this order?')}}</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-styled btn-base-3" data-dismiss="modal">{{translate('Close')}}</button>
+                <button type="button" onclick="submitOrder('cash')" class="btn btn-styled btn-base-1">{{translate('Comfirm Order')}}</button>
             </div>
         </div>
     </div>
+</div>
+
 @endsection
 
 @section('script')
@@ -367,11 +364,11 @@
         function setProductList(data){
             for (var i = 0; i < data.data.length; i++) {
                 $('#product-list').append('<div class="col-3">' +
-                    '<div class="card bg-light c-pointer mb-2 product-card" data-id="'+data.data[i].id+'" >'+
-                        '<span class="absolute-top-left bg-dark text-white px-1">'+data.data[i].price +'</span>'+
-                        '<img src="'+ data.data[i].thumbnail_image +'" class="card-img-top img-fit h-100px mw-100 mx-auto">'+
-                        '<div class="card-body p-2">'+
-                            '<div class="text-truncate-2 small">'+ data.data[i].name +'</div>'+
+                    '<div class="card product-card bg-gray" data-id="'+data.data[i].id+'" >'+
+                        '<span class="price">'+data.data[i].price +'</span>'+
+                        '<img src="'+ data.data[i].thumbnail_image +'" class="card-img-top img-fit" style="height: 80px">'+
+                        '<div class="card-body">'+
+                            '<div class="text-truncate-2 small" style="height: 28px">'+ data.data[i].name +'</div>'+
                         '</div>'+
                     '</div>'+
                 '</div>');
@@ -455,11 +452,11 @@
 
             $.post('{{ route('pos.order_place') }}',{_token:'{{ csrf_token() }}', user_id:user_id, name:name, email:email, address:address, country:country, postal_code:postal_code, phone:phone, payment_type:payment_type, shipping:shipping, discount:discount, shipping_address:address }, function(data){
                 if(data == 1){
-                    AIZ.plugins.notify('success', '{{ translate('Order Completed Successfully.') }}');
+                    showFrontendAlert('success', 'Order Completed Successfully.');
                     location.reload();
                 }
                 else{
-                    AIZ.plugins.notify('danger', '{{ translate('Something went wrong') }}');
+                    showFrontendAlert('danger', 'Something went wrong');
                 }
             });
         }
