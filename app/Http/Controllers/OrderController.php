@@ -131,8 +131,10 @@ class OrderController extends Controller
     {
          $id = decrypt($id);
         $data = Order::where('id',$id)->first();
+        $orderid = Order::where('id',$id)->value('code');
         $qty = 0;
-        foreach ($data->orderDetails as $item) { $qty+=$item->quantity;}
+        $itemDtls = "";
+        foreach ($data->orderDetails as $item) { $qty+=$item->quantity;  $itemDtls  = $itemDtls ." ". $item->product->name ." (".$item->variation.") ";   }
         $address = json_decode($data->shipping_address);
         $require_data = [
             'account_id'=>13311,
@@ -144,7 +146,10 @@ class OrderController extends Controller
             'delivery_city'=>$address->city,
             'amount'=>intval($data->grand_total),
             'no_of_pieces'=>$qty,
-            'weight'=>$qty*.5
+            'weight'=>$qty*.5,
+            'instructions'=>"Let the customer open on demand.",
+            'reference_number'=>$orderid,
+            'item_detail'=> $itemDtls
         ]; 
         $json_data = json_encode($require_data);  
         $ch = curl_init();
