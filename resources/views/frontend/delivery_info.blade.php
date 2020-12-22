@@ -275,9 +275,6 @@
                         {{ translate('Return to shop')}}
                     </a>
                 </div>
-                <div class="col-lg-4 ml-lg-auto">
-                    @include('frontend.partials.cart_summary')
-                </div>
             </div>
         </div>
     </div>
