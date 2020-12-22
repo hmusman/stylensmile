@@ -269,12 +269,16 @@
                         @endforeach
                     @endif
                 </form>
+
                 <div class="pt-4">
                     <a href="{{ route('home') }}" >
                         <i class="la la-angle-left"></i>
                         {{ translate('Return to shop')}}
                     </a>
                 </div>
+            </div>
+            <div class="col-lg-4 ml-lg-auto">
+                @include('frontend.partials.cart_summary')
             </div>
         </div>
     </div>
