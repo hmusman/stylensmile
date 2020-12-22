@@ -434,7 +434,8 @@ class CheckoutController extends Controller
         } else {
             flash(translate('Invalid coupon!'))->warning();
         }
-        return back();
+        // return back();
+        return view('frontend.delivery_info');
     }
 
     public function remove_coupon_code(Request $request)
