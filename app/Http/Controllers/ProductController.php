@@ -742,4 +742,40 @@ class ProductController extends Controller
         return view('backend.product.products.sku_combinations_edit', compact('combinations', 'unit_price', 'colors_active', 'product_name', 'product'));
     }
 
+    // fb xml feed
+    public function XmlFeed(){
+
+        $products = Product::where('google','Yes')->where('published','=',1)->get();
+        $url     = url('/');
+        // return response()->view('feed',compact('product','url'))->header('Content-Type', 'text/xml');
+        $nsUrl = 'http://base.google.com/ns/1.0';
+
+        $doc = new DOMDocument('1.0', 'UTF-8');
+
+        $rootNode = $doc->appendChild($doc->createElement('rss'));
+        $rootNode->setAttribute('version', '2.0');
+        $rootNode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:g', $nsUrl);
+
+        $channelNode = $rootNode->appendChild($doc->createElement('channel'));
+        $channelNode->appendChild($doc->createElement('title', 'StyleNSmile'));
+        $channelNode->appendChild($doc->createElement('description', 'Best Footwear Store'));
+        $channelNode->appendChild($doc->createElement('link', 'http://stylensmile.pk/'));
+
+        foreach ($products as $key => $product) {
+            $title =  $product->name;
+            $price = $product->unit_price-$product->discount;
+            $price = $price.' PKR';
+            $itemNode = $channelNode->appendChild($doc->createElement('item'));
+
+            $itemNode->appendChild($doc->createElement('g:id'))->appendChild($doc->createTextNode($product->id));
+            $itemNode->appendChild($doc->createElement('g:title'))->appendChild($doc->createTextNode($title));
+            $itemNode->appendChild($doc->createElement('g:link'))->appendChild($doc->createTextNode($url.'/product/'.$product->slug));
+            $itemNode->appendChild($doc->createElement('g:image_link'))->appendChild($doc->createTextNode($url.'/public/'.$product->thumbnail_img));
+            $itemNode->appendChild($doc->createElement('g:price'))->appendChild($doc->createTextNode($price));
+            $itemNode->appendChild($doc->createElement('g:availability'))->appendChild($doc->createTextNode('in stock'));
+            
+        }
+        echo $doc->saveXML();
+    }
+
 }
