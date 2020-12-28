@@ -12,6 +12,7 @@ use Auth;
 use App\SubSubCategory;
 use Session;
 use ImageOptimizer;
+use DOMDocument;
 use DB;
 use CoreComponentRepository;
 use Illuminate\Support\Str;
@@ -770,7 +771,7 @@ class ProductController extends Controller
             $itemNode->appendChild($doc->createElement('g:id'))->appendChild($doc->createTextNode($product->id));
             $itemNode->appendChild($doc->createElement('g:title'))->appendChild($doc->createTextNode($title));
             $itemNode->appendChild($doc->createElement('g:link'))->appendChild($doc->createTextNode($url.'/product/'.$product->slug));
-            $itemNode->appendChild($doc->createElement('g:image_link'))->appendChild($doc->createTextNode($url.'/public/'.$product->thumbnail_img));
+            $itemNode->appendChild($doc->createElement('g:image_link'))->appendChild($doc->createTextNode(uploaded_asset($product->thumbnail_img)));
             $itemNode->appendChild($doc->createElement('g:price'))->appendChild($doc->createTextNode($price));
             $itemNode->appendChild($doc->createElement('g:availability'))->appendChild($doc->createTextNode('in stock'));
             
