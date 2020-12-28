@@ -746,7 +746,7 @@ class ProductController extends Controller
     // fb xml feed
     public function XmlFeed(){
 
-        $products = Product::where('google','Yes')->where('published','=',1)->get();
+        $products = Product::where('published','=',1)->get();
         $url     = url('/');
         // return response()->view('feed',compact('product','url'))->header('Content-Type', 'text/xml');
         $nsUrl = 'http://base.google.com/ns/1.0';
