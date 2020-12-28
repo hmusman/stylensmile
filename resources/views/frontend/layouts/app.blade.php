@@ -17,7 +17,7 @@
     <meta name="robots" content="index, follow">
     <meta name="description" content="@yield('meta_description', get_setting('meta_description') )" />
     <meta name="keywords" content="@yield('meta_keywords', get_setting('meta_keywords') )">
-
+    <meta name="google-site-verification" content="Mje926auMEL3TDMp80mjNpWdrpjj5R6bhsXeVSZkJD8" />
     @yield('meta')
 
     @if(!isset($detailedProduct) && !isset($shop) && !isset($page))
