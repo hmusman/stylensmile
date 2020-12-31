@@ -138,8 +138,12 @@ class OrderController extends Controller
         $address = json_decode($data->shipping_address);
         $require_data = [
             'account_id'=>13311,
-            'api_token'=>'T6ezzT0vGYBRAM4Fg9OGtsiuvugObxT1ijk3lBtKGF1HVgiF9uoP7T65NOuF',
+            'api_token'=>'gWyxe3PvcxxwZpdddgtiwI9A6urK3DzyudLzUiWqUghwg3X0lrzo0MEnDz9o',
             'service_type'=>'COD',
+            'pickup_city'=>"Faisalabad",
+            'pickup_address'=>"25-A, BATALA COLONY, FIRST FLOOR, GOURMET BAKERS NEAR HARDEES FAISALABAD",
+            'pickup_phone'=>"03136650965",
+            'pickup_name'=>"styleNsmile.pk",
             'delivery_name'=>$address->name,
             'delivery_phone'=>$address->phone,
             'delivery_address'=>$address->address,
@@ -163,6 +167,13 @@ class OrderController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
         $result = curl_exec($ch);
+        
+        // print_r($ch);
+
+        // print_r($json_data);
+
+        // return;
+
         if($result)
         {
             $result_obj = json_decode($result);
