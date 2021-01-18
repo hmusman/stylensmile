@@ -134,7 +134,7 @@ class OrderController extends Controller
         $orderid = Order::where('id',$id)->value('code');
         $qty = 0;
         $itemDtls = "";
-        foreach ($data->orderDetails as $item) { $qty+=$item->quantity;  $itemDtls  = $itemDtls ." ". $item->product->name ." (".$item->variation.") ";   }
+        foreach ($data->orderDetails as $item) { $qty+=$item->quantity;  $itemDtls  = $itemDtls ." ". $item->product->name ." (".$item->variation.") & Qty=(".$item->quantity."), ";   }
         $address = json_decode($data->shipping_address);
         $require_data = [
             'account_id'=>13311,
