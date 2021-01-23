@@ -32,7 +32,54 @@
     <meta property="og:price:amount" content="{{ single_price($detailedProduct->unit_price) }}" />
     <meta property="product:price:currency" content="{{ \App\Currency::findOrFail(\App\BusinessSetting::where('type', 'system_default_currency')->first()->value)->code }}" />
     <meta property="fb:app_id" content="{{ env('FACEBOOK_PIXEL_ID') }}">
-
+    @php
+        $total = 0;
+        $total += $detailedProduct->reviews->count();
+    @endphp
+<script type="application/ld+json">
+    {
+      "@context": "http://stylensmile.pk/",
+      "@type": "Product",
+      "name": "{{ $detailedProduct->meta_title }}",
+      "image": [
+        "{{ uploaded_asset($detailedProduct->meta_img) }}",
+        "{{ uploaded_asset($detailedProduct->meta_img) }}",
+        "{{ uploaded_asset($detailedProduct->meta_img) }}"
+       ],
+      "description": "{{ $detailedProduct->meta_description }}",
+      "sku": "{{ $detailedProduct->slug) }}",
+      "brand": {
+        "@type": "Brand",
+        "name": "{{ $detailedProduct->brand->getTranslation('name') }}"
+      },
+      @foreach ($detailedProduct->reviews as $key => $review)
+      "review": {
+        "@type": "Review",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "{{ $review->rating }}",
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "{{ $review->user->name }}"
+        }
+      },
+      @endforeach
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.4",
+        "reviewCount": "{{ $total }}"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "{{ route('product', $detailedProduct->slug) }}",
+        "priceCurrency": "PKR",
+        "price": "{{ single_price($detailedProduct->unit_price) }}",
+        "availability": "InStock"
+      }
+    }
+    </script>
 @endsection
 
 @section('content')
